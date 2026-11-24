@@ -1180,7 +1180,7 @@ public:
                 }
                 auto master = std::span(self.masterScratch_).first(count * 2U);
                 auto cuePcm = std::span(self.cueScratch_).first(count * 2U);
-                capturedCue = canRetain && cue && !replacementPending && count == frames &&
+                capturedCue = canRetain && self.cueRouteOpen() && !replacementPending && count == frames &&
                     (self.renderer_.sourceFrames(0) || self.renderer_.sourceFrames(1));
                 const bool produced = capturedCue ?
                     self.renderer_.captureBuses(master, cuePcm, self.retained_.cueBlock) :
@@ -1230,10 +1230,21 @@ public:
             // The recorder and source clocks already own this render. Reuse
             // its samples at the next valid callback without advancing them.
             self.retained_.clock = clock;
-            self.retained_.includesCue = cue && (resumed ? self.retained_.includesCue : capturedCue);
-            const auto channels = self.retained_.includesCue ? outputs.size() : 2U;
-            for (std::size_t channel = 0; channel < channels; ++channel)
+            self.retained_.includesCue = self.cueRouteOpen() &&
+                (resumed ? self.retained_.includesCue : capturedCue);
+            for (std::size_t channel = 0; channel < 2; ++channel)
                 std::copy_n(outputs[channel], frames, self.retained_.samples[channel].data());
+            // Cue can be rendered even when PipeWire is temporarily missing a
+            // cue buffer. Keep that PCM with its matching master block.
+            if (self.retained_.includesCue && !resumed) {
+                for (std::uint32_t frame = 0; frame < frames; ++frame) {
+                    self.retained_.samples[2][frame] = self.cueScratch_[frame * 2];
+                    self.retained_.samples[3][frame] = self.cueScratch_[frame * 2 + 1];
+                }
+            } else if (self.retained_.includesCue && cue) {
+                for (std::size_t channel = 2; channel < outputs.size(); ++channel)
+                    std::copy_n(outputs[channel], frames, self.retained_.samples[channel].data());
+            }
             self.retained_.valid = true;
         }
         for (std::size_t index = 0; index < 4; ++index) {
