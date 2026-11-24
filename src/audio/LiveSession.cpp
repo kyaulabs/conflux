@@ -1254,10 +1254,6 @@ public:
             }
             self.retained_.valid = true;
         }
-        // An outgoing cue link can change while the mapped copy is in
-        // progress. Withhold both cue extents if their prepared PCM was muted
-        // after copying. Unaffected master output can still be delivered.
-        const bool publishCue = !cue || self.cueRouteOpen();
         for (std::size_t index = 0; index < 4; ++index) {
             if (!buffers[index]) continue;
             auto* buffer = buffers[index];
@@ -1268,7 +1264,10 @@ public:
                     chunk->stride = sizeof(float);
                     chunk->flags = SPA_CHUNK_FLAG_NONE;
                     chunk->size = 0;
-                    if (valid[index] && !expired && (index < 2 || publishCue)) {
+                    // A link notification can close the gate while master
+                    // buffers are being returned. Check each cue extent
+                    // immediately before handing that buffer to PipeWire.
+                    if (valid[index] && !expired && (index < 2 || !cue || self.cueRouteOpen())) {
                         chunk->size = frames * sizeof(float);
                         buffer->size = frames;
                     }
