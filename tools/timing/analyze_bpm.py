@@ -249,16 +249,36 @@ def source_beat_frames(seconds, frames):
     return result
 
 
-def filter_silent_events(seconds, frames, first, last, gaps, gap_starts):
-    decoded = source_beat_frames(seconds, frames)
+def supported_logit_ranges(mask, first, last, gaps):
+    """Keep the original model frame indices when removing silent spans."""
+    tick = RATE // FPS
     margin = SILENCE_MARGIN_FRAMES
-    events = []
-    for time, frame in zip(seconds, decoded):
-        if first - margin <= frame <= last + margin:
-            index = bisect_right(gap_starts, frame) - 1
-            if index < 0 or frame >= gaps[index][1]:
-                events.append(time)
-    return events
+    start = max(0, (first - margin + tick - 1) // tick)
+    stop = min(sum(mask), (last + margin) // tick + 1)
+    for begin, end in gaps:
+        before = min(stop, (begin + tick - 1) // tick)
+        if start < before:
+            yield start, before
+        start = max(start, (end + tick - 1) // tick)
+        if start >= stop:
+            return
+    if start < stop:
+        yield start, stop
+
+
+def decode_source_events(postprocessor, beat, downbeat, mask, first, last, gaps):
+    beats, downbeats = [], []
+    for start, stop in supported_logit_ranges(mask, first, last, gaps):
+        # Peak pooling and nearest-beat matching must stay within the same
+        # supported source span. Passing interior holes as padding would
+        # squeeze the masked frames out of the upstream decoder's clock.
+        local_beats, local_downbeats = postprocessor(beat[start:stop], downbeat[start:stop])
+        if not len(local_beats):
+            continue  # The decoder may emit downbeat peaks without a beat anchor.
+        offset = start / FPS
+        beats.extend(float(time) + offset for time in local_beats)
+        downbeats.extend(float(time) + offset for time in local_downbeats)
+    return beats, downbeats
 
 
 def steady_tempo_period(periods, typical, measured):
@@ -496,19 +516,13 @@ def run(source_dir, model_path, frames, stream):
            x.device.type != "cpu" or not torch.isfinite(x).all().item() for x in (beat, downbeat)):
         raise ValueError("invalid finite source-aligned model logits")
     postprocessor = upstream.Postprocessor(type="minimal", fps=FPS)
-    beats, downbeats = postprocessor(beat, downbeat, padding_mask=torch.tensor(mask, dtype=torch.bool))
-    seconds, down_seconds = [float(x) for x in beats], [float(x) for x in downbeats]
-    if not set(down_seconds).issubset(seconds):
-        raise ValueError("downbeat stream is not a subset of beats")
-    # Work after decoding so a retained timestamp or its bar assignment
-    # stays exactly where the detector put it. Do not infer tempo across a break.
     gaps = interior_silence_cores(stereo, first, last)
     gap_starts = tuple(begin for begin, _ in gaps)
     span = stereo[first:last + 1]
     signal_first = first + dither_edge_length(span)
     signal_last = last - dither_edge_length(span[::-1])
-    seconds = filter_silent_events(seconds, frames, signal_first, signal_last, gaps, gap_starts)
-    down_seconds = filter_silent_events(down_seconds, frames, signal_first, signal_last, gaps, gap_starts)
+    seconds, down_seconds = decode_source_events(postprocessor, beat, downbeat, mask,
+                                                signal_first, signal_last, gaps)
     local_silence = interior_silence_cores(stereo, first, last, MIN_LOCAL_SILENCE)
     bpm, _beat_count = summarize_beats(seconds, frames, gap_starts, silent_cores=local_silence)
     return encode_result(frames, pcm_sha256, bpm, seconds, down_seconds, local_silence)
