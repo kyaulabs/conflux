@@ -22,7 +22,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.stems import service
-from tools.stems.worker import CHANNELS, HOP, RATE, STEMS, WINDOW, StemWorker
+from tools.stems.worker import CHANNELS, HOP, OVERLAP, RATE, STEMS, WINDOW, StemWorker
 
 WORKER_PHASES = ("source_read_ms", "request_ms", "overlap_ms")
 NATIVE_PHASES = ("elapsed_ms", "inference_wall_ms", "inference_cpu_ms", "frontend_ms", "graph_ms",
@@ -600,6 +600,88 @@ class ServiceTest(unittest.TestCase):
         self.assertEqual(harness.close_clean()["outstanding_slots"], 0)
         self.assertTrue(replacement.closed)
         self.assertFalse(any(event.get("event") in ("chunk", "error") for event in harness.remaining()))
+
+    def test_repeat_seek_serves_completed_obsolete_window_while_native_request_waits(self):
+        entered = {index: threading.Event() for index in (2, 3)}
+        release = {index: threading.Event() for index in entered}
+
+        class Backend:
+            def __init__(self, blocked):
+                self.blocked = blocked
+                self.calls = []
+                self.closed = False
+
+            def start(self):
+                return ready("vulkan", 2)
+
+            def infer(self, samples, request_id):
+                self.calls.append(request_id)
+                if self.blocked and request_id in entered:
+                    entered[request_id].set()
+                    if not release[request_id].wait(6):
+                        raise TimeoutError("test did not release native inference")
+                return np.stack((samples, -samples, samples[:, ::-1], samples * np.float32(0.25))), {
+                    "elapsed_ms": 1.0}
+
+            def close(self):
+                self.closed = True
+
+            def abort(self):
+                for pending in release.values():
+                    pending.set()
+
+        def start_service(backend):
+            def worker_factory(*args, **kwargs):
+                kwargs["_backend_factory"] = lambda *_: backend
+                return StemWorker(*args, **kwargs)
+
+            harness = Harness(self, frames=3 * HOP + 137, worker_factory=worker_factory).start()
+            harness.event("ready")
+            loaded = harness.event("accepted", identifier=harness.send("load", frame=0))
+            harness.event("runtime")
+            first = harness.event("chunk")
+            self.assertEqual((first["generation"], first["frame_start"], first["frames"]),
+                             (loaded["generation"], 0, HOP))
+            harness.event("accepted", identifier=harness.ack(first))
+            return harness, loaded, first
+
+        offset = HOP + OVERLAP
+        reference, _, _ = start_service(Backend(False))
+        second = reference.event("chunk")
+        self.assertEqual((second["frame_start"], second["frames"]), (HOP, HOP))
+        samples = np.fromfile(reference.directory / second["file"], dtype="<f4").reshape(4, HOP, CHANNELS)
+        expected = samples[:, OVERLAP:].tobytes()
+        reference.event("accepted", identifier=reference.ack(second))
+        reference.close_clean()
+
+        backend = Backend(True)
+        try:
+            harness, loaded, first = start_service(backend)
+            self.assertTrue(entered[2].wait(3))
+            farther = harness.event("accepted", identifier=harness.send("seek", frame=2 * HOP + OVERLAP))
+            release[2].set()
+            self.assertTrue(entered[3].wait(3))
+
+            latest = harness.event("accepted", identifier=harness.send("seek", frame=offset))
+            chunk = harness.event("chunk", timeout=2)
+            self.assertEqual([loaded["generation"], farther["generation"], latest["generation"]],
+                             [1, 2, 3])
+            self.assertEqual((chunk["generation"], chunk["frame_start"], chunk["frames"]),
+                             (latest["generation"], offset, HOP - OVERLAP))
+            self.assertEqual((chunk["source_id"], chunk["model_id"]), (first["source_id"], first["model_id"]))
+            self.assertGreater(chunk["sequence"], first["sequence"])
+            self.assertEqual(chunk["request_id"], 2)
+            self.assertTrue(chunk["inference_reused"])
+            self.assertNotIn("native_timings", chunk)
+            self.assertEqual(backend.calls, [1, 2, 3])
+            self.assertFalse(release[3].is_set())
+            self.assertEqual((harness.directory / chunk["file"]).read_bytes(), expected)
+            self.assertEqual(chunk["sha256"], hashlib.sha256(expected).hexdigest())
+            harness.event("accepted", identifier=harness.ack(chunk))
+            self.assertEqual(harness.close_clean()["outstanding_slots"], 0)
+            self.assertTrue(backend.closed)
+        finally:
+            backend.abort()
 
     def test_exact_eof_completes_before_obsolete_native_inference(self):
         entered, release = threading.Event(), threading.Event()
