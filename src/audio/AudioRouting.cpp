@@ -42,6 +42,11 @@ std::optional<RoutePair> validatePair(const RoutingSnapshot& snapshot, const Rou
     if (!left) return {};
     const auto* right = find(selected.right);
     if (!right) return {};
+    if (left->unavailable || right->unavailable) {
+        missing = true;
+        error = "Selected playback port is unavailable; select it again";
+        return {};
+    }
     if (!isPlaybackPort(*left) || !isPlaybackPort(*right)) {
         error = "Select mono audio playback inputs of an Audio/Sink, excluding monitor ports";
         return {};
@@ -62,7 +67,7 @@ std::optional<RoutePair> defaultPair(const RoutingSnapshot& snapshot, std::strin
     const PortIdentity* left = nullptr;
     const PortIdentity* right = nullptr;
     for (const auto& port : snapshot.playbackPorts) {
-        if (port.nodeName != snapshot.defaultSinkName || !isPlaybackPort(port)) continue;
+        if (port.nodeName != snapshot.defaultSinkName || !isPlaybackPort(port) || port.unavailable) continue;
         auto** target = port.channel == "FL" ? &left : port.channel == "FR" ? &right : nullptr;
         if (!target) continue;
         if (*target) {
