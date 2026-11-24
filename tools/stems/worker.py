@@ -878,8 +878,7 @@ class StemWorker:
             # The next seek can share this window while validation runs
             # outside the condition lock.
             if (self._closed or self._source_generation != pending.command.source_generation
-                    or self._weighted_window_locked(start) is not None
-                    or (start and len(self._weighted_windows) >= _SEEK_CACHE_WINDOWS)):
+                    or self._weighted_window_locked(start) is not None):
                 return
         if output.shape != (len(STEMS), WINDOW, CHANNELS) or not np.isfinite(output).all():
             return
@@ -887,9 +886,19 @@ class StemWorker:
         with self._condition:
             if self._closed or self._source_generation != pending.command.source_generation:
                 return
+            if start and len(self._weighted_windows) >= _SEEK_CACHE_WINDOWS:
+                latest = self._command
+                if latest is None or latest.start >= source.frames:
+                    return
+                first = _first_contributing_window(latest.start) * HOP
+                target = latest.start // HOP * HOP
+                if not first <= start <= target:
+                    return
+                # Preserve any cached window needed to assemble the first hop.
+                evict = next(window for window in self._weighted_windows if not first <= window <= target)
+                del self._weighted_windows[evict]
             self._remember_window_locked(start, source, pending.event["request_id"], weighted)
-            # Unpublished work can use spare space, but should be the first
-            # to leave when a normally published window needs that space.
+            # Give unconsumed work lower priority than normally published windows.
             if start:
                 self._weighted_windows.move_to_end(start, last=False)
 

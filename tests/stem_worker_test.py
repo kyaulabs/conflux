@@ -868,6 +868,73 @@ class WorkerTest(unittest.TestCase):
                 finally:
                     worker.close(timeout=0.05)
 
+    def test_return_seek_can_reuse_completed_window_with_all_cache_slots_full(self):
+        raw = self.root / "full-seek-cache.f32"
+        audio = fixture(self.root / "full-seek-cache.wav", 6 * HOP + OVERLAP + 137)
+        audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        continuous = self.collect(reference, reference.load_f32(raw))
+
+        for action in ("return_before_validation", "return_during_validation", "continue_away"):
+            with self.subTest(action=action):
+                worker, backend = self.worker(FakeRuntime(blocked=True), max_ready=1)
+                try:
+                    initial = worker.load_f32(raw)
+                    for call in range(1, 5):
+                        self.assertTrue(backend.wait_call(call))
+                        backend.release()
+                        self.event(worker, "chunk", initial)
+                    self.assertTrue(backend.wait_call(5))
+                    with worker._condition:
+                        self.assertEqual(set(worker._weighted_windows), {HOP, 2 * HOP, 3 * HOP})
+
+                    entered, resume = threading.Event(), threading.Event()
+                    remember = worker._remember_superseded_seek_window
+                    finite = np.isfinite
+
+                    def pause_validation():
+                        entered.set()
+                        if not resume.wait(3):
+                            raise TimeoutError("test did not release the superseded reply")
+
+                    def wait_during_validation(samples):
+                        pause_validation()
+                        return finite(samples)
+
+                    def handoff(command, pending, output):
+                        if action == "return_during_validation":
+                            with patch("tools.stems.worker.np.isfinite", wait_during_validation):
+                                return remember(command, pending, output)
+                        pause_validation()
+                        return remember(command, pending, output)
+
+                    with patch.object(worker, "_remember_superseded_seek_window", side_effect=handoff):
+                        try:
+                            worker.seek(6 * HOP + OVERLAP)
+                            backend.release()
+                            self.assertTrue(entered.wait(2), "superseded reply did not reach validation")
+                            index = 4
+                            if action != "continue_away":
+                                generation = worker.seek(index * HOP)
+                        finally:
+                            resume.set()
+                        if action == "continue_away":
+                            self.assertTrue(backend.wait_call(6))
+                            with worker._condition:
+                                self.assertEqual(set(worker._weighted_windows), {HOP, 2 * HOP, 3 * HOP})
+                            index = 1
+                            generation = worker.seek(index * HOP)
+                        chunk = self.event(worker, "chunk", generation, timeout=1)
+
+                    self.assertEqual((chunk["request_id"], chunk["frame_start"]), (index + 1, index * HOP))
+                    self.assertIs(chunk["inference_reused"], True)
+                    np.testing.assert_array_equal(chunk["samples"], continuous[index]["samples"])
+                    if action != "continue_away":
+                        with worker._condition:
+                            self.assertEqual(set(worker._weighted_windows), {2 * HOP, 3 * HOP, 4 * HOP})
+                finally:
+                    worker.close(timeout=0.05)
+
     def test_seek_retains_active_target_while_filling_missing_preroll(self):
         raw = self.root / "seek-active-target-uncached-preroll.f32"
         self.audio.astype("<f4").tofile(raw)
