@@ -640,10 +640,18 @@ void DeckController::catalogFinished()
     auto result = catalogJob_.result();
     libraryError_ = result.error;
     if (result.error.isEmpty()) {
+        decltype(bpmOverrides_) previousSavedBpm{};
+        for (std::size_t deck = 0; deck < sourceIds_.size(); ++deck) {
+            if (const auto* track = cataloguedDeck(deck))
+                previousSavedBpm[deck] = track->manualBpm;
+        }
         libraryEntries_ = std::move(result.tracks);
         for (std::size_t deck = 0; deck < sourceIds_.size(); ++deck) {
             const auto* track = cataloguedDeck(deck);
-            if (track && (track->sourceSha256 == result.editedBpmSource || !bpmOverrides_[deck]))
+            // Keep a temporary deck reference until the saved value changes
+            // or this controller explicitly saves or clears the reference.
+            if (track && (track->manualBpm != previousSavedBpm[deck] ||
+                          track->sourceSha256 == result.editedBpmSource || !bpmOverrides_[deck]))
                 bpmOverrides_[deck] = track->manualBpm;
         }
         libraryTracks_.clear();

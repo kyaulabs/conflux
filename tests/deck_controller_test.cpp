@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "ui/DeckController.hpp"
 #include "ui/LocalTiming.hpp"
+#include "library/LibraryCatalog.hpp"
 #include "library/LiveStemObservations.hpp"
 #include "StemExportFixture.hpp"
 #include "StemServiceFixture.hpp"
@@ -1381,6 +1382,56 @@ private slots:
         QTRY_VERIFY_WITH_TIMEOUT(!reopened.busy(), 5000);
         QVERIFY(reopened.decks()[0].toMap()["loaded"].toBool());
         QVERIFY(!bpm(reopened, 0)["manual"].toBool());
+    }
+
+    void libraryRefreshUpdatesSavedBpmOnBothLoadedDecks()
+    {
+        QTemporaryDir directory, runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        isolateLiveController(directory.path(), runtime.path());
+        const auto path = directory.filePath("refresh-reference.wav");
+        const auto url = QUrl::fromLocalFile(path);
+        constexpr uint32_t frames = 24000;
+        QVERIFY(writeWave(path, 2, 48000, frames));
+
+        conflux::DeckController controller;
+        QTRY_VERIFY_WITH_TIMEOUT(controller.libraryReady(), 5000);
+        controller.loadDeck(0, url);
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QVERIFY(controller.decks()[0].toMap()["loaded"].toBool());
+        const auto bpm = [&](int deck) { return controller.decks()[deck].toMap()["bpm"].toMap(); };
+        controller.setBpmOverride(0, 127.);
+        for (int import = 0; import < 2; ++import) {
+            controller.importTrack(url);
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+            QCOMPARE(controller.preparation()["status"].toString(), QString("Complete"));
+            QCOMPARE(bpm(0)["reference"].toDouble(), 127.);
+        }
+        QCOMPARE(controller.libraryTracks().size(), qsizetype(1));
+        const auto source = controller.libraryTracks().front().toMap()["id"].toString();
+        controller.loadLibraryTrack(1, source);
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QVERIFY(controller.decks()[1].toMap()["loaded"].toBool());
+        QVERIFY(!bpm(1)["manual"].toBool());
+        const auto commands = controller.submittedCommands();
+
+        // Another writer may commit between this controller's catalog saves.
+        conflux::library::LibraryCatalog catalog(
+            QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/library.json");
+        for (const auto expected : {std::optional<double>{128.4}, std::optional<double>{126.2},
+                                   std::optional<double>{}}) {
+            catalog.updateManualBpm(source, frames, expected);
+            controller.importTrack(url);
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+            QCOMPARE(controller.preparation()["status"].toString(), QString("Complete"));
+            for (int deck = 0; deck < 2; ++deck) {
+                QCOMPARE(controller.decks()[deck].toMap()["sourceId"].toString(), source);
+                QCOMPARE(bpm(deck)["manual"].toBool(), expected.has_value());
+                QCOMPARE(bpm(deck)["reference"].toDouble(), expected.value_or(0.));
+            }
+            QCOMPARE(controller.submittedCommands(), commands);
+        }
     }
 
     void legacyLevelsStayUnknownOnLoadAndRefreshOnReimport()
