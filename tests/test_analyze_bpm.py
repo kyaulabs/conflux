@@ -122,17 +122,40 @@ class AnalyzeBpmTest(unittest.TestCase):
         gaps = bpm.interior_silence_cores(stereo, 0, frames - 1)
         self.assertEqual(gaps, [(begin, end)])
         times = [frame / bpm.RATE for frame in (begin - 1, begin, end - 1, end)]
-        keep = bpm.filter_silent_events(times, frames, 0, frames - 1, gaps, (begin,))
-        self.assertEqual(keep, [times[0], times[3]])
+        tick = bpm.RATE // bpm.FPS
+        mask = (True,) * ((frames + tick - 1) // tick) + (False,)
+        ranges = list(bpm.supported_logit_ranges(mask, 0, frames - 1, gaps))
+        kept = [index for first, last in ranges for index in range(first, last)]
+        self.assertEqual(kept, [i for i in range(sum(mask)) if not begin <= i * tick < end])
+        keep = [times[0], times[3]]
         self.assertEqual(bpm.summarize_beats(keep, frames, (begin,)), (None, 2))
         self.assertEqual(bpm.summarize_beats([0., .5, times[3]], frames, (begin,)), (120., 3))
         with self.assertRaisesRegex(ValueError, "distinct increasing"):
-            bpm.filter_silent_events([times[1], times[1]], frames, 0, frames - 1, gaps, (begin,))
+            bpm.source_beat_frames([times[1], times[1]], frames)
 
         # Even one quiet nonzero sample breaks exact digital silence; the
         # revised gap is now one frame shorter than the supported cutoff.
         stereo[left_end, 1] = 1e-12
         self.assertEqual(bpm.interior_silence_cores(stereo, 0, frames - 1), [])
+
+    def test_silence_separates_decoder_regions_without_shifting_their_source_clock(self):
+        frames = 12 * bpm.RATE
+        tick = bpm.RATE // bpm.FPS
+        indices = list(range(601))
+        surfaces = [(150 * tick, 300 * tick), (350 * tick, 450 * tick)]
+        responses = iter([([.5, 1.], [1.]), ([], [.2]), ([.5], [.5])])
+        slices = []
+
+        def postprocessor(beat_scores, downbeat_scores):
+            self.assertEqual(beat_scores, downbeat_scores)
+            slices.append((beat_scores[0], beat_scores[-1]))
+            return next(responses)
+
+        times, downbeats = bpm.decode_source_events(postprocessor, indices, indices,
+            (True,) * 600 + (False,), 0, frames - 1, surfaces)
+        self.assertEqual(slices, [(0, 149), (300, 349), (450, 599)])
+        self.assertEqual(bpm.source_beat_frames(times, frames), [24000, 48000, 456000])
+        self.assertEqual(bpm.source_beat_frames(downbeats, frames), [48000, 456000])
 
     def test_dither_between_active_passages_leaves_quiet_music_supported(self):
         import numpy as np
