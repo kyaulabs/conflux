@@ -773,6 +773,7 @@ class StemWorker:
             if not keep_pending:
                 self._retire_inference_locked(event["request_id"])
         if owner != command and not adopt:
+            self._remember_superseded_seek_window(command, pending, output)
             self._emit("discarded", owner.generation, request_id=event["request_id"],
                        source_id=event["source_id"], window_start_frame=event["window_start_frame"],
                        request_ms=elapsed)
@@ -866,6 +867,28 @@ class StemWorker:
         self._weighted_windows.move_to_end(start)
         if len(self._weighted_windows) > _SEEK_CACHE_WINDOWS:
             self._weighted_windows.popitem(last=False)
+
+    def _remember_superseded_seek_window(self, command, pending, output):
+        source = pending.source
+        start = pending.event["window_start_frame"]
+        if (command is None or source.source_format != "f32le" or source is not self._cached_source
+                or command.source_generation != pending.command.source_generation):
+            return
+        with self._condition:
+            if (self._closed or self._command != command or self._weighted_window_locked(start) is not None
+                    or (start and len(self._weighted_windows) >= _SEEK_CACHE_WINDOWS)):
+                return
+        if output.shape != (len(STEMS), WINDOW, CHANNELS) or not np.isfinite(output).all():
+            return
+        weighted = output * _WEIGHT[None, :, None]
+        with self._condition:
+            if self._closed or self._command != command:
+                return
+            self._remember_window_locked(start, source, pending.event["request_id"], weighted)
+            # Unpublished work can use spare space, but should be the first
+            # to leave when a normally published window needs that space.
+            if start:
+                self._weighted_windows.move_to_end(start, last=False)
 
     def _produce(self, command, source, retained_service=None):
         if command.start >= source.frames:
