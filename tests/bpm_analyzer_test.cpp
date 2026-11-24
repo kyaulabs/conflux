@@ -956,6 +956,52 @@ private slots:
         QCOMPARE(offGrid->bpm, measuredBpm(0));
     }
 
+    void localTempoAveragesSteadyRunsOnEachSideOfAnUnmeasuredBreak()
+    {
+        library::BpmEstimate estimate;
+        estimate.analysisFrames = 800000;
+        estimate.bpm = 144.;
+        const auto addRun = [&estimate](std::uint32_t start, std::uint32_t period, bool interrupted) {
+            for (std::uint32_t index = 0; index < 12; ++index) {
+                const auto frame = ((start + index * period + 480U) / 960U) * 960U;
+                estimate.beats.push_back({frame, index % 4 == 0, interrupted && index == 0});
+            }
+        };
+        addRun(48000, 20000, false);  // 144 BPM observed on a 50 Hz grid.
+        addRun(394240, 21333, true);  // About 135 BPM after an unmeasured break.
+        const auto timing = library::BpmTiming(estimate);
+        for (std::size_t index = 0; index + 1 < estimate.beats.size(); ++index) {
+            const auto first = estimate.beats[index].frame;
+            const auto end = estimate.beats[index + 1].frame;
+            if (estimate.beats[index + 1].unmeasuredBefore) {
+                QVERIFY(!timing.at(first));
+                QVERIFY(!timing.at(end - 1));
+                continue;
+            }
+            const auto interval = timing.at(first);
+            QVERIFY(interval);
+            QCOMPARE(interval->firstFrame, first);
+            QCOMPARE(interval->endFrame, end);
+            const auto expected = index < 11 ? 144. : 135.;
+            QVERIFY2(std::abs(interval->bpm - expected) < .6,
+                     qPrintable(QString("Beat %1 reported %2 BPM, expected %3")
+                         .arg(index).arg(interval->bpm).arg(expected)));
+            const auto direct = library::localTempoAt(estimate, end - 1);
+            QVERIFY(direct);
+            QCOMPARE(direct->bpm, interval->bpm);
+        }
+        QCOMPARE(timing.estimate().bpm, estimate.bpm);
+
+        // A shorter audible run cannot borrow beats across either gap.
+        estimate.beats[5].unmeasuredBefore = true;
+        const auto first = estimate.beats[9].frame;
+        const auto next = estimate.beats[10].frame;
+        const auto shortRun = library::localTempoAt(estimate, first);
+        QVERIFY(shortRun);
+        QCOMPARE(shortRun->bpm, 60. * 48000. / double(next - first));
+        QVERIFY(!library::localTempoAt(estimate, estimate.beats[4].frame));
+    }
+
     void localTempoReportsUnknownWhereTheWorkerWithholdsSupport()
     {
         Fixture fixture("support-good", 172800);

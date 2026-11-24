@@ -580,11 +580,22 @@ double steadyLocalPeriod(const std::vector<BpmBeat>& beats, std::size_t interval
     constexpr std::uint32_t modelTick = 48000U / 50U;
     if (beats.size() <= intervals) return adjacent;
 
-    const std::size_t start = std::min(interval > before ? interval - before : 0, beats.size() - intervals - 1);
+    // Shift the usual window away from confirmed breaks while keeping the
+    // queried interval and the full ten intervals of supporting evidence.
+    const auto leftLimit = interval >= intervals - 1 ? interval - (intervals - 1) : 0;
+    const auto rightLimit = std::min(beats.size() - 1, interval + intervals);
+    auto left = interval;
+    auto right = interval + 1;
+    while (left > leftLimit && !beats[left].unmeasuredBefore) --left;
+    while (right < rightLimit && !beats[right + 1].unmeasuredBefore) ++right;
+    if (right - left < intervals) return adjacent;
+
+    const auto preferred = interval > before ? interval - before : 0;
+    const auto start = std::clamp(preferred, left, right - intervals);
     const auto* first = beats.data() + start;
     for (std::size_t i = 1; i <= intervals; ++i) {
         const auto period = first[i].frame - first[i - 1].frame;
-        if (first[i].unmeasuredBefore || period < minimumTempoPeriod || period > maximumTempoPeriod ||
+        if (period < minimumTempoPeriod || period > maximumTempoPeriod ||
             (first[i].frame - first[0].frame) % modelTick != 0)
             return adjacent;
     }
