@@ -10,6 +10,7 @@
 #include <QCryptographicHash>
 #include <QDataStream>
 #include <QDir>
+#include <QEvent>
 #include <QEventLoop>
 #include <QFile>
 #include <QJsonArray>
@@ -3439,6 +3440,53 @@ int main(int argc, char** argv)
         controller.setPlaying(0, true);
         wait([&] { return controller.audioState().playing[0] && controller.audioState().sourceFrame[0] >= 4096; },
              "A transport did not advance");
+        require(QThreadPool::globalInstance()->waitForDone(8000),
+                "Drain earlier workers before ordering recording and output installation");
+        for (const bool stopWhileInstalling : {false, true}) {
+            const auto name = stopWhileInstalling ? "generated-reroute-recording-stop.wav" :
+                                                  "generated-reroute-recording-start.wav";
+            const auto path = QString::fromStdString((output / name).string());
+            const auto sessions = controller.completedSessions();
+            controller.startRecording(QUrl::fromLocalFile(path));
+            {
+                // The WAV open completes first. Block the next global pool
+                // job (installation), then deliver the open acknowledgment.
+                RetirementGate installerGate;
+                controller.configureAudioRouting(left, right, {}, {});
+                QCoreApplication::sendPostedEvents(nullptr, QEvent::FutureCallOut);
+                const auto starting = controller.recording();
+                require(controller.busy() && !controller.outputReady() && QFile::exists(path) &&
+                        starting["status"].toString() == "Starting" && starting["active"].toBool() &&
+                        starting["acceptedFrames"].toULongLong() == 0,
+                        "Recording open stays pending while the output rebuild is in flight");
+                if (stopWhileInstalling) controller.stopRecording();
+            }
+            wait([&] {
+                return !controller.busy() && controller.outputReady() && controller.audioState().playing[0];
+            }, "Playback did not resume after the recording-start route rebuild");
+            if (!stopWhileInstalling) {
+                wait([&] {
+                    const auto recording = controller.recording();
+                    return recording["status"].toString() == "Recording" &&
+                        recording["acceptedFrames"].toULongLong() >= 1024;
+                }, "Pending recording did not attach to the rebuilt output");
+                controller.stopRecording();
+            }
+            wait([&] { return !controller.recording()["active"].toBool(); },
+                 "Recording started during rebuild did not finalize");
+            const auto recording = controller.recording();
+            const auto frames = recording["writtenFrames"].toULongLong();
+            require(controller.completedSessions() == sessions + 1 &&
+                    recording["status"].toString() == "Complete" && recording["error"].toString().isEmpty() &&
+                    recording["acceptedFrames"].toULongLong() == frames &&
+                    recording["overflowFrames"].toULongLong() == 0,
+                    "Recording during rebuild drains cleanly on explicit stop");
+            require(stopWhileInstalling ? frames == 0 : frames >= 1024,
+                    "Stop during rebuild writes no audio and a requested recording captures resumed playback");
+        }
+        const auto resumedFrame = controller.audioState().sourceFrame[0];
+        wait([&] { return controller.audioState().sourceFrame[0] >= resumedFrame + 1024; },
+             "Wait for the final route restart envelope to finish");
         sink.validate(true);
         wait([&] { return sink.received(0) >= 1024 && sink.received(1) >= 1024; }, "Steady private samples did not arrive");
         require(sinkMatches(), "Steady A sink samples match outside functional-only mode");

@@ -2828,7 +2828,9 @@ void DeckController::recordingStarted()
         recordingError_ = result.error;
         recordingStatus_ = "Failed";
     } else {
-        if (!session_ || !ready_) recordingStopRequested_ = true;
+        // A route rebuild can finish opening the writer between sessions.
+        // The installer will attach it, or request a stop if the new output fails.
+        if (!session_ && !installationPending_) recordingStopRequested_ = true;
         pollRecording();
     }
     notifyStateChanged();
