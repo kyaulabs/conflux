@@ -845,7 +845,10 @@ class StemWorker:
             for index in range(_first_contributing_window(command.start), target + 1):
                 start = index * HOP
                 window = self._weighted_window_locked(start)
-                if window is None or window[0] is not source:
+                # A completed target may be parked while a now obsolete
+                # preroll is still in flight. It can supply this seek directly.
+                if ((window is None or window[0] is not source)
+                        and not self._matches_window(self._retained_target, command, source, start)):
                     cached_prefix = False
                     if self._matches_window(self._pending_inference, command, source, start):
                         return False, True

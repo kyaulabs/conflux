@@ -996,8 +996,17 @@ class WorkerTest(unittest.TestCase):
                 if description == "after cancellation":
                     worker.cancel()
                 final_seek = worker.seek(frame)
-                fake.release(4)
-                first, tail = self.collect(worker, final_seek)
+                if description == "past overlap":
+                    # The parked target is complete, and this seek no longer
+                    # needs the in-flight preroll. Require exact audio before
+                    # the obsolete native request is allowed to finish.
+                    first = self.event(worker, "chunk", final_seek, timeout=1)
+                    self.assertEqual(fake.calls, 2)
+                    fake.release(4)
+                    tail, = self.collect(worker, final_seek)
+                else:
+                    fake.release(4)
+                    first, tail = self.collect(worker, final_seek)
 
                 self.assertEqual((first["request_id"], first["frame_start"]), (expected_request, frame))
                 self.assertEqual(first["metrics"]["id"], expected_request)
