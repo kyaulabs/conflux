@@ -47,6 +47,10 @@ def _first_contributing_window(frame):
     return window - 1 if window and offset < OVERLAP else window
 
 
+def _window_contributes_to_seek(window, frame):
+    return _first_contributing_window(frame) <= window <= frame // HOP
+
+
 class NativeRuntime:
     """Bounded JSONL/raw-file bridge to tools/runtime/htdemucs_segment.cpp."""
 
@@ -423,9 +427,10 @@ class StemWorker:
                 self._opening_weighted_window = None
                 self._weighted_windows.clear()
                 self._retained_target = None
-            elif (self._retained_target is not None
-                  and self._retained_target.event["window_start_frame"] != start // HOP * HOP):
-                self._retained_target = None
+            elif self._retained_target is not None:
+                retained_window = self._retained_target.event["window_start_frame"] // HOP
+                if not _window_contributes_to_seek(retained_window, start):
+                    self._retained_target = None
             if action == "cancel":
                 self._cancelled += 1
             now = time.monotonic()
@@ -943,13 +948,14 @@ class StemWorker:
             else:
                 pending = self._pending_inference
                 if preroll and self._matches_window(pending, command, source, target_window * HOP):
-                    # Release the native exchange for preroll, while keeping
-                    # the completed target across seeks within its window.
+                    # Release the native exchange for preroll. A newer seek
+                    # can still use this reply as its target or overlap.
                     self._wait_inference(command, adopt=True)
                     with self._condition:
                         latest = self._command
                         if (self._closed or latest is None or latest.source_generation != command.source_generation
-                                or latest.start // HOP != target_window):
+                                or latest.start >= source.frames
+                                or not _window_contributes_to_seek(target_window, latest.start)):
                             raise _Superseded
                         self._retained_target = pending
                 output, metrics, elapsed, request_id, source_read_ms = self._inference_for_window(
