@@ -1713,6 +1713,51 @@ void runLiveStemController(const std::filesystem::path& output, const QString& p
             "Live controller finalizes every accepted master frame with healthy live source and no overflow");
     const auto wav = inspectStemRecording(recordingPath, prefixFrames, recording["writtenFrames"].toULongLong());
     sink.validate(false);
+
+    QJsonArray rebuiltTempo;
+    constexpr auto requestedTempo = 5.123;
+    for (const bool keyLock : {false, true}) {
+        if (controller.audioState().tempo[0].keyLock != keyLock) controller.toggleMasterTempo(0);
+        controller.setTempoPercent(0, requestedTempo);
+        wait([&] {
+            const auto state = controller.audioState();
+            return state.playing[0] && !state.buffering[0] && state.tempo[0].keyLock == keyLock &&
+                state.tempo[0].appliedPercent == requestedTempo &&
+                state.sourcePosition[0] != double(state.sourceFrame[0]);
+        }, "Live tempo did not reach a fractional source position");
+        controller.setPlaying(0, false);
+        wait([&] { return !controller.audioState().playing[0]; }, "Live tempo did not pause");
+        const auto before = controller.audioState();
+        require(before.tempo[0].active && before.sourcePosition[0] != double(before.sourceFrame[0]),
+                "The paused live deck has a fractional tempo position");
+        const auto workerSeeks = trace.count(0, "command", "seek");
+        controller.configureAudioRouting(left, right, {}, {});
+        wait([&] {
+            if (!controller.busy() && !controller.error().isEmpty())
+                throw std::runtime_error(controller.error().toStdString());
+            return !controller.busy() && controller.outputReady();
+        }, "Live tempo route did not rebuild");
+        const auto after = controller.audioState();
+        trace.capture();
+        const auto routeSeeks = trace.count(0, "command", "seek") - workerSeeks;
+        rebuiltTempo.append(QJsonObject{{"key_lock", keyLock},
+            {"before_source_position", before.sourcePosition[0]}, {"after_source_position", after.sourcePosition[0]},
+            {"before_tempo_generation", qint64(before.tempo[0].generation)},
+            {"after_tempo_generation", qint64(after.tempo[0].generation)}, {"worker_seeks", qint64(routeSeeks)}});
+        observations["live_tempo_route_rebuild"] = rebuiltTempo;
+        require(!after.playing[0] && after.sourcePosition[0] == before.sourcePosition[0] &&
+                    after.tempo[0].generation == before.tempo[0].generation && after.tempo[0].keyLock == keyLock &&
+                    after.tempo[0].percent == requestedTempo && after.stemGain[0] == bass && routeSeeks == 0 &&
+                    controller.liveStemObservations(0) == liveObservations,
+                "Output rebuild retains the live tempo processor, stem gains and exact source position");
+        controller.setPlaying(0, true);
+        wait([&] {
+            const auto state = controller.audioState();
+            return state.playing[0] && !state.buffering[0] &&
+                state.sourcePosition[0] > after.sourcePosition[0] + 1024;
+        }, "Resumed live tempo did not advance from its retained position");
+    }
+
     controller.shutdown();
     require(trace.gone(0) && trace.gone(1) && trace.gone(2) && !controller.busy() && !controller.outputReady(),
             "Shutdown reaps all three identity-bound service children and removes their charged jobs");
