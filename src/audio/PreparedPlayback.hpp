@@ -141,6 +141,7 @@ private:
     AudioReadResult readUnmixedLive(std::uint64_t generation, std::uint64_t frame,
                                    std::span<float> output) noexcept;
     void seekLiveInput(std::uint64_t frame, bool openingSuffix = false) noexcept;
+    [[nodiscard]] bool retainBufferedLiveInput(std::uint64_t frame) noexcept;
     AudioReadResult readResidentHold(std::span<float> output) noexcept;
     AudioReadResult readResidentTempo(std::span<float> output) noexcept;
     bool residentHoldControl(AudioResidentHoldCommand, std::uint64_t rangeId, std::uint64_t frame) noexcept;

@@ -286,6 +286,7 @@ void coldSeekRetainsItsAudibleReserve()
     constexpr auto required = PreparedPlayback::liveReserveFrames;
     const auto collect = [&](bool fragmented) {
         auto control = std::make_shared<Control>();
+        control->allowance.store(required);
         auto owner = PreparedPlayback::makeLive(5091, extent, producer(control));
         require(owner->prime(0, std::chrono::seconds(4)), "Cold seek fixture did not prime");
         const auto source = owner->sourceRef();
@@ -340,6 +341,60 @@ void coldSeekRetainsItsAudibleReserve()
     const auto fragmented = collect(true);
     require(!fragmented.empty() && fragmented == continuous, "Cold seek changed PCM after releasing its reserve");
 }
+void bufferedForwardSeekKeepsTheProcessedReserve()
+{
+    constexpr auto required = PreparedPlayback::liveReserveFrames;
+    constexpr auto target = required + 8192;
+    constexpr auto bufferedThrough = target + LiveStemBuffer::blockFrames;
+    const auto collect = [&](bool retained) {
+        auto control = std::make_shared<Control>();
+        control->allowance.store(retained ? bufferedThrough : required);
+        auto owner = PreparedPlayback::makeLive(5092, extent, producer(control));
+        require(owner->prime(0, std::chrono::seconds(4)), "Buffered tempo fixture did not prime");
+        const auto source = owner->sourceRef();
+        source.setRenderActive(source.context, true);
+        require(source.tempoControl(source.context, AudioTempoCommand::Set, 6, true, 0),
+                "Buffered tempo fixture rejected Master Tempo");
+        std::array<float, 512> output{};
+        double cursor = 0;
+        read(source, cursor, output);
+        await([&] { return control->published.load() == (retained ? bufferedThrough : required); });
+        const auto epoch = control->epoch.load();
+        const auto previousTempo = source.tempoState(source.context);
+        source.discontinuity(source.context, target);
+        if (!retained) await([&] { return control->target.load() == target; });
+
+        control->allowance.store(retained ? target + required - 1 : required - 1);
+        await([&] {
+            return control->published.load() == target + required - 1 ||
+                   (retained && control->epoch.load() != epoch);
+        });
+        require(control->epoch.load() == epoch + (retained ? 0 : 1),
+                "Buffered Master Tempo seek restarted the stem worker");
+        const auto waiting = source.read(source.context, target, output);
+        const auto seeking = source.tempoState(source.context);
+        require(!waiting.frames && !waiting.failed && waiting.positionValid && waiting.nominalPosition == double(target),
+                "Processed seek played before the exact reserve was available");
+        require(seeking.generation != previousTempo.generation && seeking.keyLock && seeking.percent == 6,
+                "Processed seek did not reset DSP while retaining Master Tempo settings");
+
+        control->allowance.store(retained ? target + required : required);
+        cursor = double(target);
+        std::array<float, 8192> result{};
+        for (std::size_t start = 0; start < result.size();) {
+            auto part = std::span(result).subspan(start, std::min(output.size(), result.size() - start));
+            start += read(source, cursor, part).frames * 2;
+        }
+        require(cursor > target && control->epoch.load() == epoch + (retained ? 0 : 1),
+                "Processed seek failed to resume from the target in the selected worker epoch");
+        return result;
+    };
+    const auto cold = collect(false);
+    const auto buffered = collect(true);
+    require(cold == buffered && std::ranges::any_of(buffered, [](float value) { return value != 0; }),
+            "Buffered seek mixed different Master Tempo audio than the fresh worker at the same position");
+}
+
 void renderCommands()
 {
     auto control = std::make_shared<Control>();
@@ -851,11 +906,16 @@ int main(int argc, char** argv)
             std::cout << "Live opening replay passed with immediate and delayed Master Tempo\n";
             return 0;
         }
+        if (argc == 2 && std::string_view(argv[1]) == "--buffered-forward-seek") {
+            bufferedForwardSeekKeepsTheProcessedReserve();
+            return 0;
+        }
         require(argc == 1, "Unknown live tempo test case");
         pendingTempoArm();
         liveControls();
         failedLiveSourceAcceptsUnityMasterTempo();
         coldSeekRetainsItsAudibleReserve();
+        bufferedForwardSeekKeepsTheProcessedReserve();
         renderCommands();
         preservesConfiguredRecovery();
         recoveryAtSelectedTempo();
