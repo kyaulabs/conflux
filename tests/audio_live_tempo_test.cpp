@@ -652,9 +652,37 @@ void renderTempoContinuation()
                     "Cannot enter processed continuation recovery");
         }
         control->failure.store(EIO);await([&]{return control->exited.load();});render();
-        const auto position=core.sourcePosition(0);const auto revision=core.transportRevision(0);
+        const auto position=core.sourcePosition(0);
         require(position!=std::floor(position),"Continuation fixture did not retain a fractional source position");
         PreparedPlayback candidate(fds,extent);
+        const auto previous = core.tempoState(0);
+        const auto oldRevision = core.transportRevision(0);
+        if (resident) {
+            require(!core.toggleMasterTempo(0) && core.transportRevision(0) == oldRevision,
+                    "An audible resident loop accepted a mode change");
+        } else {
+            require(owner->errorCode() == EIO && previous.active && previous.percent == percent &&
+                    candidate.primeContinuation(position, previous, std::chrono::seconds(2)),
+                    "Cannot stage the old-mode candidate for the failed processed source");
+            require(core.toggleMasterTempo(0),
+                    "A failed processed live reader rejected its same-speed Master Tempo selection");
+            const auto selected = core.tempoState(0);
+            require(selected.keyLock != previous.keyLock && selected.percent == percent &&
+                    selected.generation == previous.generation && core.sourcePosition(0) == position &&
+                    core.transportRevision(0) == oldRevision + 1 && owner->errorCode() == EIO &&
+                    !core.setTempoPercent(0, -percent),
+                    "The failed reader changed speed, moved, or restarted while selecting Master Tempo");
+            require(core.continuationStatus(0,candidate.sourceRef(),position,oldRevision) ==
+                        RenderCore::ContinuationStatus::Invalid &&
+                    core.continuationStatus(0,candidate.sourceRef(),position,core.transportRevision(0)) ==
+                        RenderCore::ContinuationStatus::Invalid && candidate.primedForContinuation(position),
+                    "The old-mode prime survived the transport revision or key-lock validation");
+            render();
+            require(core.sourcePosition(0) == position && core.tempoState(0).keyLock == selected.keyLock &&
+                    owner->errorCode() == EIO,
+                    "The failed processor resumed or lost the user's selection before the saved bank");
+        }
+        const auto revision=core.transportRevision(0);
         const auto mode=core.tempoState(0);
         for(const bool wrongKeyLock : {false,true}) {
             auto mismatch=mode;
@@ -698,7 +726,7 @@ void renderTempoContinuation()
                 "Tempo-aware prepared handoff rejected a matching fractional cursor");
         require(core.sourcePosition(0)==position && core.transportRevision(0)==revision+1 &&
                 core.tempoState(0).active && core.tempoState(0).percent==percent &&
-                core.tempoState(0).keyLock==keyLock && core.deckGain(0)==.5F && core.crossfader()==.25F &&
+                core.tempoState(0).keyLock==mode.keyLock && core.deckGain(0)==.5F && core.crossfader()==.25F &&
                 core.isCueSelected(0) && source.stemGain(source.context,0)==.5F,
                 "Prepared handoff changed position, mode or manual mixer state");
         for(std::size_t role=1;role<4;++role)require(source.stemGain(source.context,role)==0,

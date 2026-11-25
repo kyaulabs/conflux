@@ -507,12 +507,12 @@ AudioTempoState PreparedPlayback::tempoState() const noexcept
     state.keyLock = tempoKeyLock_;
     state.errorCode = tempoSetupError_;
     if (tempoSource_) {
-        auto* source = live_ && liveTempoInput_ && live_->holdActive
-            ? residentTempoSource_.get() : tempoSource_.get();
+        const bool resident = live_ && liveTempoInput_ && live_->holdActive;
+        auto* source = resident ? residentTempoSource_.get() : tempoSource_.get();
         state = source->status();
         if (state.active && !state.finished && !state.errorCode && !source->peekPrepared()) state.pending = true;
         state.supported = !stopped_ && !(scratchSource_ && scratchSource_->active());
-        if (!state.active) state.keyLock = tempoKeyLock_;
+        if (!state.active || (live_ && !resident && live_->code())) state.keyLock = tempoKeyLock_;
     }
     return state;
 }
@@ -547,8 +547,14 @@ bool PreparedPlayback::tempoControl(AudioTempoCommand command, double percent, b
         return true; // Keep the selected Master Tempo setting at legacy zero.
     }
     if (command != AudioTempoCommand::Set) return false;
-    // At raw unity, changing the selection needs no audio from the failed
-    // live reader. Carry that intent into the next prepared continuation.
+    // A failed live reader cannot refill DSP. Keep a same-speed key-lock
+    // selection for the prepared source, leaving the processed cursor intact.
+    if (live_ && live_->code() && state.active && !state.finished && percent == state.percent) {
+        tempoKeyLock_ = keyLock;
+        (void)residentHoldControl(AudioResidentHoldCommand::Cancel,0,frame);
+        return true;
+    }
+    // Raw unity only selects the mode and starts no DSP.
     const bool selectsLiveUnityMode = live_ && !state.active && percent == 0;
     if (!selectsLiveUnityMode && preparedRenderError()) return false;
     if (loop_.active && !loopState().ready) return false;
@@ -911,7 +917,7 @@ bool PreparedPlayback::residentHoldControl(AudioResidentHoldCommand command, std
     if (command == AudioResidentHoldCommand::Arm) {
         if (live_->holdActive) return false;
         if (liveTempoInput_) {
-            const auto tempo = tempoSource_->status();
+            const auto tempo = tempoState();
             if (!residentTempoSource_ || !residentTempoSource_->request(0,tempo.percent,tempo.keyLock,0,
                     live_->hold->range().outFrame-live_->hold->range().inFrame)) return false;
             live_->holdTempoAligned = tempoSource_->outputConfigurationCurrent();
