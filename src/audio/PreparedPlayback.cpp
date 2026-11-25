@@ -546,7 +546,11 @@ bool PreparedPlayback::tempoControl(AudioTempoCommand command, double percent, b
         }
         return true; // Keep the selected Master Tempo setting at legacy zero.
     }
-    if (command != AudioTempoCommand::Set || preparedRenderError()) return false;
+    if (command != AudioTempoCommand::Set) return false;
+    // At raw unity, changing the selection needs no audio from the failed
+    // live reader. Carry that intent into the next prepared continuation.
+    const bool selectsLiveUnityMode = live_ && !state.active && percent == 0;
+    if (!selectsLiveUnityMode && preparedRenderError()) return false;
     if (loop_.active && !loopState().ready) return false;
     const auto request = [&] {
         const bool previous = liveTempoInput_;

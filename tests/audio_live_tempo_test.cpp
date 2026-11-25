@@ -182,6 +182,30 @@ void cachedOpeningPlaysWhileTheLiveSuffixIsBlocked()
     require(unityControl->exited.load(), "Unity-to-tempo replay producer did not retire");
 }
 
+void failedLiveSourceAcceptsUnityMasterTempo()
+{
+    auto control = std::make_shared<Control>();
+    auto owner = PreparedPlayback::makeLive(5028, extent, producer(control));
+    require(owner->prime(0, std::chrono::seconds(4)), "Failed-live mode fixture did not prime");
+    auto source = owner->sourceRef();
+    const auto initial = source.tempoState(source.context);
+    require(initial.supported && !initial.active && initial.percent == 0,
+            "Failed-live mode fixture must start at raw unity");
+    control->failure.store(EIO);
+    await([&] { return control->exited.load() && owner->errorCode() == EIO; });
+
+    const bool keyLock = !initial.keyLock;
+    require(source.tempoControl(source.context, AudioTempoCommand::Set, 0, keyLock, 0),
+            "A failed live reader rejected a unity Master Tempo selection");
+    const auto selected = source.tempoState(source.context);
+    require(selected.keyLock == keyLock && !selected.active && selected.percent == 0 &&
+            selected.generation == initial.generation && owner->errorCode() == EIO,
+            "Selecting Master Tempo changed the failed reader or started DSP at raw unity");
+    require(!source.tempoControl(source.context, AudioTempoCommand::Set, 6, keyLock, 0),
+            "A failed live reader accepted a request requiring fresh audio");
+    owner->stop();
+}
+
 void liveControls()
 {
     auto control = std::make_shared<Control>();
@@ -752,6 +776,7 @@ int main(int argc, char** argv)
         require(argc == 1, "Unknown live tempo test case");
         pendingTempoArm();
         liveControls();
+        failedLiveSourceAcceptsUnityMasterTempo();
         coldSeekRetainsItsAudibleReserve();
         renderCommands();
         preservesConfiguredRecovery();
