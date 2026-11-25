@@ -96,6 +96,12 @@ float StemBankSource::gain(std::size_t stem) const noexcept
     return stem < stemCount ? static_cast<float>(gains_[stem].target) : 0.F;
 }
 
+bool StemBankSource::canRebindAt(std::uint64_t frame) const noexcept
+{
+    return frame == cursor_ && !hasReadFailure() &&
+        std::ranges::all_of(stems_, [](const StagedStem& stem) { return stem.count == 0; });
+}
+
 bool StemBankSource::hasReadFailure() const noexcept
 {
     return readFailure_.load(std::memory_order_relaxed);

@@ -273,7 +273,8 @@ try:
                 runtime_event(generation, retired, revision)
             source_seen = True
             source_id = identity(P.with_name('source.wav'))['sha256'] if MODE == 'source-original' else source['sha256']
-            tag = generation - 1 if MODE == 'stale-after-seek' and generation > 1 else generation
+            stale_seek = MODE in ['stale-after-seek', 'stale-after-first-reserve'] and generation > 1
+            tag = generation - 1 if stale_seek else generation
             # Deliberately nonidentity diagnostics; the raw fake stem files are
             # ALREADY restored PCM. The receiver must not apply these again.
             emit({'event': 'source', 'generation': tag, 'source_id': source_id,
@@ -288,7 +289,8 @@ try:
         if MODE == 'unexpected-closed': break
         if MODE == 'unknown-event':
             emit({'event': 'surprise'}); break
-        gated = MODE == 'gate-after-first' and chunks >= 1 and not marker('.release').exists()
+        gated = (MODE in ['gate-after-first', 'stale-after-first-reserve']
+                 and chunks >= 1 and not marker('.release').exists())
         if not gated and cursor < n and None in leases: publish()
         if cursor == n and not complete and any(lease is None for lease in leases):
             complete = True

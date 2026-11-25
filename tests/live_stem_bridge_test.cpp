@@ -895,7 +895,7 @@ private slots:
         });
     }
 
-    void consumedLiveOwnerReprimesBeforeSessionReuse()
+    void sessionReusesLiveReserveAtStoppedCursor()
     {
         checked([&] {
             QTemporaryDir directory; const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
@@ -918,10 +918,8 @@ private slots:
                 RenderCore core(live.playback->sourceRef(), peer()); selectRole(core, 0);
                 require(compareBlock(core, reference[0], 17) == 17, "Re-prime did not reset consumed bank staging");
             }
-            require(live.playback->primeForSession(17, std::chrono::seconds(10)) &&
-                    live.playback->configureStemRamps(0), "Consumed bank was not reset and re-primed for its stopped cursor");
-            require(count(fixture, "command", "load") == 1 && count(fixture, "command", "seek") == 2,
-                    "Consumed owner reused old staging or restarted its service");
+            require(live.playback->primeForSession(17, std::chrono::milliseconds(0)),
+                    "Ready live reserve could not transfer at its exact stopped cursor");
             LiveSession::PlaybackSources owners{}; owners[0] = std::move(live.playback);
             LiveSession::InitialState initial; initial.sourceFrame[0] = 17;
             initial.stemGain[0] = {1.F, 0.F, 0.F, 0.F};
@@ -932,8 +930,8 @@ private slots:
                 require(!returned.replacement, "Unstarted session manufactured a replacement");
                 owners = std::move(returned.active);
             }
-            require(count(fixture, "command", "load") == 1 && count(fixture, "command", "seek") == 2 &&
-                count(fixture, "fixture", "runtime") == 1, "Session redundantly re-primed the newly prepared stopped owner");
+            require(count(fixture, "command", "load") == 1 && count(fixture, "command", "seek") == 1 &&
+                count(fixture, "fixture", "runtime") == 1, "Session redundantly sought or restarted the retained live owner");
             {
                 RenderCore core(owners[0]->sourceRef(), peer()); selectRole(core, 0);
                 require(core.restorePrimedCursor(0, 17) && compareBlock(core, reference[0], 11) == 11,
