@@ -41,7 +41,7 @@ public:
     [[nodiscard]] AudioSource sourceRef() noexcept;
     [[nodiscard]] std::uint64_t frames() const noexcept { return frames_; }
     [[nodiscard]] std::uint64_t sourceFrame() const noexcept { return cursor_; }
-    // Quiesced input owner only. Empty staging can be replaced at this cursor
+    // Input owner only. Empty staging can be replaced at this cursor
     // without discarding unread samples from an ahead-of-bank provider.
     [[nodiscard]] bool canRebindAt(std::uint64_t frame) const noexcept;
 
@@ -73,6 +73,8 @@ public:
     // staging/provider epochs, preserving every render-owned gain trajectory.
     [[nodiscard]] AudioReadResult readUnmixed(std::uint64_t frame, std::span<float> output) noexcept;
     bool seekInput(std::uint64_t frame) noexcept;
+    // The input owner has already moved every provider without a discontinuity.
+    bool advanceInputCursor(std::uint64_t frame) noexcept;
     // Atomic raw-reader health, also safe for the independent gain consumer.
     [[nodiscard]] bool hasReadFailure() const noexcept;
 

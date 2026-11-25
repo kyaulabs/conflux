@@ -59,6 +59,11 @@ public:
     // scans/copies PCM. Rejections do not advance the published audio sequence.
     PublishResult tryPublish(const Packet& packet) noexcept;
 
+    // Render owner only, with all four views at the same position. Advance to
+    // a published frame in this epoch and return the available exclusive end.
+    // Zero leaves all views and the producer request untouched. No PCM copy.
+    [[nodiscard]] std::uint64_t advanceToBufferedFrame(std::uint64_t frame) noexcept;
+
     // Views accept sequential prefixes of at most4096 stereo frames. A wrong
     // position/shape fails without writing or advancing; no implicit seek.
     // Empty valid reads may retire stale storage without consuming audio.

@@ -790,7 +790,9 @@ private slots:
             }
             require(sawFull, "Full-ring phase produced no actual accepted Full-wait evidence");
             const auto oldEpoch = uniqueObservation(rows, ObservationKind::RequestObserved).providerEpoch;
-            constexpr std::uint64_t target = 10000;
+            // This test observes a superseding worker request. Return to
+            // an already retired packet and leave room for a full new reserve.
+            constexpr std::uint64_t target = 1;
             require(core.seek(0, target), "Timing seek failed");
             require(await([&] { drainObservations(handle, rows); return compareBlock(core, reference[0], 1) == 1; }), "Seek did not restore exact PCM");
             stop(track); assertGone(fixture.marker(".started")); drainObservations(handle, rows);
@@ -939,6 +941,34 @@ private slots:
             }
             owners[0]->stop(); owners[0].reset(); assertGone(fixture.marker(".started"));
             require(rootNames(root).isEmpty(), "Consumed/reused owner cleanup leaked its job");
+        });
+    }
+
+    void bufferedForwardSeekKeepsWorkerRequest()
+    {
+        checked([&] {
+            QTemporaryDir directory; const auto source = directory.filePath("source.wav");
+            const auto root = directory.filePath("cache");
+            writeSource(source, 211); const auto fixture = conflux::test::makeStemServiceFixture(directory.path());
+            auto reference = references(directory.path(), 211);
+            auto track = PreparedTrackStore(root, limits()).prepareLiveStem(source, fixture.engine, fixture.service, nextToken());
+            auto& owner = track.playback;
+            require(owner->prime(0, std::chrono::seconds(10)), "Cannot prime buffered seek fixture");
+            {
+                RenderCore core(owner->sourceRef(), peer()); selectRole(core, 0);
+                require(compareBlock(core, reference[0], 17) == 17, "Cannot play buffered seek opening");
+                require(core.seek(0, 123) && compareBlock(core, reference[0], 19) == 19 &&
+                        count(fixture, "command", "seek") == 0,
+                        "Buffered forward seek must render without a new worker seek");
+                require(core.seek(0, 37), "Cannot seek back to previously consumed PCM");
+                require(await([&] { return compareBlock(core, reference[0], 17) == 17; }) &&
+                        count(fixture, "command", "seek") == 1,
+                        "An unbuffered backward seek must start a new worker request");
+            }
+            require(owner->prime(101, std::chrono::seconds(10)) && count(fixture, "command", "seek") == 2,
+                    "Explicit priming must request its own fresh epoch even when buffered");
+            owner->stop(); owner.reset(); assertGone(fixture.marker(".started"));
+            require(rootNames(root).isEmpty(), "Buffered seek fixture leaked its job");
         });
     }
 

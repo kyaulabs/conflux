@@ -445,7 +445,7 @@ AudioSource PreparedPlayback::sourceRef() noexcept
             return static_cast<PreparedPlayback*>(context)->readLive(frame, output);
         },
         [](void* context, std::uint64_t frame) noexcept {
-            static_cast<PreparedPlayback*>(context)->seekLive(frame);
+            static_cast<PreparedPlayback*>(context)->seekLive(frame, true);
         },
         [](void* context, std::size_t stem, float gain) noexcept {
             return static_cast<PreparedPlayback*>(context)->bank_->setGain(stem, gain);
@@ -1202,16 +1202,32 @@ void PreparedPlayback::seekLiveInput(std::uint64_t frame, bool openingSuffix) no
     live_->publishDemand();
 }
 
-void PreparedPlayback::seekLive(std::uint64_t frame) noexcept
+void PreparedPlayback::seekLive(std::uint64_t frame, bool retainBuffered) noexcept
 {
     (void)residentHoldControl(AudioResidentHoldCommand::Cancel,0,frame);
-    livePrimeEpoch_ = 0;
     if (liveTempoInput_) {
         const auto state = tempoSource_->status();
         if (!tempoSource_->request(frame, state.percent, state.keyLock))
             primeError_.store(tempoSource_->errorCode() ? tempoSource_->errorCode() : EIO, std::memory_order_relaxed);
         return;
     }
+    if (retainBuffered && !live_->code() && !live_->stopping.load(std::memory_order_relaxed) &&
+        bank_->canRebindAt(live_->demand.cursor)) {
+        const auto bufferedEnd = live_->buffer.advanceToBufferedFrame(frame);
+        if (bufferedEnd && bank_->advanceInputCursor(frame)) {
+            live_->demand.cursor = frame;
+            const auto neededEnd = frame + std::min(liveReserveFrames, frames_ - frame);
+            if (bufferedEnd >= neededEnd) {
+                (void)live_->openGate();
+            } else if (live_->closeGate()) {
+                // The old epoch can top up this reserve from its existing
+                // output boundary once the skipped slots become available.
+                live_->publishDemand();
+            }
+            return;
+        }
+    }
+    livePrimeEpoch_ = 0;
     seekLiveInput(frame);
 }
 
@@ -1288,7 +1304,7 @@ bool PreparedPlayback::prime(std::uint64_t frame, std::chrono::milliseconds time
     if (live_) {
         if (liveTempoInput_) resetBankForSessionAt(frame);
         setLiveActive(false);
-        seekLive(frame);
+        seekLive(frame, false);
         if (live_->code()) return false;
     } else if (bank_ || tempoState().active) seekLinear(frame);
     const auto deadline = now + timeout;

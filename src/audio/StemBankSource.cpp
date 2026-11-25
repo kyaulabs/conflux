@@ -168,6 +168,13 @@ bool StemBankSource::seekInput(std::uint64_t frame) noexcept
     return true;
 }
 
+bool StemBankSource::advanceInputCursor(std::uint64_t frame) noexcept
+{
+    if (frame <= cursor_ || frame > frames_ || !canRebindAt(cursor_)) return false;
+    cursor_ = frame;
+    return true;
+}
+
 void StemBankSource::fill(StagedStem& stem, std::size_t wanted) noexcept
 {
     if (stem.failed || stem.count >= wanted) return;

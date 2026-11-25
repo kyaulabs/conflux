@@ -145,7 +145,7 @@ private:
     AudioReadResult readResidentTempo(std::span<float> output) noexcept;
     bool residentHoldControl(AudioResidentHoldCommand, std::uint64_t rangeId, std::uint64_t frame) noexcept;
     [[nodiscard]] AudioResidentHoldState residentHoldState() const noexcept;
-    void seekLive(std::uint64_t frame) noexcept;
+    void seekLive(std::uint64_t frame, bool retainBuffered) noexcept;
     void setLiveActive(bool active) noexcept;
     void resetBankForSessionAt(std::uint64_t frame, bool keepLoop = false);
     std::unique_ptr<LiveState> live_;
