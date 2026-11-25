@@ -39,10 +39,11 @@ using OutputPointers = std::array<float*, 4>;
 
 bool callbackExpired(const spa_io_clock& current, const CallbackTiming::DriverClock& original) noexcept
 {
-    // The server can advance the shared clock while this client is running.
-    // Reload the position without caching the callback's initial value.
+    // The server can advance the graph or assign another driver at the same frame.
+    static_assert(std::atomic_ref<const std::uint32_t>::is_always_lock_free);
     static_assert(std::atomic_ref<const std::uint64_t>::is_always_lock_free);
-    return std::atomic_ref<const std::uint64_t>(current.position).load(std::memory_order_relaxed) != original.position;
+    return std::atomic_ref<const std::uint32_t>(current.id).load(std::memory_order_relaxed) != original.id ||
+        std::atomic_ref<const std::uint64_t>(current.position).load(std::memory_order_relaxed) != original.position;
 }
 
 constexpr std::array<const char*, 4> outputNames{"master_FL", "master_FR", "cue_FL", "cue_FR"};
@@ -1041,7 +1042,7 @@ public:
         ++self.callbacks_;
         CallbackTiming::DriverClock clock;
         if (position) {
-            clock.id = position->clock.id;
+            clock.id = std::atomic_ref<const std::uint32_t>(position->clock.id).load(std::memory_order_relaxed);
             clock.position = std::atomic_ref<const std::uint64_t>(position->clock.position).load(std::memory_order_relaxed);
             clock.duration = position->clock.duration; clock.rateNum = position->clock.rate.num;
             clock.rateDenom = position->clock.rate.denom; clock.flags = position->clock.flags;
