@@ -85,6 +85,9 @@ public:
     // only a healthy, exact, never-read live reserve may avoid a new epoch.
     // Explicit prime() always requests a fresh epoch, even at the same cursor.
     bool primeForSession(std::uint64_t frame, std::chrono::milliseconds timeout, std::stop_token stop = {});
+    // Quiesced transfer of the same finite owner with a prepared loop.
+    // Keep the loop cache and any queued tempo PCM at the consumed cursor.
+    bool resumeLoopForSession(double position, std::chrono::milliseconds timeout, std::stop_token stop);
     // Configure before concurrent rendering. Normal PCM is an unchanged no-op;
     // a bank uses these frames for future gain changes. Never call from the GUI
     // once this owner has entered the render-boundary handoff.
@@ -116,6 +119,8 @@ private:
     bool primeTempo(double position, double percent, bool keyLock,
                     std::chrono::steady_clock::time_point deadline, std::stop_token stop,
                     bool continuation = false);
+    bool awaitTempoPrime(std::chrono::steady_clock::time_point deadline, std::stop_token stop);
+    bool primeReaders(std::uint64_t frame, std::chrono::steady_clock::time_point deadline, std::stop_token stop);
     void createScratchSource(std::span<const int> fds) noexcept;
     AudioReadResult readPrepared(std::uint64_t frame, std::span<float> output) noexcept;
     AudioReadResult readTempo(std::span<float> output) noexcept;
@@ -142,7 +147,7 @@ private:
     [[nodiscard]] AudioResidentHoldState residentHoldState() const noexcept;
     void seekLive(std::uint64_t frame) noexcept;
     void setLiveActive(bool active) noexcept;
-    void resetBankForSessionAt(std::uint64_t frame);
+    void resetBankForSessionAt(std::uint64_t frame, bool keepLoop = false);
     std::unique_ptr<LiveState> live_;
     std::array<std::unique_ptr<PcmReadAhead>, stemCount> readers_{};
     std::unique_ptr<StemBankSource> bank_;

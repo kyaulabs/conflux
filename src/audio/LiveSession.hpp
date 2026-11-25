@@ -26,6 +26,8 @@ class LiveSession {
 public:
     struct InitialState {
         std::array<std::uint64_t, RenderCore::deckCount> sourceFrame{};
+        // Only for the same finite owner moved from a quiesced session.
+        std::array<std::optional<double>, RenderCore::deckCount> loopResumePosition{};
         std::array<std::uint64_t, RenderCore::deckCount> cueFrame{};
         std::array<bool, RenderCore::deckCount> playing{};
         std::array<RenderCore::HotCues, RenderCore::deckCount> hotCues{};

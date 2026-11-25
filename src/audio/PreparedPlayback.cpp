@@ -1224,12 +1224,12 @@ void PreparedPlayback::setLiveActive(bool active) noexcept
 
 void PreparedPlayback::resetBankForSession() { resetBankForSessionAt(0); }
 
-void PreparedPlayback::resetBankForSessionAt(std::uint64_t frame)
+void PreparedPlayback::resetBankForSessionAt(std::uint64_t frame, bool keepLoop)
 {
     unusedContinuationPrime_ = false;
     if (stopped_) throw std::logic_error("Cannot reuse a stopped playback owner");
     if (scratchSource_) scratchSource_->end();
-    if (!live_) clearLoop();
+    if (!live_ && !keepLoop) clearLoop();
     if (!bank_) return;
     std::array<AudioSource, stemCount> sources{};
     if (live_) sources = live_->buffer.sourceRefs();
@@ -1341,6 +1341,14 @@ bool PreparedPlayback::prime(std::uint64_t frame, std::chrono::milliseconds time
         const auto state = tempoSource_->status();
         if (state.active) return primeTempo(frame, state.percent, state.keyLock, deadline, stop);
     }
+    if (!primeReaders(frame, deadline, stop)) return false;
+    continuationPrimePosition_ = double(frame);
+    unusedContinuationPrime_ = bool(bank_);
+    return true;
+}
+
+bool PreparedPlayback::primeReaders(std::uint64_t frame, Clock::time_point deadline, std::stop_token stop)
+{
     for (const auto& reader : readers_) {
         if (!reader) continue;
         if (stop.stop_requested()) { primeError_.store(ECANCELED, std::memory_order_relaxed); return false; }
@@ -1355,8 +1363,6 @@ bool PreparedPlayback::prime(std::uint64_t frame, std::chrono::milliseconds time
         }
     }
     if (stop.stop_requested()) { primeError_.store(ECANCELED, std::memory_order_relaxed); return false; }
-    continuationPrimePosition_ = double(frame);
-    unusedContinuationPrime_ = bool(bank_);
     return true;
 }
 
@@ -1411,6 +1417,11 @@ bool PreparedPlayback::primeTempo(double position, double percent, bool keyLock,
         primeError_.store(code ? code : EIO, std::memory_order_relaxed);
         return false;
     }
+    return awaitTempoPrime(deadline, stop);
+}
+
+bool PreparedPlayback::awaitTempoPrime(Clock::time_point deadline, std::stop_token stop)
+{
     for (;;) {
         if (stop.stop_requested()) { primeError_.store(ECANCELED, std::memory_order_relaxed); return false; }
         if (const int code = tempoSource_->errorCode()) { primeError_.store(code, std::memory_order_relaxed); return false; }
@@ -1466,6 +1477,41 @@ bool PreparedPlayback::primeForSession(std::uint64_t frame, std::chrono::millise
     }
     resetBankForSession();
     return prime(frame, timeout, stop);
+}
+
+bool PreparedPlayback::resumeLoopForSession(double position, std::chrono::milliseconds timeout, std::stop_token stop)
+{
+    unusedContinuationPrime_ = false;
+    const auto now = Clock::now();
+    if (live_ || !loop_.inSet || !std::isfinite(position) || position < 0 || position > double(frames_) ||
+        timeout.count() < 0 || timeout > std::chrono::duration_cast<std::chrono::milliseconds>(Clock::time_point::max() - now)) {
+        primeError_.store(EINVAL, std::memory_order_relaxed);
+        return false;
+    }
+    if (stopped_ || stop.stop_requested()) {
+        primeError_.store(ECANCELED, std::memory_order_relaxed);
+        return false;
+    }
+    primeError_.store(0, std::memory_order_relaxed);
+    const auto tempo = tempoState();
+    if (tempo.active ? tempoSource_->nominalPosition() != position : position != std::floor(position)) {
+        primeError_.store(EINVAL, std::memory_order_relaxed);
+        return false;
+    }
+    if (const auto code = preparedRenderError()) {
+        primeError_.store(code, std::memory_order_relaxed);
+        return false;
+    }
+    // Repetitions read from the retained cache. Prime the linear reader at
+    // OUT so EXIT can cross the boundary without seeking or losing frames.
+    const auto linearFrame = loop_.cached ? loop_.outFrame : std::uint64_t(position);
+    resetBankForSessionAt(linearFrame, true);
+    if (tempo.active) {
+        // The finite tempo worker owns its own file descriptors. Transfer its
+        // exact consumed position and history instead of starting new DSP.
+        return tempo.finished || awaitTempoPrime(now + timeout, stop);
+    }
+    return primeReaders(linearFrame, now + timeout, stop);
 }
 
 bool PreparedPlayback::configureStemRamps(std::uint32_t frames) noexcept

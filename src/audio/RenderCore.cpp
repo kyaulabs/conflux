@@ -185,13 +185,16 @@ bool RenderCore::seek(std::size_t deck, std::uint64_t frame) noexcept
     return true;
 }
 
-bool RenderCore::restorePrimedCursor(std::size_t deck, std::uint64_t frame) noexcept
+bool RenderCore::restorePrimedCursor(std::size_t deck, std::uint64_t frame,
+                                    std::optional<double> nominalPosition) noexcept
 {
-    if (frameClock_ || deck >= deckCount || !decks_[deck].source.frames || frame > sourceFrames(deck))
+    const auto position = nominalPosition.value_or(double(frame));
+    if (frameClock_ || deck >= deckCount || !decks_[deck].source.frames || frame > sourceFrames(deck) ||
+        std::floor(position) != double(frame) || position > double(sourceFrames(deck)))
         return false;
     transportIntent(decks_[deck]);
     decks_[deck].frame = frame;
-    decks_[deck].nominalPosition = double(frame);
+    decks_[deck].nominalPosition = position;
     decks_[deck].buffering = false;
     return true;
 }
