@@ -123,6 +123,35 @@ public:
         }
     }
 
+    std::uint64_t advanceToBufferedFrame(std::uint64_t frame) noexcept
+    {
+        const auto& current = views_.front();
+        if (renderFailed_ || notificationMask_ || frame <= current.frame || frame >= frames_ ||
+            !std::ranges::all_of(views_, [&](const View& view) {
+                return view.frame == current.frame && view.sequence == current.sequence;
+            })) return 0;
+        const auto end = written_.load(std::memory_order_acquire);
+        if (current.sequence == end) return 0;
+        const auto& last = slots_[(end - 1) % slotCount];
+        if (last.epoch != renderEpoch_ || frame >= last.first + last.count) return 0;
+        const auto bufferedEnd = last.first + last.count;
+        // Current-epoch publications are contiguous. Every slot below this
+        // snapshot stays owned by the reader until releaseCommon().
+        for (auto sequence = current.sequence; sequence < end; ++sequence) {
+            const auto& slot = slots_[sequence % slotCount];
+            if (slot.epoch != renderEpoch_) continue;
+            if (frame < slot.first) return 0;
+            if (frame >= slot.first + slot.count) continue;
+            for (auto& view : views_) {
+                view.frame = frame;
+                view.sequence = sequence;
+            }
+            releaseCommon();
+            return bufferedEnd;
+        }
+        return 0;
+    }
+
     void discontinuity(std::size_t stem, std::uint64_t frame) noexcept
     {
         if (frame > frames_ || renderFailed_) return;
@@ -210,5 +239,9 @@ std::uint64_t LiveStemBuffer::frames() const noexcept { return impl_->frames_; }
 std::array<AudioSource, LiveStemBuffer::stemCount> LiveStemBuffer::sourceRefs() noexcept { return impl_->sourceRefs(); }
 bool LiveStemBuffer::tryRequest(Request& output) const noexcept { return impl_->tryRequest(output); }
 LiveStemBuffer::PublishResult LiveStemBuffer::tryPublish(const Packet& packet) noexcept { return impl_->tryPublish(packet); }
+std::uint64_t LiveStemBuffer::advanceToBufferedFrame(std::uint64_t frame) noexcept
+{
+    return impl_->advanceToBufferedFrame(frame);
+}
 
 } // namespace conflux::audio

@@ -80,7 +80,7 @@ PreparedPlayback::LiveProducer producer(const std::shared_ptr<Control>& control,
         std::uint64_t epoch = 0, cursor = 0, target = 0, sourceId = 0;
         std::uint64_t packetEpoch = 0, packetCursor = 0;
         std::size_t packetCount = 0;
-        while (!stop.stop_requested()) {
+        while (!stop.stop_requested() && port.serviceRecovery()) {
             LiveStemBuffer::Request request;
             if (!port.tryRequest(request)) { std::this_thread::yield(); continue; }
             sourceId = request.sourceId;
@@ -378,6 +378,39 @@ void sameCursorRetryUsesTheRealRenderCommand()
     owner->stop();
 }
 
+void bufferedSeekRefillsTheExistingEpoch()
+{
+    constexpr auto reserve = PreparedPlayback::liveReserveFrames;
+    constexpr auto target = 2 * LiveStemBuffer::blockFrames + 777;
+    auto state = std::make_shared<Control>();
+    state->allowance.store(reserve);
+    auto owner = PreparedPlayback::makeLive(352, totalFrames, producer(state));
+    require(owner->prime(0, 2s), "Cannot prime buffered seek reserve fixture");
+    const auto epoch = state->epoch.load();
+    const auto source = owner->sourceRef();
+    source.setRenderActive(source.context, true);
+    source.discontinuity(source.context, target);
+    std::array<float, 128> output{};
+    auto read = source.read(source.context, target, output);
+    require(!read.frames && !read.failed, "Buffered seek played before the full reserve was ready");
+    state->allowance.store(reserve + target - 1);
+    await([&] { return state->publishedEnd >= reserve + target - 1; }, "Retained epoch did not refill after discarding its prefix");
+    read = source.read(source.context, target, output);
+    require(!read.frames && !read.failed, "Buffered seek accepted a reserve one frame short");
+    state->allowance.store(reserve + target);
+    await([&] {
+        if (!read.frames && !read.failed) read = source.read(source.context, target, output);
+        return read.frames || read.failed;
+    }, "Buffered seek did not resume after the complete reserve");
+    require(!read.failed && read.frames == output.size() / 2 && state->epoch == epoch && state->target == 0,
+            "Buffered refill changed the worker epoch or failed to resume exact audio");
+    for (std::size_t frame = 0; frame < read.frames; ++frame)
+        for (std::size_t channel = 0; channel < 2; ++channel)
+            require(output[frame * 2 + channel] == sum(target + frame, channel),
+                    "Buffered seek returned stale or misaligned stem samples");
+    owner->stop();
+}
+
 void renderedOwnerRebuildPreservesCursorTargetsAndProducer()
 {
     constexpr std::uint64_t target = 512;
@@ -505,6 +538,7 @@ int main()
         nonzeroInitializationRetainsThePrimedEpoch();
         initialResidentAuthorizationRejectsIncompatibleOwners();
         sameCursorRetryUsesTheRealRenderCommand();
+        bufferedSeekRefillsTheExistingEpoch();
         renderedOwnerRebuildPreservesCursorTargetsAndProducer();
         wholeOwnerRemainsThroughCallbackEnd();
         std::cout << "Live whole-owner reserve, generation, initial cursor, failure and retirement checks completed\n";
