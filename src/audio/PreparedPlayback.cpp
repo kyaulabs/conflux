@@ -1128,8 +1128,11 @@ AudioReadResult PreparedPlayback::readUnmixedLive(std::uint64_t generation, std:
                     resume = openingEnd;
                 }
                 if (resume < frames_) {
-                    seekLiveInput(resume, resume - frame >= liveReserveFrames);
-                    if (resume == frame && !live_->code()) {
+                    // A new DSP generation can start on the current raw
+                    // worker epoch when it already holds this forward target.
+                    if (newReserve || resume != frame || !retainBufferedLiveInput(frame))
+                        seekLiveInput(resume, resume - frame >= liveReserveFrames);
+                    if (resume == frame && live_->demand.waitSerial && !live_->code()) {
                         live_->tempoPrefillWait.store(live_->demand.waitSerial, std::memory_order_relaxed);
                         live_->tempoPrefillGeneration.store(generation, std::memory_order_release);
                     }
@@ -1211,24 +1214,27 @@ void PreparedPlayback::seekLive(std::uint64_t frame, bool retainBuffered) noexce
             primeError_.store(tempoSource_->errorCode() ? tempoSource_->errorCode() : EIO, std::memory_order_relaxed);
         return;
     }
-    if (retainBuffered && !live_->code() && !live_->stopping.load(std::memory_order_relaxed) &&
-        bank_->canRebindAt(live_->demand.cursor)) {
-        const auto bufferedEnd = live_->buffer.advanceToBufferedFrame(frame);
-        if (bufferedEnd && bank_->advanceInputCursor(frame)) {
-            live_->demand.cursor = frame;
-            const auto neededEnd = frame + std::min(liveReserveFrames, frames_ - frame);
-            if (bufferedEnd >= neededEnd) {
-                (void)live_->openGate();
-            } else if (live_->closeGate()) {
-                // The old epoch can top up this reserve from its existing
-                // output boundary once the skipped slots become available.
-                live_->publishDemand();
-            }
-            return;
-        }
-    }
+    if (retainBuffered && retainBufferedLiveInput(frame)) return;
     livePrimeEpoch_ = 0;
     seekLiveInput(frame);
+}
+
+bool PreparedPlayback::retainBufferedLiveInput(std::uint64_t frame) noexcept
+{
+    if (live_->code() || live_->stopping.load(std::memory_order_relaxed) ||
+        !bank_->canRebindAt(live_->demand.cursor)) return false;
+    const auto bufferedEnd = live_->buffer.advanceToBufferedFrame(frame);
+    if (!bufferedEnd || !bank_->advanceInputCursor(frame)) return false;
+    live_->demand.cursor = frame;
+    const auto neededEnd = frame + std::min(liveReserveFrames, frames_ - frame);
+    if (bufferedEnd >= neededEnd) {
+        (void)live_->openGate();
+    } else if (live_->closeGate()) {
+        // The old epoch can top up this reserve from its existing
+        // output boundary once the skipped slots become available.
+        live_->publishDemand();
+    }
+    return true;
 }
 
 void PreparedPlayback::setLiveActive(bool active) noexcept
