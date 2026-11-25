@@ -607,6 +607,56 @@ void rebuildAndStopDuringRecovery()
                 "Shutdown failed to join active live/resident processors and producer");
     }
 }
+void liveTempoRebuildMatchesUninterruptedOutput()
+{
+    constexpr std::array<float, 4> gains{1.F, .5F, 0.F, .25F};
+    for (const bool keyLock : {false, true}) {
+        const auto capture = [&](bool rebuild) {
+            auto control = std::make_shared<Control>();
+            auto owner = PreparedPlayback::makeLive(5111, extent, producer(control));
+            require(owner->prime(0, std::chrono::seconds(4)), "Live rebuild owner did not prime");
+            auto source = owner->sourceRef();
+            const auto setGains = [&] {
+                require(owner->configureStemRamps(0), "Live rebuild could not restore gain targets");
+                for (std::size_t role = 0; role < gains.size(); ++role)
+                    require(source.setStemGain(source.context, role, gains[role]), "Live rebuild rejected a stem target");
+            };
+            setGains();
+            source.setRenderActive(source.context, true);
+            require(source.tempoControl(source.context, AudioTempoCommand::Set, 5.123, keyLock, 0),
+                    "Live rebuild tempo setup rejected");
+            double cursor = 0;
+            const auto consume = [&](std::span<float> output) {
+                while (!output.empty()) {
+                    const auto part = read(source, cursor, output);
+                    require(part.positionValid && part.frames <= output.size() / 2, "Live tempo did not advance its nominal clock");
+                    output = output.subspan(part.frames * 2);
+                }
+            };
+            std::array<float, 513 * 2> prefix{}, resumed{};
+            consume(prefix);
+            const auto epoch = control->epoch.load();
+            const auto generation = source.tempoState(source.context).generation;
+            require(cursor > 513 && cursor != std::floor(cursor), "Rebuild fixture did not reach a fractional position");
+            if (rebuild) {
+                source.setRenderActive(source.context, false);
+                require(owner->resumeForSession(cursor, std::chrono::seconds(4), {}), "Live tempo could not transfer its existing processor");
+                source = owner->sourceRef();
+                setGains();
+                require(owner->configureStemRamps(240), "Live rebuild could not enable stem ramps");
+                source.setRenderActive(source.context, true);
+            }
+            consume(resumed);
+            require(control->epoch == epoch && source.tempoState(source.context).generation == generation,
+                    "Live rebuild invalidated the provider or processor generation");
+            owner->stop();
+            return std::pair{cursor, resumed};
+        };
+        const auto uninterrupted = capture(false);
+        require(capture(true) == uninterrupted, "Live route rebuild changed the PCM or fractional clock");
+    }
+}
+
 void renderTempoContinuation()
 {
     std::array<std::unique_ptr<std::FILE,CloseReference>,4> files;
@@ -810,6 +860,7 @@ int main(int argc, char** argv)
         preservesConfiguredRecovery();
         recoveryAtSelectedTempo();
         rebuildAndStopDuringRecovery();
+        liveTempoRebuildMatchesUninterruptedOutput();
         renderProcessedRecovery();
         renderTempoContinuation();
         std::cout << "Live tempo source-clock, gains, seeks, reconstruction and cancellation passed\n";

@@ -1421,7 +1421,7 @@ bool PreparedPlayback::awaitTempoPrime(Clock::time_point deadline, std::stop_tok
 {
     for (;;) {
         if (stop.stop_requested()) { primeError_.store(ECANCELED, std::memory_order_relaxed); return false; }
-        if (const int code = tempoSource_->errorCode()) { primeError_.store(code, std::memory_order_relaxed); return false; }
+        if (const int code = preparedRenderError()) { primeError_.store(code, std::memory_order_relaxed); return false; }
         const auto view = tempoSource_->peekPrepared();
         if (view.errorCode) { primeError_.store(view.errorCode, std::memory_order_relaxed); return false; }
         if (view && view.generation == tempoSource_->generation()) return true;
@@ -1480,7 +1480,8 @@ bool PreparedPlayback::resumeForSession(double position, std::chrono::millisecon
 {
     unusedContinuationPrime_ = false;
     const auto now = Clock::now();
-    if (live_ || !std::isfinite(position) || position < 0 || position > double(frames_) ||
+    if (live_) timeout = std::min(timeout, std::chrono::duration_cast<std::chrono::milliseconds>(liveWait));
+    if (!std::isfinite(position) || position < 0 || position > double(frames_) ||
         timeout.count() < 0 || timeout > std::chrono::duration_cast<std::chrono::milliseconds>(Clock::time_point::max() - now)) {
         primeError_.store(EINVAL, std::memory_order_relaxed);
         return false;
@@ -1491,7 +1492,7 @@ bool PreparedPlayback::resumeForSession(double position, std::chrono::millisecon
     }
     primeError_.store(0, std::memory_order_relaxed);
     const auto tempo = tempoState();
-    if ((!loop_.inSet && !tempo.active) ||
+    if ((!loop_.inSet && !tempo.active) || (live_ && (!liveTempoInput_ || live_->holdActive)) ||
         (tempo.active ? tempoSource_->nominalPosition() != position : position != std::floor(position))) {
         primeError_.store(EINVAL, std::memory_order_relaxed);
         return false;
@@ -1499,6 +1500,13 @@ bool PreparedPlayback::resumeForSession(double position, std::chrono::millisecon
     if (const auto code = preparedRenderError()) {
         primeError_.store(code, std::memory_order_relaxed);
         return false;
+    }
+    if (live_) {
+        // The processor still owns the raw bank and may be filling its queue.
+        // Transfer the consumed cursor and reopen setup only for the mixer.
+        if (!tempo.finished && !awaitTempoPrime(now + timeout, stop)) return false;
+        bank_->resetMixForSession();
+        return true;
     }
     // Repetitions read from the retained cache. Prime the linear reader at
     // OUT so EXIT can cross the boundary without seeking or losing frames.

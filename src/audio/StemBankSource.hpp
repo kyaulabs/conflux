@@ -49,6 +49,9 @@ public:
     // exact static gains; configure before the first nonempty valid read, up to
     // one second. Ramps advance only for committed source frames, not starvation.
     bool configureRamps(std::uint32_t frames) noexcept;
+    // The old mix consumer must be quiesced. A separate unmixed-input worker
+    // can keep its staged PCM, provider cursors and health.
+    void resetMixForSession() noexcept { started_ = false; }
     // Same render owner, or both banks quiesced. Copy only the exact current
     // gain trajectories and ramp duration into an unread, equally sized bank.
     // Preserve this bank's providers, primed cursor, staging and source health.
