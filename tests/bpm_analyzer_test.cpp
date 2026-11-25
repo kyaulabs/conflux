@@ -925,6 +925,46 @@ private slots:
         QVERIFY(!timing.at(estimate.beats.back().frame));
     }
 
+    void localTempoReducesGridJitterOnlyWithSustainedSupport()
+    {
+        constexpr std::size_t center = 22;
+        constexpr double refinedBpm = 60. * 48000. / 23680.;
+        constexpr double measuredBpm = 120.;
+        for (const bool changedTempo : {false, true}) {
+            library::BpmEstimate estimate;
+            estimate.bpm = 123.;
+            constexpr std::array<std::uint32_t, 5> intervals{25, 25, 25, 24, 24};
+            std::uint32_t frame = 48000;
+            for (std::size_t i = 0; i < 50; ++i) {
+                estimate.beats.push_back({frame, i % 4 == 0});
+                frame += 960 * (changedTempo && i < 12 ? 27 : intervals[i % intervals.size()]);
+            }
+            estimate.analysisFrames = frame;
+            const auto first = estimate.beats[center].frame;
+            const auto end = estimate.beats[center + 1].frame;
+            const library::BpmTiming timing(estimate);
+            const auto interval = timing.at(first);
+            const auto direct = library::localTempoAt(estimate, end - 1);
+            QVERIFY(interval && direct);
+            QCOMPARE(interval->firstFrame, first);
+            QCOMPARE(interval->endFrame, end);
+            QCOMPARE(interval->bpm, changedTempo ? measuredBpm : refinedBpm);
+            QCOMPARE(direct->bpm, interval->bpm);
+            QCOMPARE(timing.estimate().bpm, estimate.bpm);
+
+            const auto edge = timing.at(estimate.beats[16].frame);
+            QVERIFY(edge);
+            QCOMPARE(edge->bpm, measuredBpm);
+
+            estimate.beats[8].unmeasuredBefore = true;
+            const library::BpmTiming withGap(std::move(estimate));
+            const auto afterGap = withGap.at(first);
+            QVERIFY(afterGap);
+            QCOMPARE(afterGap->bpm, measuredBpm);
+            QVERIFY(!withGap.at(withGap.estimate().beats[7].frame));
+        }
+    }
+
     void localTempoKeepsMeasuredIntervalAtTempoChangeOrUnmeasuredGap()
     {
         library::BpmEstimate estimate;

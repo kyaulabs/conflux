@@ -52,8 +52,9 @@ struct BpmTempoInterval {
 // first beat or from the last beat. Missing/malformed timing or a selected
 // interval outside 20..400 BPM or marked unmeasured returns Unknown (nullopt).
 // A nearby measured run can refine BPM when its timestamps support one steady
-// period to model-grid precision. The original interval boundaries remain the
-// same. Whole-track summary, downbeat flags and cacheHit do not affect the estimate.
+// period. Longer steady runs can also reduce model-grid jitter. The original
+// interval boundaries remain the same. Whole-track summary, downbeat flags and
+// cacheHit do not affect the estimate.
 // This lookup provides an unqualified source-local BPM estimate.
 [[nodiscard]] std::optional<BpmTempoInterval> localTempoAt(const BpmEstimate&,
                                                         std::uint64_t sourceFrame) noexcept;

@@ -619,6 +619,47 @@ double steadyLocalPeriod(const std::vector<BpmBeat>& beats, std::size_t interval
     return high - low <= .01 * middle ? middle : adjacent;
 }
 
+// When the long steady fit falls back to one interval, reduce model-grid
+// jitter only where measured timing is stationary across both sides.
+double centeredLocalPeriod(const std::vector<BpmBeat>& beats, std::size_t interval,
+                           std::uint32_t adjacent) noexcept
+{
+    constexpr std::size_t blocks = 7, width = 5, side = blocks * width / 2;
+    constexpr std::uint32_t tick = 48000U / 50U;
+    if (interval < side || interval + side + 1 >= beats.size()) return adjacent;
+    const auto* first = beats.data() + interval - side;
+    for (std::size_t i = 0; i < blocks * width; ++i) {
+        const auto period = first[i + 1].frame - first[i].frame;
+        if (first[i + 1].unmeasuredBefore || period % tick ||
+            period < minimumTempoPeriod || period > maximumTempoPeriod)
+            return adjacent;
+    }
+    std::array<std::uint32_t, blocks> spans{};
+    for (std::size_t block = 0; block < blocks; ++block) {
+        const auto begin = block * width;
+        spans[block] = first[begin + width].frame - first[begin].frame;
+    }
+    const auto middleSpan = spans[blocks / 2];
+    const auto [shortest, longest] = std::minmax_element(spans.begin(), spans.end());
+    if (50 * (*longest - *shortest) > middleSpan) return adjacent;
+
+    const auto* middle = first + (blocks / 2) * width;
+    std::array<std::uint32_t, width> periods{};
+    for (std::size_t i = 0; i < width; ++i) {
+        periods[i] = middle[i + 1].frame - middle[i].frame;
+        if (8 * std::abs(double(periods[i]) - adjacent) > adjacent) return adjacent;
+    }
+    const bool stableSides = periods[0] == periods[1] && periods[3] == periods[4];
+    if (stableSides && std::abs(double(periods[1]) - periods[3]) >= 2 * tick) return adjacent;
+
+    const double tight = (middle[4].frame - middle[1].frame) / 3.;
+    const double wide = double(middleSpan) / width;
+    if (std::abs(tight - wide) > tick / 2.) return adjacent;
+    std::array estimates{double(adjacent), tight, wide};
+    std::sort(estimates.begin(), estimates.end());
+    return std::abs(estimates[1] - adjacent) <= tick ? estimates[1] : adjacent;
+}
+
 std::optional<BpmTempoInterval> findTimingInterval(const BpmEstimate& estimate, std::uint64_t frame) noexcept
 {
     const auto& beats = estimate.beats;
@@ -628,7 +669,9 @@ std::optional<BpmTempoInterval> findTimingInterval(const BpmEstimate& estimate, 
     const auto first = next - 1;
     const auto adjacent = next->frame - first->frame;
     if (adjacent < minimumTempoPeriod || adjacent > maximumTempoPeriod) return {};
-    const auto period = steadyLocalPeriod(beats, std::size_t(first - beats.begin()), adjacent);
+    const auto interval = std::size_t(first - beats.begin());
+    auto period = steadyLocalPeriod(beats, interval, adjacent);
+    if (period == adjacent) period = centeredLocalPeriod(beats, interval, adjacent);
     return BpmTempoInterval{first->frame, next->frame, framesPerMinute / period};
 }
 } // namespace
