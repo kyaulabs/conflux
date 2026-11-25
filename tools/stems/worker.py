@@ -895,9 +895,16 @@ class StemWorker:
                     return
                 first = _first_contributing_window(latest.start) * HOP
                 target = latest.start // HOP * HOP
-                if not first <= start <= target:
+                if start == target + HOP:
+                    # A clipped first hop can be too short to resume playback.
+                    # Keep its completed successor if the first hop is ready.
+                    prefix = (self._weighted_window_locked(frame)
+                              for frame in range(first, target + HOP, HOP))
+                    if any(window is None or window[0] is not source for window in prefix):
+                        return
+                elif not first <= start <= target:
                     return
-                # Preserve any cached window needed to assemble the first hop.
+                # The successor cannot evict any first-hop contributor.
                 evict = next(window for window in self._weighted_windows if not first <= window <= target)
                 del self._weighted_windows[evict]
             self._remember_window_locked(start, source, pending.event["request_id"], weighted)

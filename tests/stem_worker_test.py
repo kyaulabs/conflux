@@ -875,7 +875,8 @@ class WorkerTest(unittest.TestCase):
         reference, _ = self.worker()
         continuous = self.collect(reference, reference.load_f32(raw))
 
-        for action in ("return_before_validation", "return_during_validation", "continue_away"):
+        for action in ("return_before_validation", "return_during_validation",
+                       "return_for_following_window", "continue_away"):
             with self.subTest(action=action):
                 worker, backend = self.worker(FakeRuntime(blocked=True), max_ready=1)
                 try:
@@ -913,9 +914,11 @@ class WorkerTest(unittest.TestCase):
                             worker.seek(6 * HOP + OVERLAP)
                             backend.release()
                             self.assertTrue(entered.wait(2), "superseded reply did not reach validation")
-                            index = 4
+                            needs_following = action == "return_for_following_window"
+                            index = 3 if needs_following else 4
+                            offset = OVERLAP + 37 if needs_following else 0
                             if action != "continue_away":
-                                generation = worker.seek(index * HOP)
+                                generation = worker.seek(index * HOP + offset)
                         finally:
                             resume.set()
                         if action == "continue_away":
@@ -926,9 +929,17 @@ class WorkerTest(unittest.TestCase):
                             generation = worker.seek(index * HOP)
                         chunk = self.event(worker, "chunk", generation, timeout=1)
 
-                    self.assertEqual((chunk["request_id"], chunk["frame_start"]), (index + 1, index * HOP))
+                        if needs_following:
+                            # The late return needs more than the clipped first hop.
+                            # Both replies can supply it without another inference.
+                            following = self.event(worker, "chunk", generation, timeout=1)
+                            self.assertEqual((following["request_id"], following["frame_start"]), (5, 4 * HOP))
+                            self.assertIs(following["inference_reused"], True)
+                            np.testing.assert_array_equal(following["samples"], continuous[4]["samples"])
+
+                    self.assertEqual((chunk["request_id"], chunk["frame_start"]), (index + 1, index * HOP + offset))
                     self.assertIs(chunk["inference_reused"], True)
-                    np.testing.assert_array_equal(chunk["samples"], continuous[index]["samples"])
+                    np.testing.assert_array_equal(chunk["samples"], continuous[index]["samples"][:, offset:])
                     if action != "continue_away":
                         with worker._condition:
                             self.assertEqual(set(worker._weighted_windows), {2 * HOP, 3 * HOP, 4 * HOP})
