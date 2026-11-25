@@ -3484,6 +3484,49 @@ int main(int argc, char** argv)
             require(stopWhileInstalling ? frames == 0 : frames >= 1024,
                     "Stop during rebuild writes no audio and a requested recording captures resumed playback");
         }
+        const auto initialKeyLock = controller.audioState().tempo[0].keyLock;
+        QJsonArray rebuiltTempo;
+        constexpr auto requestedTempo = 5.123;
+        for (const bool keyLock : {false, true}) {
+            if (controller.audioState().tempo[0].keyLock != keyLock) controller.toggleMasterTempo(0);
+            controller.setTempoPercent(0, requestedTempo);
+            wait([&] {
+                const auto state = controller.audioState();
+                return state.playing[0] && !state.buffering[0] && state.tempo[0].keyLock == keyLock &&
+                    state.tempo[0].appliedPercent == requestedTempo &&
+                    state.sourcePosition[0] != std::floor(state.sourcePosition[0]);
+            }, "Prepared tempo did not reach a fractional source position");
+            controller.setPlaying(0, false);
+            wait([&] { return !controller.audioState().playing[0]; }, "Prepared tempo did not pause");
+            const auto before = controller.audioState();
+            require(!before.loops[0].inSet && before.tempo[0].active &&
+                        before.sourcePosition[0] != double(before.sourceFrame[0]),
+                    "The paused prepared deck has a fractional tempo position and no loop");
+            controller.configureAudioRouting(left, right, {}, {});
+            wait([&] { return !controller.busy() && controller.outputReady(); },
+                 "Prepared tempo route did not rebuild");
+            const auto after = controller.audioState();
+            rebuiltTempo.append(QJsonObject{{"key_lock", keyLock},
+                {"before_source_position", before.sourcePosition[0]}, {"after_source_position", after.sourcePosition[0]},
+                {"before_tempo_generation", qint64(before.tempo[0].generation)},
+                {"after_tempo_generation", qint64(after.tempo[0].generation)}});
+            observations["prepared_tempo_route_rebuild"] = rebuiltTempo;
+            require(!after.playing[0] && after.sourcePosition[0] == before.sourcePosition[0] &&
+                        after.tempo[0].generation == before.tempo[0].generation &&
+                        after.tempo[0].keyLock == keyLock && after.tempo[0].percent == requestedTempo,
+                    "Output rebuild retains the paused prepared tempo processor and exact source position");
+            controller.setPlaying(0, true);
+            wait([&] {
+                const auto state = controller.audioState();
+                return state.playing[0] && state.sourcePosition[0] > after.sourcePosition[0] + 1024;
+            }, "Prepared tempo did not advance from its retained position");
+        }
+        controller.resetTempo(0);
+        if (controller.audioState().tempo[0].keyLock != initialKeyLock) controller.toggleMasterTempo(0);
+        wait([&] {
+            const auto state = controller.audioState();
+            return !state.tempo[0].active && state.tempo[0].keyLock == initialKeyLock;
+        }, "Generated deck did not restore its neutral tempo state");
         const auto resumedFrame = controller.audioState().sourceFrame[0];
         wait([&] { return controller.audioState().sourceFrame[0] >= resumedFrame + 1024; },
              "Wait for the final route restart envelope to finish");
