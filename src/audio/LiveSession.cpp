@@ -1233,7 +1233,41 @@ public:
             // once the mapped samples are ready and the clock is still current.
             expired = durationValid && callbackExpired(position->clock, clock);
         }
-        if (expired && canRetain && self.ready() && masterValid && !replacementPending && (resumed || rendered == frames)) {
+        const bool renderedPlayback = resumed || rendered != 0;
+        bool publishedSamples = false;
+        for (std::size_t index = 0; index < 4; ++index) {
+            if (!buffers[index]) continue;
+            auto* buffer = buffers[index];
+            buffer->size = 0;
+            if (buffer->buffer && buffer->buffer->n_datas == 1) {
+                if (auto* chunk = buffer->buffer->datas[0].chunk) {
+                    chunk->offset = 0;
+                    chunk->stride = sizeof(float);
+                    chunk->flags = SPA_CHUNK_FLAG_NONE;
+                    chunk->size = 0;
+                    // A link notification can close the gate while master
+                    // buffers are being returned. Check each cue extent
+                    // immediately before handing that buffer to PipeWire.
+                    // A master fault can arrive after rendering or during an earlier return.
+                    expired = expired || (durationValid && callbackExpired(position->clock, clock));
+                    if (valid[index] && !expired && (!renderedPlayback || self.ready()) &&
+                        (index < 2 || !cue || self.cueRouteOpen())) {
+                        chunk->size = frames * sizeof(float);
+                        buffer->size = frames;
+                    }
+                }
+            }
+            const bool sendsSamples = buffer->size != 0;
+            if (pw_filter_queue_buffer(self.portData_[index], buffers[index]) < 0) {
+                if (index < 2) { ++self.invalidBuffers_; self.bufferFault_.store(true, std::memory_order_relaxed); }
+                else self.cueGate_.store(CueGate::BufferFault, std::memory_order_release);
+            } else {
+                publishedSamples |= sendsSamples;
+            }
+        }
+        // Replay is safe only if no channel received a nonempty chunk from
+        // this block before the clock changed.
+        if (expired && !publishedSamples && canRetain && self.ready() && masterValid && !replacementPending && (resumed || rendered == frames)) {
             // The recorder and source clocks already own this render. Reuse
             // its samples at the next valid callback without advancing them.
             self.retained_.clock = clock;
@@ -1253,33 +1287,6 @@ public:
                     std::copy_n(outputs[channel], frames, self.retained_.samples[channel].data());
             }
             self.retained_.valid = true;
-        }
-        const bool renderedPlayback = resumed || rendered != 0;
-        for (std::size_t index = 0; index < 4; ++index) {
-            if (!buffers[index]) continue;
-            auto* buffer = buffers[index];
-            buffer->size = 0;
-            if (buffer->buffer && buffer->buffer->n_datas == 1) {
-                if (auto* chunk = buffer->buffer->datas[0].chunk) {
-                    chunk->offset = 0;
-                    chunk->stride = sizeof(float);
-                    chunk->flags = SPA_CHUNK_FLAG_NONE;
-                    chunk->size = 0;
-                    // A link notification can close the gate while master
-                    // buffers are being returned. Check each cue extent
-                    // immediately before handing that buffer to PipeWire.
-                    // A master fault can arrive after rendering or during an earlier return.
-                    if (valid[index] && !expired && (!renderedPlayback || self.ready()) &&
-                        (index < 2 || !cue || self.cueRouteOpen())) {
-                        chunk->size = frames * sizeof(float);
-                        buffer->size = frames;
-                    }
-                }
-            }
-            if (pw_filter_queue_buffer(self.portData_[index], buffers[index]) < 0) {
-                if (index < 2) { ++self.invalidBuffers_; self.bufferFault_.store(true, std::memory_order_relaxed); }
-                else self.cueGate_.store(CueGate::BufferFault, std::memory_order_release);
-            }
         }
         // The deadline covers initial playback only. A later graph-state
         // transition must not turn an established session into a startup timeout.
