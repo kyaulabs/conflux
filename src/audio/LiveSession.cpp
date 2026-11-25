@@ -1085,14 +1085,17 @@ public:
                 std::fill_n(outputs[index], frames, 0.F);
             }
         }
-        const bool masterValid = valid[0] && valid[1];
-        const bool cueValid = valid[2] && valid[3];
+        // Missing buffers in a superseded callback cannot establish a route fault.
+        // Return every buffer acquired here without consuming transport or retained PCM.
+        const bool expiredDuringAcquire = durationValid && callbackExpired(position->clock, clock);
+        const bool masterValid = !expiredDuringAcquire && valid[0] && valid[1];
+        const bool cueValid = !expiredDuringAcquire && valid[2] && valid[3];
         if (masterValid) self.masterBuffersReady_.store(true, std::memory_order_release);
         bool cue = self.cueRouteOpen();
         // A ready graph can temporarily lose its buffers while PipeWire
         // renegotiates the quantum. One missing block uses the allowance
         // until the required buffers are seen again.
-        const bool readyForQuantum = durationValid && rateValid && self.ready();
+        const bool readyForQuantum = !expiredDuringAcquire && durationValid && rateValid && self.ready();
         const bool changingQuantum = readyForQuantum &&
             self.lastUsableQuantum_ && self.lastUsableQuantum_ != frames;
         if (readyForQuantum)
@@ -1110,8 +1113,8 @@ public:
         bool capturedCue = false;
         const bool resumed = canRetain && self.ready() && masterValid &&
             self.restoreOutput(clock, frames, outputs, cue, replacementPending);
-        if (!resumed) self.retained_.valid = false;
-        if (!durationValid || (self.ready() && !masterValid && !changingQuantum)) {
+        if (!expiredDuringAcquire && !resumed) self.retained_.valid = false;
+        if (!durationValid || (!expiredDuringAcquire && self.ready() && !masterValid && !changingQuantum)) {
             ++self.invalidBuffers_; self.bufferFault_.store(true, std::memory_order_relaxed);
         } else if (!resumed && self.ready() && rateValid && masterValid) {
             self.consumeCommands(); self.meters_ = {};
@@ -1225,7 +1228,7 @@ public:
             for (std::size_t index = 2; index < 4; ++index)
                 if (valid[index]) std::fill_n(outputs[index], frames, 0.F);
 
-        bool expired = durationValid && callbackExpired(position->clock, clock);
+        bool expired = expiredDuringAcquire || (durationValid && callbackExpired(position->clock, clock));
         if (!expired) {
             for (std::size_t index = 0; index < outputs.size(); ++index)
                 if (valid[index]) std::copy_n(outputs[index], frames, mapped[index]);
