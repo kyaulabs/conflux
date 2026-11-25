@@ -1027,6 +1027,69 @@ class WorkerTest(unittest.TestCase):
                                               expected[:, frame:])
                 worker.close()
 
+    def test_adjacent_seek_reuses_parked_window_as_overlap(self):
+        raw = self.root / "adjacent-parked-overlap.f32"
+        self.audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([chunk["samples"] for chunk in
+                                   self.collect(reference, reference.load_f32(raw))], axis=1)
+
+        for before_parking in (False, True):
+            with self.subTest(before_parking=before_parking):
+                worker, fake = self.worker(FakeRuntime(blocked=True), max_ready=1)
+                opened = worker.load_f32(raw, start_frame=len(self.audio))
+                self.assertEqual(self.collect(worker, opened), [])
+                original = worker.seek(HOP + OVERLAP)
+                parked = self.event(worker, "started", original)
+                self.assertEqual((parked["request_id"], parked["window_start_frame"]), (1, HOP))
+                self.assertTrue(fake.wait_call(1))
+
+                old_wait = worker._wait_inference
+                reply_received = threading.Event()
+                resume = threading.Event()
+                first_seek = worker.seek(HOP + 17)
+
+                def stop_between_reply_and_parking(command=None, **kwargs):
+                    result = old_wait(command, **kwargs)
+                    if (before_parking and command is not None and command.generation == first_seek
+                            and kwargs.get("adopt") and not kwargs.get("keep_pending")):
+                        reply_received.set()
+                        if not resume.wait(3):
+                            raise TimeoutError("test did not release completed target")
+                    return result
+
+                # Pause the fake NativeRuntime at ownership boundaries, rather
+                # than hoping to hit a timing window with a short sleep.
+                try:
+                    with patch.object(worker, "_wait_inference", stop_between_reply_and_parking):
+                        fake.release()
+                        if before_parking:
+                            self.assertTrue(reply_received.wait(3))
+                        else:
+                            pending = self.event(worker, "started", first_seek)
+                            self.assertEqual((pending["request_id"], pending["window_start_frame"]), (2, 0))
+                            self.assertTrue(pending["preroll"])
+                            self.assertTrue(fake.wait_call(2))
+                        frame = 2 * HOP + 37
+                        final = worker.seek(frame)
+                        resume.set()
+                        if not before_parking:
+                            fake.release()  # Finish the obsolete opening request.
+
+                        target = self.event(worker, "started", final)
+                        self.assertEqual(target["window_start_frame"], 2 * HOP,
+                                         "The completed overlap was separated again")
+                        expected_calls = 2 if before_parking else 3
+                        self.assertEqual(target["request_id"], expected_calls)
+                        fake.release()
+                        chunk, = self.collect(worker, final)
+                        self.assertEqual((chunk["frame_start"], chunk["request_id"], fake.calls),
+                                         (frame, expected_calls, expected_calls))
+                        np.testing.assert_array_equal(chunk["samples"], expected[:, frame:])
+                finally:
+                    resume.set()
+                    worker.close(timeout=.05)
+
     def test_seek_uses_active_preroll_before_first_target_chunk(self):
         raw = self.root / "seek-active-preroll.f32"
         self.audio.astype("<f4").tofile(raw)
