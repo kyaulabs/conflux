@@ -1800,8 +1800,11 @@ void DeckController::installSession(std::unique_ptr<audio::PreparedPlayback> ret
     initial.crossfader = state_.crossfader;
     initial.cueSelected = state_.cueSelected;
     initial.cueGain = state_.cueGain;
-    for (std::size_t deck = 0; deck < initial.stemGain.size(); ++deck)
+    for (std::size_t deck = 0; deck < initial.stemGain.size(); ++deck) {
         if (state_.stemBank[deck]) initial.stemGain[deck] = state_.stemGain[deck];
+        if (stoppedPlaybacks_[deck] && state_.loops[deck].inSet)
+            initial.loopResumePosition[deck] = state_.sourcePosition[deck];
+    }
     // Reuse both exact stopped owners and the prepared first-load candidate.
     // Reset/prime belongs to LiveSession's existing worker-side constructor.
     auto playbacks = std::move(stoppedPlaybacks_);

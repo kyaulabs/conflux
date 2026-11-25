@@ -387,6 +387,83 @@ void combinedControlsAndPeerClock()
     require(!callbackReads && !callbackAllocations, "Loop/tempo render callback performed I/O/allocation");
 }
 
+void sessionResumeRetainsLoopPcmAndPhase()
+{
+    Signals signals;
+    constexpr std::uint64_t in = 17, out = 4114;
+    constexpr std::size_t prefixFrames = 257;
+    for (const bool bank : {false, true})
+        for (const int mode : {0, 1, 2})
+        {
+            auto makeLoop = [&]
+            {
+                auto owner = signals.playback(bank);
+                require(owner->prime(out, 2s), "Cannot prime the linear reader at OUT");
+                const auto source = owner->sourceRef();
+                require(source.loopControl(source.context, AudioLoopCommand::In, in), "Cannot set session loop IN");
+                wait([&] { return source.loopState(source.context).ready; }, "Session loop cache did not prepare");
+                require(source.loopControl(source.context, AudioLoopCommand::Out, out), "Cannot set session loop OUT");
+                if (mode)
+                    require(source.tempoControl(source.context, AudioTempoCommand::Set, 6, mode == 2, in),
+                            "Cannot prepare processed session loop");
+                return owner;
+            };
+            auto owner = makeLoop();
+            auto reference = makeLoop();
+            auto consume = [&](AudioSource source, std::uint64_t frame, std::span<float> output)
+            {
+                AudioReadResult result;
+                wait([&]
+                    {
+                        {
+                            CallbackScope scope;
+                            result = source.read(source.context, frame, output);
+                        }
+                        require(!result.failed && !result.finished, "Retained loop read failed");
+                        return result.frames != 0;
+                    }, "Retained loop did not supply PCM");
+                require(result.frames == output.size() / 2, "Unexpected short retained loop read");
+                return result;
+            };
+            std::array<float, 2 * prefixFrames> before{}, expectedBefore{};
+            auto ref = reference->sourceRef();
+            const auto original = consume(owner->sourceRef(), in, before);
+            const auto expected = consume(ref, in, expectedBefore);
+            const double position = mode ? original.nominalPosition : double(in + prefixFrames);
+            require(before == expectedBefore && original.positionValid == bool(mode) &&
+                        (!mode || (position == expected.nominalPosition && position != std::floor(position))),
+                    "Loop fixture did not reach the same consumed position");
+            const auto generation = owner->sourceRef().tempoState(owner.get()).generation;
+            require(owner->resumeLoopForSession(position, 2s, {}) && owner->configureStemRamps(0),
+                    "Cannot transfer the finite loop owner");
+            auto resumed = owner->sourceRef();
+            const auto loop = resumed.loopState(resumed.context);
+            require(loop.ready && loop.active && loop.inFrame == in && loop.outFrame == out &&
+                        loop.cached == !mode && resumed.tempoState(resumed.context).generation == generation,
+                    "Session resume changed loop geometry or discarded queued tempo");
+            std::array<float, 514> continued{}, expectedContinued{};
+            const auto actualEnd = consume(resumed, std::uint64_t(position), continued);
+            const auto expectedEnd = consume(ref, std::uint64_t(position), expectedContinued);
+            require(continued == expectedContinued && actualEnd.nominalPosition == expectedEnd.nominalPosition,
+                    "First post-resume PCM or its consumed position changed");
+            if (!mode)
+            {
+                // EXIT must be able to leave the retained cache using the
+                // parked linear reader, for both normal and four-stem owners.
+                require(resumed.loopControl(resumed.context, AudioLoopCommand::Toggle, out - 1),
+                        "Cannot exit the retained raw loop");
+                float finalSample[2]{}, outside[2]{}, linearReference[2]{};
+                consume(resumed, out - 1, finalSample);
+                consume(resumed, out, outside);
+                require(ref.loopControl(ref.context, AudioLoopCommand::Clear, out) && reference->prime(out, 2s),
+                        "Cannot prime reference outside the loop");
+                consume(ref, out, linearReference);
+                require(outside[0] == linearReference[0] && outside[1] == linearReference[1],
+                        "EXIT did not join the original linear PCM at OUT");
+            }
+        }
+}
+
 void currentStemGainsAcrossProcessedWrapsAndReset()
 {
     Signals signals;
@@ -603,6 +680,7 @@ int main()
         unityWrapsPartialConsumptionAndRangeRejection();
         continuousSrcAndMasterTempo();
         combinedControlsAndPeerClock();
+        sessionResumeRetainsLoopPcmAndPhase();
         currentStemGainsAcrossProcessedWrapsAndReset();
         cyclicSourceMutationAndCancellation();
         malformedLoopMetadataFailsClosed();

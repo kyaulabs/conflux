@@ -7,6 +7,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <span>
 
 namespace conflux::audio {
@@ -88,7 +89,8 @@ public:
     bool seek(std::size_t deck, std::uint64_t frame) noexcept;
     // Pre-first-render only; caller already primed this exact source cursor.
     // No discontinuity notification or output-clock/transport change.
-    bool restorePrimedCursor(std::size_t deck, std::uint64_t frame) noexcept;
+    bool restorePrimedCursor(std::size_t deck, std::uint64_t frame,
+                             std::optional<double> nominalPosition = std::nullopt) noexcept;
     // Render owner: explicitly invalidate a callback source at the same cursor,
     // preserving transport/cue/gains and cumulative diagnostics.
     bool retrySource(std::size_t deck) noexcept;
