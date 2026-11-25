@@ -131,9 +131,9 @@ public:
             if (stop.stop_requested()) throw std::runtime_error("Playback installation cancelled");
             if (!playbacks[deck]) continue;
             const auto timeout = playbacks[deck]->isLive() ? PreparedPlayback::liveWait : std::chrono::seconds(2);
-            const auto position = initial.loopResumePosition[deck];
+            const auto position = initial.preparedResumePosition[deck];
             const bool primed = position
-                ? playbacks[deck]->resumeLoopForSession(*position, timeout, stop)
+                ? playbacks[deck]->resumeForSession(*position, timeout, stop)
                 : playbacks[deck]->primeForSession(initial.sourceFrame[deck], timeout, stop);
             if (!primed)
                 throw std::runtime_error("Cannot prime prepared PCM at the initial source position: " + playbacks[deck]->error());
@@ -181,14 +181,14 @@ public:
             }
             if (!renderer_.sourceFrames(deck)) {
                 if (initial.sourceFrame[deck] || initial.cueFrame[deck] || initial.playing[deck] || initial.cueSelected[deck] ||
-                    initial.loopResumePosition[deck] || initial.residentHoldRangeId[deck] ||
+                    initial.preparedResumePosition[deck] || initial.residentHoldRangeId[deck] ||
                     initial.hotCues[deck] != RenderCore::HotCues{})
                     throw std::invalid_argument("Unloaded deck cannot have transport or cue selection");
                 continue;
             }
             if (!renderer_.restoreHotCues(deck, initial.hotCues[deck]) ||
                 !renderer_.setCueFrame(deck, initial.cueFrame[deck]) ||
-                !renderer_.restorePrimedCursor(deck, initial.sourceFrame[deck], initial.loopResumePosition[deck]) ||
+                !renderer_.restorePrimedCursor(deck, initial.sourceFrame[deck], initial.preparedResumePosition[deck]) ||
                 !renderer_.setDeckGain(deck, initial.deckGain[deck]) ||
                 !renderer_.setPlaying(deck, initial.playing[deck]) ||
                 !renderer_.setCueSelected(deck, initial.cueSelected[deck]))

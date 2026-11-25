@@ -1479,11 +1479,11 @@ bool PreparedPlayback::primeForSession(std::uint64_t frame, std::chrono::millise
     return prime(frame, timeout, stop);
 }
 
-bool PreparedPlayback::resumeLoopForSession(double position, std::chrono::milliseconds timeout, std::stop_token stop)
+bool PreparedPlayback::resumeForSession(double position, std::chrono::milliseconds timeout, std::stop_token stop)
 {
     unusedContinuationPrime_ = false;
     const auto now = Clock::now();
-    if (live_ || !loop_.inSet || !std::isfinite(position) || position < 0 || position > double(frames_) ||
+    if (live_ || !std::isfinite(position) || position < 0 || position > double(frames_) ||
         timeout.count() < 0 || timeout > std::chrono::duration_cast<std::chrono::milliseconds>(Clock::time_point::max() - now)) {
         primeError_.store(EINVAL, std::memory_order_relaxed);
         return false;
@@ -1494,7 +1494,8 @@ bool PreparedPlayback::resumeLoopForSession(double position, std::chrono::millis
     }
     primeError_.store(0, std::memory_order_relaxed);
     const auto tempo = tempoState();
-    if (tempo.active ? tempoSource_->nominalPosition() != position : position != std::floor(position)) {
+    if ((!loop_.inSet && !tempo.active) ||
+        (tempo.active ? tempoSource_->nominalPosition() != position : position != std::floor(position))) {
         primeError_.store(EINVAL, std::memory_order_relaxed);
         return false;
     }

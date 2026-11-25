@@ -85,9 +85,9 @@ public:
     // only a healthy, exact, never-read live reserve may avoid a new epoch.
     // Explicit prime() always requests a fresh epoch, even at the same cursor.
     bool primeForSession(std::uint64_t frame, std::chrono::milliseconds timeout, std::stop_token stop = {});
-    // Quiesced transfer of the same finite owner with a prepared loop.
-    // Keep the loop cache and any queued tempo PCM at the consumed cursor.
-    bool resumeLoopForSession(double position, std::chrono::milliseconds timeout, std::stop_token stop);
+    // Quiesced transfer of the same finite owner with a loop or active tempo.
+    // Preserve its cached loop and exact consumed tempo position when present.
+    bool resumeForSession(double position, std::chrono::milliseconds timeout, std::stop_token stop);
     // Configure before concurrent rendering. Normal PCM is an unchanged no-op;
     // a bank uses these frames for future gain changes. Never call from the GUI
     // once this owner has entered the render-boundary handoff.
