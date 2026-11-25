@@ -1691,13 +1691,14 @@ void runLiveStemController(const std::filesystem::path& output, const QString& p
     const auto routed = controller.audioState();
     require(controller.liveStemObservations(0) == liveObservations && !controller.liveStemObservations(1),
             "Consumed route rebuild retains its live observation handle and a null finite peer handle");
+    const auto routedSeeks = trace.count(0, "command", "seek") - seeks;
     require(trace.size() == 3 && trace.alive(0) && trace.count(0, "command", "load") == 1 &&
-            trace.count(0, "fixture", "runtime") == 1 && trace.count(0, "command", "seek") == seeks + 1 &&
+            trace.count(0, "fixture", "runtime") == 1 && routedSeeks <= 1 &&
             routed.stemGain[0] == bass && routed.playing[0] && routed.cueFrame[0] == cue && routed.cueSelected[0] &&
             !routed.playing[1] && !routed.stemBank[1] && routed.sourceFrame[0] < routed.sourceFrames[0] &&
             controller.completedSessions() == sessions + 1 && controller.recording()["active"].toBool() &&
             controller.recording()["path"].toString() == recordingPath,
-            "Consumed routing rebuild retains one service/runtime with one necessary seek and captured bass/cue/transport targets");
+            "Consumed routing rebuild retains one service/runtime, at most one refill seek, and captured bass/cue/transport targets");
     const auto received = sink.received(0), wrong = sink.wrong(), zeros = sink.zeros();
     sink.validate(true);
     wait([&] { return sink.received(0) >= received + 1024; }, "Rebuilt live bass samples did not arrive");
@@ -1727,7 +1728,7 @@ void runLostLiveOwners(const QString& parent, Check&& require, QJsonObject& obse
 {
     QTemporaryDir directory(QDir(parent).filePath("lost-live-controller-XXXXXX"));
     require(directory.isValid(), "Constructor-loss fixtures have an independent private owner");
-    auto fixture = conflux::test::makeStemServiceFixture(directory.path(), "stale-after-seek");
+    auto fixture = conflux::test::makeStemServiceFixture(directory.path(), "stale-after-first-reserve");
     ServiceTrace trace(fixture);
     conflux::DeckController::PreparationOptions options;
     options.stemEngine = fixture.engine; options.stemServicePath = fixture.service;
@@ -1745,7 +1746,11 @@ void runLostLiveOwners(const QString& parent, Check&& require, QJsonObject& obse
         const auto mutedAt = controller.audioState().outputFrame;
         wait([&] { return controller.audioState().outputFrame >= mutedAt + 1024; }, "Lost-owner fixture mute did not settle");
         controller.setPlaying(deck, true);
-        wait([&] { return controller.audioState().sourceFrame[deck] >= 1024; }, "Lost-owner fixture did not consume PCM");
+        // The fixture publishes one 44.1 kHz hop. Its resampled reserve is
+        // full at load, but too short to rebuild after this much consumption.
+        constexpr auto consumed = conflux::audio::PreparedPlayback::liveReserveFrames / 8;
+        wait([&] { return controller.audioState().sourceFrame[deck] >= consumed; },
+             "Lost-owner fixture did not consume enough PCM to require a refill");
         controller.setPlaying(deck, false);
         wait([&] { return !controller.audioState().playing[deck]; }, "Lost-owner fixture pause was not acknowledged");
     }

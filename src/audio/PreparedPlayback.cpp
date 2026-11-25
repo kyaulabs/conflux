@@ -564,7 +564,7 @@ bool PreparedPlayback::tempoControl(AudioTempoCommand command, double percent, b
         const bool accepted = tempoSource_->request(frame, percent, keyLock,
             loop_.active ? loop_.inFrame : 0, loop_.active ? loop_.outFrame : 0);
         if (!accepted) liveTempoInput_ = previous;
-        else if (live_) unusedLivePrime_ = false;
+        else if (live_) livePrimeEpoch_ = 0;
         return accepted;
     };
     if (state.active) {
@@ -1079,7 +1079,6 @@ AudioReadResult PreparedPlayback::readLinearLive(std::uint64_t frame, std::span<
     if (output.size() % StemBankSource::channels ||
         output.size() / StemBankSource::channels > StemBankSource::blockFrames ||
         frame > frames_ || frame != live_->demand.cursor) return {0, true};
-    if (!output.empty()) unusedLivePrime_ = false;
     if (live_->code() || live_->stopping.load(std::memory_order_relaxed)) return {0, true};
     if (output.empty() || frame == frames_) return {};
     if (live_->demand.waitSerial) {
@@ -1206,7 +1205,7 @@ void PreparedPlayback::seekLiveInput(std::uint64_t frame, bool openingSuffix) no
 void PreparedPlayback::seekLive(std::uint64_t frame) noexcept
 {
     (void)residentHoldControl(AudioResidentHoldCommand::Cancel,0,frame);
-    unusedLivePrime_ = false;
+    livePrimeEpoch_ = 0;
     if (liveTempoInput_) {
         const auto state = tempoSource_->status();
         if (!tempoSource_->request(frame, state.percent, state.keyLock))
@@ -1266,7 +1265,7 @@ bool PreparedPlayback::prime(std::uint64_t frame, std::chrono::milliseconds time
     if (!live_) clearLoop();
     // An explicit attempt supersedes every older success, even when argument
     // validation or an already-cancelled token prevents a new request.
-    unusedLivePrime_ = false;
+    livePrimeEpoch_ = 0;
     const auto now = Clock::now();
     if (live_) timeout = std::min(timeout, std::chrono::duration_cast<std::chrono::milliseconds>(liveWait));
     if (frame > frames_ || timeout.count() < 0 ||
@@ -1321,14 +1320,12 @@ bool PreparedPlayback::prime(std::uint64_t frame, std::chrono::milliseconds time
         }
         if (neededEnd == frame || (state->publishedEpoch == request.epoch && state->publishedEnd >= neededEnd)) {
             if (!state->openGate()) return false;
-            livePrimeFrame_ = frame;
             livePrimeEpoch_ = request.epoch;
-            unusedLivePrime_ = true;
             if (liveTempoRestore_.active) {
                 const auto selected = liveTempoRestore_;
                 liveTempoRestore_ = {};
                 liveTempoInput_ = true;
-                unusedLivePrime_ = false;
+                livePrimeEpoch_ = 0;
                 lock.unlock();
                 return primeTempo(frame, selected.percent, selected.keyLock, deadline, stop);
             }
@@ -1454,10 +1451,10 @@ bool PreparedPlayback::primeForSession(std::uint64_t frame, std::chrono::millise
     primeError_.store(0, std::memory_order_relaxed);
     if (live_ && live_->code()) return false;
     bool reuse = false;
-    if (live_ && unusedLivePrime_ && livePrimeFrame_ == frame) {
+    if (live_ && !liveTempoInput_ && livePrimeEpoch_ && live_->demand.epoch == livePrimeEpoch_ &&
+        live_->demand.cursor == frame && !live_->demand.waitSerial && bank_->canRebindAt(frame)) {
         LiveStemBuffer::Request request;
-        if (live_->buffer.tryRequest(request) && request.firstFrame == frame && request.epoch == livePrimeEpoch_ &&
-            live_->demand.epoch == request.epoch && live_->demand.cursor == frame && !live_->demand.waitSerial) {
+        if (live_->buffer.tryRequest(request) && request.firstFrame <= frame && request.epoch == livePrimeEpoch_) {
             const auto neededEnd = frame + std::min(liveReserveFrames, frames_ - frame);
             const std::lock_guard lock(live_->mutex); // Off-thread/quiesced only.
             reuse = !live_->code() && !live_->stopping.load(std::memory_order_relaxed) && !stop.stop_requested() &&
@@ -1572,7 +1569,7 @@ std::string PreparedPlayback::error() const
 void PreparedPlayback::stop() noexcept
 {
     unusedContinuationPrime_ = false;
-    unusedLivePrime_ = false;
+    livePrimeEpoch_ = 0;
     if (stopped_) return;
     (void)residentHoldControl(AudioResidentHoldCommand::Cancel,0,0);
     stopped_ = true;

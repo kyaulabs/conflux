@@ -383,8 +383,12 @@ void renderedOwnerRebuildPreservesCursorTargetsAndProducer()
     constexpr std::uint64_t target = 512;
     constexpr std::array<float, 4> gains{.125F, .25F, .5F, 1.F};
     auto state = std::make_shared<Control>();
+    // The first prime has exactly one reserve. Playback consumes part of it
+    // before the rebuild, which must refill from the new cursor.
+    state->allowance.store(PreparedPlayback::liveReserveFrames);
     auto owner = PreparedPlayback::makeLive(351, totalFrames, producer(state));
     require(owner->prime(target, 2s), "Cannot prime rendered-owner rebuild fixture");
+    const auto initialEpoch = state->epoch.load();
     std::uint64_t cursor = 0;
     {
         RenderCore core(owner->sourceRef());
@@ -411,6 +415,8 @@ void renderedOwnerRebuildPreservesCursorTargetsAndProducer()
     initial.cueFrame[0] = target;
     initial.stemGain[0] = gains;
     LiveSession rebuilt(std::move(owners), initial);
+    require(state->epoch == initialEpoch + 1 && state->target == cursor,
+            "Rebuild reused an incomplete reserve at the stopped cursor");
     const auto restored = rebuilt.stoppedState();
     require(restored.sourceFrame[0] == cursor && restored.stemGain[0] == gains &&
             state->starts == 1 && state->exits == 0 && !restored.sourceReadError[0],

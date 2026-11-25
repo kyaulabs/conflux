@@ -82,7 +82,7 @@ public:
     bool primeContinuation(double position, const AudioTempoState& tempo,
                            std::chrono::milliseconds timeout, std::stop_token stop = {});
     // Quiesced, before a session borrows this owner. Reset bank/ramp staging;
-    // only a healthy, exact, never-read live reserve may avoid a new epoch.
+    // a healthy raw live reserve at the exact stopped cursor may avoid a new epoch.
     // Explicit prime() always requests a fresh epoch, even at the same cursor.
     bool primeForSession(std::uint64_t frame, std::chrono::milliseconds timeout, std::stop_token stop = {});
     // Quiesced transfer of the same finite owner with a loop or active tempo.
@@ -173,8 +173,8 @@ private:
     // Sole render/control owner across quiescence and candidate publication.
     double continuationPrimePosition_ = 0;
     bool unusedContinuationPrime_ = false;
+    // Successful raw live prime, retained until a discontinuity or new attempt.
     // Render/control owner only across quiescence; producer never touches it.
-    std::uint64_t livePrimeFrame_ = 0, livePrimeEpoch_ = 0;
-    bool unusedLivePrime_ = false;
+    std::uint64_t livePrimeEpoch_ = 0;
 };
 } // namespace conflux::audio

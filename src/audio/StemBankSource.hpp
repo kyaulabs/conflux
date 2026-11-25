@@ -41,6 +41,9 @@ public:
     [[nodiscard]] AudioSource sourceRef() noexcept;
     [[nodiscard]] std::uint64_t frames() const noexcept { return frames_; }
     [[nodiscard]] std::uint64_t sourceFrame() const noexcept { return cursor_; }
+    // Quiesced input owner only. Empty staging can be replaced at this cursor
+    // without discarding unread samples from an ahead-of-bank provider.
+    [[nodiscard]] bool canRebindAt(std::uint64_t frame) const noexcept;
 
     // Same linear target/ramp convention as RenderCore: default zero preserves
     // exact static gains; configure before the first nonempty valid read, up to
