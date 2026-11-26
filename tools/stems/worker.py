@@ -11,7 +11,7 @@ for this isolated experiment, not the application build.
 
 from collections import OrderedDict, deque
 from concurrent.futures import Future, ThreadPoolExecutor
-from contextlib import ExitStack, suppress
+from contextlib import ExitStack, nullcontext, suppress
 from dataclasses import dataclass
 import hashlib
 import json
@@ -305,6 +305,7 @@ class _Source:
     mean: np.float32
     std: np.float32
     source_format: str = "wav_pcm16"
+    normalization_error: str | None = None
 
 
 @dataclass(frozen=True)
@@ -342,6 +343,72 @@ def _open_f32(path, expected_signature):
         raise
 
 
+def _inspect_source(path, signature, source_format, check, *, raw_stream=None):
+    """Hash and normalize one source, optionally through its already-pinned descriptor."""
+    raw_float = source_format == "f32le"
+    digest = hashlib.sha256()
+    if not raw_float:
+        # A WAV's byte identity also covers headers and non-PCM chunks.
+        with path.open("rb") as stream:
+            while block := stream.read(1024 * 1024):
+                check()
+                digest.update(block)
+    count, mean, m2 = 0, 0.0, 0.0
+    normalization_error = None
+    if raw_float:
+        opened = nullcontext(raw_stream) if raw_stream is not None else _open_f32(path, signature)
+    else:
+        opened = wave.open(str(path), "rb")
+    with opened as stream:
+        if raw_float:
+            frames = signature[2] // (CHANNELS * 4)
+        else:
+            if (stream.getparams()[:3] != (CHANNELS, 2, RATE)
+                    or stream.getcomptype() != "NONE" or stream.getnframes() < 1):
+                raise ValueError("M0 source must be nonempty stereo 44.1 kHz PCM16 WAV")
+            frames = stream.getnframes()
+        while count < frames:
+            check()
+            size = min(65536, frames - count)
+            data = stream.read(size * CHANNELS * 4) if raw_float else stream.readframes(size)
+            if not data:
+                break
+            if raw_float:
+                if len(data) % (CHANNELS * 4):
+                    raise RuntimeError("stem source changed or was truncated during preparation")
+                digest.update(data)
+                pcm = np.frombuffer(data, dtype="<f4").reshape(-1, CHANNELS)
+                # Finish the identity hash so a pinned input still reports invalid samples on load.
+                if normalization_error is not None or not np.isfinite(pcm).all():
+                    normalization_error = "F32LE source contains non-finite samples"
+                    count += pcm.shape[0]
+                    continue
+                mono = np.add(pcm[:, 0], pcm[:, 1], dtype=np.float64)
+                mono *= 0.5
+            else:
+                pcm = np.frombuffer(data, dtype="<i2").reshape(-1, CHANNELS)
+                mono = pcm.astype(np.float64).mean(axis=1) / 32768.0
+            size = mono.size
+            average = float(mono.mean())
+            delta = average - mean
+            m2 += float(np.square(mono - average).sum()) + delta * delta * count * size / (count + size)
+            mean += delta * size / (count + size)
+            count += size
+    if count != frames or _signature(path) != signature:
+        raise RuntimeError("stem source changed or was truncated during preparation")
+    if raw_float:
+        with np.errstate(over="ignore", invalid="ignore"):
+            canonical_mean = np.float32(mean)
+            canonical_std = np.float32(math.sqrt(m2 / max(1, count - 1)) + 1e-8)
+        if not np.isfinite(canonical_mean) or not np.isfinite(canonical_std) or canonical_std <= 0:
+            normalization_error = normalization_error or "F32LE source normalization is non-finite"
+    else:
+        canonical_mean = np.float32(mean)
+        canonical_std = np.float32(math.sqrt(m2 / max(1, count - 1)) + 1e-8)
+    return _Source(path, signature, digest.hexdigest(), frames,
+                   canonical_mean, canonical_std, source_format, normalization_error)
+
+
 def _open_model(path, expected_signature):
     descriptor = os.open(path, os.O_RDONLY | os.O_NONBLOCK | os.O_CLOEXEC | os.O_NOFOLLOW)
     try:
@@ -367,7 +434,7 @@ class StemWorker:
     """
 
     def __init__(self, runtime, model, backend="vulkan", threads=4, max_ready=2,
-                 request_timeout=30, *, _backend_factory=NativeRuntime, _model_pin=None):
+                 request_timeout=30, *, _backend_factory=NativeRuntime, _model_pin=None, _prepared_source=None):
         if (backend not in ("cpu", "vulkan") or isinstance(threads, bool)
                 or not isinstance(threads, int) or threads < 1 or threads > 64
                 or isinstance(max_ready, bool) or not isinstance(max_ready, int)
@@ -413,6 +480,7 @@ class StemWorker:
         self._model_id = None
         self._model_signature = None
         self._cached_source = None
+        self._prepared_source = _prepared_source
         self._opening_weighted_window = None
         self._weighted_windows = OrderedDict()
         self._weighted_overlaps = OrderedDict()
@@ -644,66 +712,16 @@ class StemWorker:
 
     def _source(self, command):
         signature = _signature(command.path)
-        cached = self._cached_source
         started = time.monotonic()
-        if (cached is not None and cached.path == command.path and cached.signature == signature
-                and cached.source_format == command.source_format):
-            source = cached
-            reused = True
-        else:
-            raw_float = command.source_format == "f32le"
-            digest = hashlib.sha256()
-            if not raw_float:
-                # A WAV's byte identity also covers headers and non-PCM chunks.
-                with command.path.open("rb") as stream:
-                    while block := stream.read(1024 * 1024):
-                        self._check(command)
-                        digest.update(block)
-            count, mean, m2 = 0, 0.0, 0.0
-            opened = _open_f32(command.path, signature) if raw_float else wave.open(str(command.path), "rb")
-            with opened as stream:
-                if raw_float:
-                    frames = os.fstat(stream.fileno()).st_size // (CHANNELS * 4)
-                else:
-                    if (stream.getparams()[:3] != (CHANNELS, 2, RATE)
-                            or stream.getcomptype() != "NONE" or stream.getnframes() < 1):
-                        raise ValueError("M0 source must be nonempty stereo 44.1 kHz PCM16 WAV")
-                    frames = stream.getnframes()
-                while data := (stream.read(65536 * CHANNELS * 4) if raw_float else stream.readframes(65536)):
-                    self._check(command)
-                    if raw_float:
-                        if len(data) % (CHANNELS * 4):
-                            raise RuntimeError("stem source changed or was truncated during preparation")
-                        digest.update(data)
-                        pcm = np.frombuffer(data, dtype="<f4").reshape(-1, CHANNELS)
-                        if not np.isfinite(pcm).all():
-                            raise ValueError("F32LE source contains non-finite samples")
-                        mono = np.add(pcm[:, 0], pcm[:, 1], dtype=np.float64)
-                        mono *= 0.5
-                    else:
-                        pcm = np.frombuffer(data, dtype="<i2").reshape(-1, CHANNELS)
-                        mono = pcm.astype(np.float64).mean(axis=1) / 32768.0
-                    size = mono.size
-                    average = float(mono.mean())
-                    delta = average - mean
-                    m2 += float(np.square(mono - average).sum()) + delta * delta * count * size / (count + size)
-                    mean += delta * size / (count + size)
-                    count += size
-            if count != frames or _signature(command.path) != signature:
-                raise RuntimeError("stem source changed or was truncated during preparation")
-            if raw_float:
-                with np.errstate(over="ignore", invalid="ignore"):
-                    canonical_mean = np.float32(mean)
-                    canonical_std = np.float32(math.sqrt(m2 / max(1, count - 1)) + 1e-8)
-                if not np.isfinite(canonical_mean) or not np.isfinite(canonical_std) or canonical_std <= 0:
-                    raise ValueError("F32LE source normalization is non-finite")
-            else:
-                canonical_mean = np.float32(mean)
-                canonical_std = np.float32(math.sqrt(m2 / max(1, count - 1)) + 1e-8)
-            source = _Source(command.path, signature, digest.hexdigest(), frames,
-                             canonical_mean, canonical_std, command.source_format)
-            self._cached_source = source
-            reused = False
+        source = next((candidate for candidate in (self._cached_source, self._prepared_source)
+                       if candidate is not None and candidate.path == command.path
+                       and candidate.signature == signature and candidate.source_format == command.source_format), None)
+        reused = source is not None and source is self._cached_source
+        if source is None:
+            source = _inspect_source(command.path, signature, command.source_format, lambda: self._check(command))
+        if source.normalization_error is not None:
+            raise ValueError(source.normalization_error)
+        self._cached_source = source
         self._check(command)
         with self._condition:
             if self._command != command or self._closed:
