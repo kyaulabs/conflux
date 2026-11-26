@@ -320,6 +320,38 @@ class AnalyzeBpmTest(unittest.TestCase):
         slow = [i*120000 for i in range(10)]
         self.assertFalse(any(bpm.unmeasured_intervals(slow, [(390000,508000)])))
 
+    def test_wholly_silent_intervals_need_no_flank_clock(self):
+        import numpy as np
+
+        rate = bpm.RATE
+        begin, end = 33600, 158400
+        beats = [.15, .65, 1.05, 1.35, 1.65, 1.95, 2.25, 2.55, 2.85, 3.15, 3.5, 4., 4.5]
+        inside = [round(beat * rate) for beat in beats[3:10]]
+        for gap in ("exact", "dither", "quiet"):
+            with self.subTest(gap=gap):
+                stereo = np.full((5 * rate, 2), .1, dtype="<f4")
+                center = stereo[begin:end]
+                center[:] = 0
+                if gap == "dither":
+                    random = np.random.default_rng(153)
+                    center[:] = bpm.DITHER_FLOOR * (random.random(center.shape) - random.random(center.shape))
+                if gap == "quiet":
+                    center[:, 0] = .6 * bpm.DITHER_FLOOR * np.sin(2 * np.pi * 83 * np.arange(len(center)) / rate)
+                    center[:, 1] = -center[:, 0]
+                cores = bpm.interior_silence_cores(stereo, 0, len(stereo)-1, bpm.MIN_LOCAL_SILENCE)
+                expected_cores = [(begin + bpm.SILENCE_MARGIN_FRAMES, end - bpm.SILENCE_MARGIN_FRAMES)]
+                self.assertEqual(cores, [] if gap == "quiet" else expected_cores)
+                tempo, count = bpm.summarize_beats(beats, len(stereo), silent_cores=cores)
+                self.assertEqual((tempo, count), (200.0 if gap == "quiet" else 120.0, len(beats)))
+                digest = hashlib.sha256(stereo.tobytes()).hexdigest()
+                wire = bpm.encode_result(len(stereo), digest, tempo, beats, [.15, 3.5], cores)
+                header, *events = map(json.loads, wire.splitlines())
+                self.assertEqual(header["pcm_sha256"], digest)
+                self.assertEqual([e["frame"] for e in events], bpm.source_beat_frames(beats, len(stereo)))
+                self.assertEqual([e["frame"] for e in events if e["downbeat"]], [7200, 168000])
+                self.assertEqual([e["frame"] for e in events if e["unmeasured_before"]],
+                                 [] if gap == "quiet" else inside)
+
     def test_summary_excludes_intervals_withheld_from_local_tempo(self):
         # Both audible passages are 120 BPM. The 200 BPM pulses in the rest
         # would otherwise outnumber the source-supported intervals.

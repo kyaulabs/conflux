@@ -335,6 +335,10 @@ def unmeasured_intervals(beat_frames, silent_cores):
     for begin, end in silent_cores:
         first = bisect_left(beat_frames, begin)
         last = bisect_left(beat_frames, end)
+        # Intervals entirely inside confirmed silence have no audible
+        # support, even when one flank is too short to assess its clock.
+        for index in range(first + 1, last):
+            unmeasured[index] = True
         left = beat_frames[max(0, first - 4):first]
         right = beat_frames[last:last + 4]
         if len(left) < 3 or len(right) < 3:
