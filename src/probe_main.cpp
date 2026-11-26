@@ -160,7 +160,7 @@ struct Probe {
     std::uint64_t graphQuantumMin = UINT64_MAX, graphQuantumMax = 0;
     std::uint64_t framesMin = UINT64_MAX, framesMax = 0;
     std::uint64_t previousEnd = 0;
-    std::uint32_t previousClock = SPA_ID_INVALID, previousCycle = 0;
+    std::uint32_t previousClock = SPA_ID_INVALID;
     spa_fraction previousRate{};
     std::uint64_t startedNs = 0, connectedNs = 0, stoppedNs = 0;
     unsigned seconds = 10, quantum = 256;
@@ -217,12 +217,8 @@ void process(void* userdata)
         data.graphQuantumMax = std::max(data.graphQuantumMax, clock.duration);
         if (clock.rate.denom && clock.rate.num)
             deadlineNs = 1.0e9 * clock.duration * clock.rate.num / clock.rate.denom;
-        bool sameClock = data.previousClock == clock.id && data.previousRate.num == clock.rate.num &&
+        const bool sameClock = data.previousClock == clock.id && data.previousRate.num == clock.rate.num &&
             data.previousRate.denom == clock.rate.denom;
-#ifdef SPA_IO_CLOCK_FLAG_XRUN_RECOVER
-        sameClock = sameClock && data.previousCycle == clock.cycle;
-        data.previousCycle = clock.cycle;
-#endif
         bool discontinuity = sameClock && data.previousEnd != clock.position;
 #ifdef SPA_IO_CLOCK_FLAG_DISCONT
         discontinuity = discontinuity || (clock.flags & SPA_IO_CLOCK_FLAG_DISCONT);
