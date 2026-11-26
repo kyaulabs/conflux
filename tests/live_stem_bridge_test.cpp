@@ -1354,6 +1354,8 @@ private slots:
         QTest::newRow("duplicate-without-proof") << QByteArray("runtime-restart-no-proof") << false;
         QTest::newRow("replaces-current-generation") << QByteArray("runtime-restart-current") << false;
         QTest::newRow("changed-runtime-revision") << QByteArray("runtime-restart-changed") << false;
+        QTest::newRow("older-fault-after-source") << QByteArray("runtime-restart-after-source") << true;
+        QTest::newRow("changed-runtime-after-source") << QByteArray("runtime-restart-changed-after-source") << false;
     }
     void runtimeReplacementIsBoundToRetiredGeneration()
     {

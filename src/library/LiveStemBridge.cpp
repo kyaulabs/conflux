@@ -790,7 +790,10 @@ private:
             validateRuntimeReady(ready, job_->engine);
             if (runtimeGeneration_) {
                 const auto retired = integer(value.value("replaces_generation"));
-                require(runtimeGeneration_ <= retired && retired < tag && !sourceSeen_ && ready == runtimeReady_,
+                // Validated PCM from this seek stays usable across an older
+                // request's failure. A replacement cannot follow full coverage.
+                require(runtimeGeneration_ <= retired && retired < tag &&
+                        (!sourceSeen_ || rawNext_ < job_->inputFrames) && ready == runtimeReady_,
                         "Invalid replacement of a superseded stem runtime");
             } else {
                 require(!value.contains("replaces_generation"), "Initial runtime cannot replace a stem generation");

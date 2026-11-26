@@ -289,8 +289,11 @@ class _Session:
             receipt = {"event": "runtime", "worker_generation": generation,
                        "model_id": self.model.digest, "ready": ready}
             if self.runtime_ready is not None:
+                # A verified prefix can have been delivered before an old
+                # unrelated request failed. Keep its source and leases.
                 if (not self.runtime_generation <= self.retired_fault < generation
-                        or self.source_ready or ready != self.runtime_ready):
+                        or (self.source_ready and self.next_frame == self.frames)
+                        or ready != self.runtime_ready):
                     raise RuntimeError("service runtime restarted unexpectedly")
                 receipt["replaces_generation"] = self.retired_fault
             self.runtime_ready = ready

@@ -821,6 +821,11 @@ class StemWorker:
                 and reply.command.source_generation == command.source_generation
                 and reply.event["window_start_frame"] == start)
 
+    def _retire_obsolete_failure(self, pending, error):
+        previous = pending.command
+        self._emit("error", previous.generation, message=str(error), source_path=str(previous.path))
+        return self._drop_runtime()
+
     def _inference_for_window(self, command, source, start, preroll):
         retained = self._retained_target
         if self._matches_window(retained, command, source, start):
@@ -840,8 +845,18 @@ class StemWorker:
                 raise RuntimeError("stem source changed during pending inference")
             return output, metrics, elapsed, pending.event["request_id"], pending.source_read_ms
 
-        # The persistent transport permits only one request at a time.
-        self._wait_inference(command)
+        # A cached seek prefix can already be playing while an unrelated
+        # request from an older generation finishes on the one native transport.
+        try:
+            self._wait_inference(command)
+        except _Superseded:
+            raise
+        except Exception as error:
+            if pending is None or pending.command.generation >= command.generation:
+                raise
+            if not self._retire_obsolete_failure(pending, error):
+                raise _Superseded from error
+            self._ensure_runtime(command)
         self._check(command)
         read_started = time.monotonic()
         samples = self._read_window(source, start)
@@ -1125,10 +1140,7 @@ class StemWorker:
                             except _Superseded:
                                 raise
                             except Exception as error:
-                                previous = pending.command
-                                self._emit("error", previous.generation, message=str(error),
-                                           source_path=str(previous.path))
-                                if not self._drop_runtime():
+                                if not self._retire_obsolete_failure(pending, error):
                                     return
                     self._ensure_runtime(command)
                     self._check(command)

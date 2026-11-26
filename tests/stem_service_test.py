@@ -716,6 +716,105 @@ class ServiceTest(unittest.TestCase):
         finally:
             backend.abort()
 
+    def test_unrelated_native_fault_does_not_invalidate_published_seek_prefix(self):
+        entered = {request: threading.Event() for request in (2, 3)}
+        release = {request: threading.Event() for request in entered}
+        for event in release.values():
+            self.addCleanup(event.set)
+
+        class Backend:
+            def __init__(self, inject):
+                self.inject = inject
+                self.calls = []
+                self.closed = False
+
+            def start(self):
+                return ready("vulkan", 2)
+
+            def infer(self, samples, request_id):
+                self.calls.append(request_id)
+                if self.inject and request_id in entered:
+                    entered[request_id].set()
+                    if not release[request_id].wait(6):
+                        raise TimeoutError("test did not release native request")
+                    if request_id == 3:
+                        raise RuntimeError("obsolete unrelated native request failed")
+                return np.repeat(samples[None], len(STEMS), axis=0), {"elapsed_ms": 1.0}
+
+            def close(self):
+                self.closed = True
+
+            def abort(self):
+                for event in release.values():
+                    event.set()
+
+        original, replacement = Backend(True), Backend(False)
+        backends = iter((original, replacement))
+
+        def factory(*args, **kwargs):
+            kwargs["_backend_factory"] = lambda *_: next(backends)
+            return StemWorker(*args, **kwargs)
+
+        frames = 3 * HOP + OVERLAP + 137
+        offset = HOP + OVERLAP
+        harness = Harness(self, frames=frames, worker_factory=factory).start()
+        try:
+            harness.event("ready")
+            harness.event("accepted", identifier=harness.send("load", frame=0))
+            initial_runtime = harness.event("runtime")
+            harness.event("source")
+            first = harness.event("chunk")
+            harness.event("accepted", identifier=harness.ack(first))
+            self.assertTrue(entered[2].wait(3))
+
+            obsolete = harness.event("accepted", identifier=harness.send("seek", frame=3 * HOP + OVERLAP))
+            release[2].set()
+            self.assertTrue(entered[3].wait(3))
+            self.assertEqual(harness.event("source")["generation"], obsolete["generation"])
+
+            current = harness.event("accepted", identifier=harness.send("seek", frame=offset))
+            generation = current["generation"]
+            source = harness.event("source")
+            prefix = harness.event("chunk")
+            self.assertEqual((source["generation"], prefix["generation"], prefix["frame_start"], prefix["frames"]),
+                             (generation, generation, offset, HOP - OVERLAP))
+            self.assertEqual(prefix["request_id"], 2)
+            self.assertTrue(prefix["inference_reused"])
+            self.assertFalse(release[3].is_set())
+
+            def verify_samples(chunk, start, end):
+                leaf = harness.directory / chunk["file"]
+                self.assertEqual(digest(leaf), chunk["sha256"])
+                data = np.fromfile(leaf, dtype="<f4")
+                samples = data.reshape(len(STEMS), end - start, CHANNELS)
+                expected = np.broadcast_to(harness.audio[start:end], samples.shape)
+                np.testing.assert_allclose(samples, expected, atol=5e-7, rtol=0)
+
+            verify_samples(prefix, offset, 2 * HOP)
+            # Keep the prefix lease outstanding across runtime replacement.
+            release[3].set()
+            restarted = harness.event("runtime")
+            self.assertEqual((restarted["worker_generation"], restarted["replaces_generation"]),
+                             (generation, obsolete["generation"]))
+            self.assertEqual(restarted["ready"], initial_runtime["ready"])
+            self.assertTrue(original.closed)
+            verify_samples(prefix, offset, 2 * HOP)
+            harness.event("accepted", identifier=harness.ack(prefix))
+            for start, end, request in ((2 * HOP, 3 * HOP, 4), (3 * HOP, frames, 5)):
+                chunk = harness.event("chunk")
+                self.assertEqual((chunk["generation"], chunk["frame_start"], chunk["request_id"]),
+                                 (generation, start, request))
+                self.assertNotIn("inference_reused", chunk)
+                verify_samples(chunk, start, end)
+                harness.event("accepted", identifier=harness.ack(chunk))
+            self.assertEqual(harness.event("complete")["generation"], generation)
+            self.assertEqual(harness.close_clean()["outstanding_slots"], 0)
+            self.assertTrue(replacement.closed)
+            self.assertFalse(any(item["event"] in ("source", "error") for item in harness.remaining()))
+            self.assertEqual((original.calls, replacement.calls), ([1, 2, 3], [4, 5]))
+        finally:
+            original.abort()
+
     def test_exact_eof_completes_before_obsolete_native_inference(self):
         entered, release = threading.Event(), threading.Event()
 
