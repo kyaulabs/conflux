@@ -26,7 +26,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.stems.export import _PinnedFile
 from tools.stems.worker import (CHANNELS, HOP, OVERLAP, RATE, STEMS, WINDOW,
-                                NativeRuntime, StemWorker)
+                                NativeRuntime, StemWorker, _SEEK_CACHE_WINDOWS)
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools" / "benchmarks"))
 from stem_worker import Load
 
@@ -704,36 +704,38 @@ class WorkerTest(unittest.TestCase):
         self.assertEqual(fake.calls, 3)
 
     def test_repeat_seek_keeps_opening_preroll_with_cached_forward_windows(self):
+        capacity = _SEEK_CACHE_WINDOWS
+        suffix_frame = (capacity + 1) * HOP
         raw = self.root / "opening-preroll.f32"
-        audio = fixture(self.root / "opening-preroll.wav", 4 * HOP + 137)
+        audio = fixture(self.root / "opening-preroll.wav", suffix_frame + 137)
         audio.astype("<f4").tofile(raw)
         reference, _ = self.worker()
         expected = np.concatenate([chunk["samples"] for chunk in
                                    self.collect(reference, reference.load_f32(raw))], axis=1)
         worker, fake = self.worker(FakeRuntime(blocked=True), max_ready=1)
 
-        # Starting after the overlap fills all three recent slots without the opening.
+        # Starting after the overlap fills all recent slots without the opening.
         original = worker.load_f32(raw, start_frame=HOP + OVERLAP)
         forward = []
-        for call in range(1, 4):
+        for call in range(1, capacity + 1):
             self.assertTrue(fake.wait_call(call))
             fake.release()
             forward.append(self.event(worker, "chunk", original))
-        self.assertTrue(fake.wait_call(4))
+        self.assertTrue(fake.wait_call(capacity + 1))
 
         first = worker.seek(HOP + 17)
         fake.release()  # Finish the superseded suffix request.
         opening = self.event(worker, "started", first)
         self.assertEqual(opening["window_start_frame"], 0)
         self.assertTrue(opening["preroll"])
-        self.assertTrue(fake.wait_call(5))
+        self.assertTrue(fake.wait_call(capacity + 2))
         fake.release()
         first_pass = [self.event(worker, "chunk", first) for _ in forward]
         self.assertEqual([chunk["request_id"] for chunk in first_pass],
                          [chunk["request_id"] for chunk in forward])
         np.testing.assert_array_equal(np.concatenate([c["samples"] for c in first_pass], axis=1),
-                                      expected[:, HOP + 17:4 * HOP])
-        self.assertTrue(fake.wait_call(6))
+                                      expected[:, HOP + 17:suffix_frame])
+        self.assertTrue(fake.wait_call(capacity + 3))
 
         repeat = worker.seek(HOP + 37)
         replay = [self.event(worker, "chunk", repeat, timeout=1) for _ in forward]
@@ -741,14 +743,14 @@ class WorkerTest(unittest.TestCase):
                          [chunk["request_id"] for chunk in forward])
         self.assertTrue(all(chunk["inference_reused"] for chunk in replay))
         np.testing.assert_array_equal(np.concatenate([c["samples"] for c in replay], axis=1),
-                                      expected[:, HOP + 37:4 * HOP])
-        self.assertEqual(fake.calls, 6)
+                                      expected[:, HOP + 37:suffix_frame])
+        self.assertEqual(fake.calls, capacity + 3)
 
         fake.release()
         tail, = self.collect(worker, repeat)
-        self.assertEqual(tail["request_id"], 6)
-        np.testing.assert_array_equal(tail["samples"], expected[:, 4 * HOP:])
-        self.assertEqual(fake.calls, 6)
+        self.assertEqual(tail["request_id"], capacity + 3)
+        np.testing.assert_array_equal(tail["samples"], expected[:, suffix_frame:])
+        self.assertEqual(fake.calls, capacity + 3)
 
     def test_seek_uses_active_target_window_with_cached_preroll(self):
         raw = self.root / "seek-active-target.f32"
@@ -868,9 +870,36 @@ class WorkerTest(unittest.TestCase):
                 finally:
                     worker.close(timeout=0.05)
 
+    def test_end_of_file_replay_reuses_last_thirty_seconds_with_overlap(self):
+        # Place the replay one frame into a hop and EOF inside the seventh
+        # contributing window. The preceding window still contributes audio.
+        replay_frame = 5 * HOP + 1
+        total_frames = replay_frame + 30 * RATE
+        raw = self.root / "replay-suffix.f32"
+        audio = fixture(self.root / "replay-suffix.wav", total_frames)
+        audio.astype("<f4").tofile(raw)
+        worker, backend = self.worker()
+        continuous = self.collect(worker, worker.load_f32(raw))
+        initial_calls = backend.calls
+
+        chunks = self.collect(worker, worker.seek(replay_frame))
+
+        self.assertEqual(backend.calls, initial_calls)
+        self.assertTrue(all(chunk["inference_reused"] for chunk in chunks))
+        index, offset = divmod(replay_frame, HOP)
+        self.assertEqual([chunk["request_id"] for chunk in chunks],
+                         [chunk["request_id"] for chunk in continuous[index:]])
+        self.assertEqual(chunks[0]["frame_start"], replay_frame)
+        self.assertEqual(chunks[-1]["frame_start"] + chunks[-1]["frames"], total_frames)
+        for replayed, expected in zip(chunks, continuous[index:], strict=True):
+            np.testing.assert_array_equal(replayed["samples"], expected["samples"][:, offset:])
+            offset = 0
+
     def test_return_seek_can_reuse_completed_window_with_all_cache_slots_full(self):
+        capacity = _SEEK_CACHE_WINDOWS
+        full_cache = {index * HOP for index in range(1, capacity + 1)}
         raw = self.root / "full-seek-cache.f32"
-        audio = fixture(self.root / "full-seek-cache.wav", 6 * HOP + OVERLAP + 137)
+        audio = fixture(self.root / "full-seek-cache.wav", (capacity + 3) * HOP + OVERLAP + 137)
         audio.astype("<f4").tofile(raw)
         reference, _ = self.worker()
         continuous = self.collect(reference, reference.load_f32(raw))
@@ -881,13 +910,13 @@ class WorkerTest(unittest.TestCase):
                 worker, backend = self.worker(FakeRuntime(blocked=True), max_ready=1)
                 try:
                     initial = worker.load_f32(raw)
-                    for call in range(1, 5):
+                    for call in range(1, capacity + 2):
                         self.assertTrue(backend.wait_call(call))
                         backend.release()
                         self.event(worker, "chunk", initial)
-                    self.assertTrue(backend.wait_call(5))
+                    self.assertTrue(backend.wait_call(capacity + 2))
                     with worker._condition:
-                        self.assertEqual(set(worker._weighted_windows), {HOP, 2 * HOP, 3 * HOP})
+                        self.assertEqual(set(worker._weighted_windows), full_cache)
 
                     entered, resume = threading.Event(), threading.Event()
                     remember = worker._remember_superseded_seek_window
@@ -911,20 +940,20 @@ class WorkerTest(unittest.TestCase):
 
                     with patch.object(worker, "_remember_superseded_seek_window", side_effect=handoff):
                         try:
-                            worker.seek(6 * HOP + OVERLAP)
+                            worker.seek((capacity + 3) * HOP + OVERLAP)
                             backend.release()
                             self.assertTrue(entered.wait(2), "superseded reply did not reach validation")
                             needs_following = action == "return_for_following_window"
-                            index = 3 if needs_following else 4
+                            index = capacity if needs_following else capacity + 1
                             offset = OVERLAP + 37 if needs_following else 0
                             if action != "continue_away":
                                 generation = worker.seek(index * HOP + offset)
                         finally:
                             resume.set()
                         if action == "continue_away":
-                            self.assertTrue(backend.wait_call(6))
+                            self.assertTrue(backend.wait_call(capacity + 3))
                             with worker._condition:
-                                self.assertEqual(set(worker._weighted_windows), {HOP, 2 * HOP, 3 * HOP})
+                                self.assertEqual(set(worker._weighted_windows), full_cache)
                             index = 1
                             generation = worker.seek(index * HOP)
                         chunk = self.event(worker, "chunk", generation, timeout=1)
@@ -933,16 +962,16 @@ class WorkerTest(unittest.TestCase):
                             # The late return needs more than the clipped first hop.
                             # Both replies can supply it without another inference.
                             following = self.event(worker, "chunk", generation, timeout=1)
-                            self.assertEqual((following["request_id"], following["frame_start"]), (5, 4 * HOP))
+                            self.assertEqual((following["request_id"], following["frame_start"]), (capacity + 2, (capacity + 1) * HOP))
                             self.assertIs(following["inference_reused"], True)
-                            np.testing.assert_array_equal(following["samples"], continuous[4]["samples"])
+                            np.testing.assert_array_equal(following["samples"], continuous[capacity + 1]["samples"])
 
                     self.assertEqual((chunk["request_id"], chunk["frame_start"]), (index + 1, index * HOP + offset))
                     self.assertIs(chunk["inference_reused"], True)
                     np.testing.assert_array_equal(chunk["samples"], continuous[index]["samples"][:, offset:])
                     if action != "continue_away":
                         with worker._condition:
-                            self.assertEqual(set(worker._weighted_windows), {2 * HOP, 3 * HOP, 4 * HOP})
+                            self.assertEqual(set(worker._weighted_windows), (full_cache - {HOP}) | {(capacity + 1) * HOP})
                 finally:
                     worker.close(timeout=0.05)
 
