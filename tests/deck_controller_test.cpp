@@ -120,7 +120,7 @@ if MODE in ('sleep','await-invalid'):
 if MODE=='flood':sys.stdout.write('x'*200000);sys.stdout.flush();raise SystemExit(0)
 if MODE in ('invalid','await-invalid'):print('invalid');raise SystemExit(0)
 count=(a.frames+191999)//192000
-head=dict(schema=1,recipe='local-chroma-krumhansl-v1',frames=a.frames,sample_rate=48000,channels=2,
+head=dict(schema=1,recipe='local-chroma-krumhansl-v2',frames=a.frames,sample_rate=48000,channels=2,
           pcm_sha256=hashlib.sha256(b).hexdigest(),window_frames=192000,window_count=count)
 if MODE=='hash':head['pcm_sha256']='0'*64
 if MODE=='bool-schema':head['schema']=True

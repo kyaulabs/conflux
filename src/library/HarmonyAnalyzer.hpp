@@ -11,7 +11,7 @@
 #include <vector>
 
 namespace conflux::library {
-inline constexpr char harmonyAnalysisRecipe[] = "local-chroma-krumhansl-v1";
+inline constexpr char harmonyAnalysisRecipe[] = "local-chroma-krumhansl-v2";
 inline constexpr std::uint64_t harmonyWindowFrames = 192000;
 struct HarmonyEngine {
     QString pythonExecutable, workerPath;
