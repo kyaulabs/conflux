@@ -895,6 +895,31 @@ class WorkerTest(unittest.TestCase):
             np.testing.assert_array_equal(replayed["samples"], expected["samples"][:, offset:])
             offset = 0
 
+    def test_nearby_rewind_preserves_cached_suffix_after_missing_windows(self):
+        target_window = 2
+        latest = target_window + _SEEK_CACHE_WINDOWS
+        target_frame = target_window * HOP + 1
+        raw = self.root / "midtrack-rewind.f32"
+        fixture(self.root / "midtrack-rewind.wav", (latest + 2) * HOP).astype("<f4").tofile(raw)
+        worker, _ = self.worker(max_ready=1)
+        generation = worker.load_f32(raw)
+        played = [self.event(worker, "chunk", generation) for _ in range(latest)]
+        with worker._condition:
+            self.assertTrue(worker._condition.wait_for(lambda: len(worker._chunks) == 1, timeout=4))
+            queued = worker._chunks[0]
+            self.assertEqual(queued["frame_start"], latest * HOP)
+        played.append(queued)
+
+        replay = worker.seek(target_frame)
+        for index in range(target_window, latest + 1):
+            chunk = self.event(worker, "chunk", replay)
+            trim = 1 if index == target_window else 0
+            self.assertEqual(chunk["frame_start"], index * HOP + trim)
+            np.testing.assert_array_equal(chunk["samples"], played[index]["samples"][:, trim:])
+            if index > target_window:
+                self.assertTrue(chunk.get("inference_reused"), f"cached replay window {index} was recomputed")
+                self.assertEqual(chunk["request_id"], played[index]["request_id"])
+
     def test_return_seek_can_reuse_completed_window_with_all_cache_slots_full(self):
         capacity = _SEEK_CACHE_WINDOWS
         full_cache = {index * HOP for index in range(1, capacity + 1)}
