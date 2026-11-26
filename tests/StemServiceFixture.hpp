@@ -267,10 +267,14 @@ try:
             tag = generation + 1 if MODE == 'runtime-future' else generation
             runtime_event(tag)
         if not source_seen:
+            replacement = None
+            after_source = MODE.endswith('-after-source')
             if generation == 2 and MODE.startswith('runtime-restart'):
-                retired = None if MODE == 'runtime-restart-no-proof' else 2 if MODE == 'runtime-restart-current' else 1
-                revision = 'b' * 40 if MODE == 'runtime-restart-changed' else 'a' * 40
-                runtime_event(generation, retired, revision)
+                restart_mode = MODE.removesuffix('-after-source')
+                retired = None if restart_mode == 'runtime-restart-no-proof' else 2 if restart_mode == 'runtime-restart-current' else 1
+                revision = 'b' * 40 if restart_mode == 'runtime-restart-changed' else 'a' * 40
+                replacement = (generation, retired, revision)
+                if not after_source: runtime_event(*replacement)
             source_seen = True
             source_id = identity(P.with_name('source.wav'))['sha256'] if MODE == 'source-original' else source['sha256']
             stale_seek = MODE in ['stale-after-seek', 'stale-after-first-reserve'] and generation > 1
@@ -279,6 +283,7 @@ try:
             # ALREADY restored PCM. The receiver must not apply these again.
             emit({'event': 'source', 'generation': tag, 'source_id': source_id,
                 'source_frames': n, 'source_format': 'f32le', 'mean': .375, 'std': .0625})
+            if replacement and after_source: runtime_event(*replacement)
         if MODE == 'error-then-clean':
             emit({'event': 'error', 'generation': generation, 'code': 'RuntimeError',
                   'message': 'fixture primary error', 'retained_job': False}); break
