@@ -1136,7 +1136,11 @@ public:
         bool capturedCue = false;
         const bool resumed = canRetain && self.ready() && masterValid &&
             self.restoreOutput(clock, frames, outputs, cue, replacementPending);
-        if (!expiredDuringAcquire && !resumed) self.retained_.valid = false;
+        // A single master miss did not advance the renderer. Keep its previous
+        // unpublished block only while the graph is still in the same sequence.
+        const bool awaitingMaster = retryMaster && !replacementPending && self.retained_.valid &&
+            self.retained_.matches(clock);
+        if (!expiredDuringAcquire && !resumed && !awaitingMaster) self.retained_.valid = false;
         if (!durationValid || (!expiredDuringAcquire && self.ready() && !masterValid && !changingQuantum)) {
             ++self.invalidBuffers_;
             if (!retryMaster) self.bufferFault_.store(true, std::memory_order_relaxed);
