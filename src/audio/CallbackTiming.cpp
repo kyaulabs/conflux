@@ -21,12 +21,10 @@ void CallbackTiming::observe(std::uint64_t executionNs, std::uint64_t renderedFr
         counters_.graphPositionObserved = counters_.graphQuantumMax != 0;
         if (clock->rateNum && clock->rateDenom)
             deadlineNs = 1.0e9 * clock->duration * clock->rateNum / clock->rateDenom;
-        bool sameClock = previousClock_ == clock->id && previousRateNum_ == clock->rateNum &&
+        // PipeWire advances cycle before each graph wake. Driver identity
+        // and rate determine whether adjacent position observations are comparable.
+        const bool sameClock = previousClock_ == clock->id && previousRateNum_ == clock->rateNum &&
             previousRateDenom_ == clock->rateDenom;
-        if (capabilities_.cycle) {
-            sameClock = sameClock && previousCycle_ == clock->cycle;
-            previousCycle_ = clock->cycle;
-        }
         const bool discontinuity = (sameClock && previousEnd_ != clock->position) ||
             (clock->flags & capabilities_.discontinuityFlag);
         if (discontinuity)
@@ -74,7 +72,7 @@ void CallbackTiming::reset() noexcept
     graphQuantumMin_ = std::numeric_limits<std::uint64_t>::max();
     previousEnd_ = 0;
     previousClock_ = std::numeric_limits<std::uint32_t>::max();
-    previousCycle_ = previousRateNum_ = previousRateDenom_ = 0;
+    previousRateNum_ = previousRateDenom_ = 0;
 }
 
 } // namespace conflux::audio
