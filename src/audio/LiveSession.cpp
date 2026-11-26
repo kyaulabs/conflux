@@ -1134,6 +1134,7 @@ public:
         }
         std::uint64_t rendered = 0;
         bool capturedCue = false;
+        bool retainRenderedOutput = !replacementPending;
         const bool resumed = canRetain && self.ready() && masterValid &&
             self.restoreOutput(clock, frames, outputs, cue, replacementPending);
         // A single master miss did not advance the renderer. Keep its previous
@@ -1191,6 +1192,8 @@ public:
                         replacementCompleted = true;
                     }
                     if (replacementInstalled) {
+                        // The whole block will render against the installed source.
+                        retainRenderedOutput = true;
                         self.activePlaybacks_[replacement.deck] = replacement.playback;
                         self.sourceGeneration_[replacement.deck] = replacement.generation;
                     }
@@ -1211,7 +1214,7 @@ public:
                 }
                 auto master = std::span(self.masterScratch_).first(count * 2U);
                 auto cuePcm = std::span(self.cueScratch_).first(count * 2U);
-                capturedCue = canRetain && self.cueRouteOpen() && !replacementPending && count == frames &&
+                capturedCue = canRetain && self.cueRouteOpen() && retainRenderedOutput && count == frames &&
                     (self.renderer_.sourceFrames(0) || self.renderer_.sourceFrames(1));
                 const bool produced = capturedCue ?
                     self.renderer_.captureBuses(master, cuePcm, self.retained_.cueBlock) :
@@ -1298,7 +1301,8 @@ public:
         }
         // Replay is safe only if no channel received a nonempty chunk from
         // this block before the clock changed.
-        if (expired && !publishedSamples && canRetain && self.ready() && masterValid && !replacementPending && (resumed || rendered == frames)) {
+        if (expired && !publishedSamples && canRetain && self.ready() && masterValid &&
+            retainRenderedOutput && (resumed || rendered == frames)) {
             // The recorder and source clocks already own this render. Reuse
             // its samples at the next valid callback without advancing them.
             self.retained_.clock = clock;
