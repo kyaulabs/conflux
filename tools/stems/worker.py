@@ -35,7 +35,8 @@ WINDOW = 343980
 HOP = 257985
 OVERLAP = WINDOW - HOP
 STEMS = ("drums", "bass", "other", "vocals")
-_SEEK_CACHE_WINDOWS = 3
+# A 30-second rewind at EOF can span six hops plus the preceding overlap.
+_SEEK_CACHE_WINDOWS = 7
 _WEIGHT = np.concatenate((np.arange(1, WINDOW // 2 + 1, dtype=np.float32),
                           np.arange(WINDOW - WINDOW // 2, 0, -1, dtype=np.float32)))
 _WEIGHT /= _WEIGHT.max()
@@ -868,7 +869,7 @@ class StemWorker:
         entry = (source, request_id, weighted)
         if start == 0:
             # Cached playback resumes within this first model window. Keep
-            # one opening window outside the three recent non-opening slots.
+            # one opening window outside the recent non-opening slots.
             self._opening_weighted_window = entry
             return
         self._weighted_windows[start] = entry
