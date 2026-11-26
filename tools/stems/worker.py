@@ -37,9 +37,17 @@ OVERLAP = WINDOW - HOP
 STEMS = ("drums", "bass", "other", "vocals")
 # A 30-second rewind at EOF can span six hops plus the preceding overlap.
 _SEEK_CACHE_WINDOWS = 7
+# Keep only the overlap of three extra preceding windows for rewind preroll.
+_SEEK_CACHE_OVERLAPS = 3
 _WEIGHT = np.concatenate((np.arange(1, WINDOW // 2 + 1, dtype=np.float32),
                           np.arange(WINDOW - WINDOW // 2, 0, -1, dtype=np.float32)))
 _WEIGHT /= _WEIGHT.max()
+
+
+def _weight_window(output):
+    # The tail can outlive the body in the seek cache without pinning its array.
+    return (output[:, :HOP] * _WEIGHT[None, :HOP, None],
+            output[:, HOP:] * _WEIGHT[None, HOP:, None])
 
 
 def _first_contributing_window(frame):
@@ -407,6 +415,7 @@ class StemWorker:
         self._cached_source = None
         self._opening_weighted_window = None
         self._weighted_windows = OrderedDict()
+        self._weighted_overlaps = OrderedDict()
         self._request_id = 0
         self._thread = threading.Thread(target=self._run, name="conflux-stem-worker", daemon=True)
         self._thread.start()
@@ -427,6 +436,7 @@ class StemWorker:
                 self._source_generation = self._generation
                 self._opening_weighted_window = None
                 self._weighted_windows.clear()
+                self._weighted_overlaps.clear()
                 self._retained_target = None
             elif self._retained_target is not None:
                 retained_window = self._retained_target.event["window_start_frame"] // HOP
@@ -611,6 +621,7 @@ class StemWorker:
         with self._condition:
             self._opening_weighted_window = None
             self._weighted_windows.clear()
+            self._weighted_overlaps.clear()
             self._retained_target = None
             native = self._native
         if native is not None:
@@ -850,10 +861,9 @@ class StemWorker:
         with self._condition:
             for index in range(_first_contributing_window(command.start), target + 1):
                 start = index * HOP
-                window = self._weighted_window_locked(start)
                 # A completed target may be parked while a now obsolete
                 # preroll is still in flight. It can supply this seek directly.
-                if ((window is None or window[0] is not source)
+                if (not self._has_cached_contributor_locked(start, source, index < target)
                         and not self._matches_window(self._retained_target, command, source, start)):
                     cached_prefix = False
                     if self._matches_window(self._pending_inference, command, source, start):
@@ -864,6 +874,25 @@ class StemWorker:
         if start == 0:
             return self._opening_weighted_window
         return self._weighted_windows.get(start)
+
+    def _weighted_overlap_locked(self, start, source):
+        entry = self._weighted_overlaps.get(start)
+        return entry[1] if entry is not None and entry[0] is source else None
+
+    def _has_cached_contributor_locked(self, start, source, preroll):
+        window = self._weighted_window_locked(start)
+        return ((window is not None and window[0] is source)
+                or (preroll and self._weighted_overlap_locked(start, source) is not None))
+
+    def _remember_overlap_locked(self, start, source, overlap):
+        self._weighted_overlaps[start] = source, overlap
+        self._weighted_overlaps.move_to_end(start)
+        if len(self._weighted_overlaps) > _SEEK_CACHE_OVERLAPS:
+            self._weighted_overlaps.popitem(last=False)
+
+    def _evict_window_locked(self, start):
+        source, _, (_, overlap) = self._weighted_windows.pop(start)
+        self._remember_overlap_locked(start, source, overlap)
 
     def _remember_window_locked(self, start, source, request_id, weighted):
         entry = (source, request_id, weighted)
@@ -878,12 +907,14 @@ class StemWorker:
             # otherwise every insertion evicts the next reusable window.
             first_cached = min(self._weighted_windows)
             if 0 < first_cached - start <= _SEEK_CACHE_WINDOWS * HOP:
+                self._remember_overlap_locked(start, source, weighted[1])
                 return
 
+        self._weighted_overlaps.pop(start, None)
         self._weighted_windows[start] = entry
         self._weighted_windows.move_to_end(start)
         if len(self._weighted_windows) > _SEEK_CACHE_WINDOWS:
-            self._weighted_windows.popitem(last=False)
+            self._evict_window_locked(next(iter(self._weighted_windows)))
 
     def _remember_superseded_seek_window(self, command, pending, output):
         source = pending.source
@@ -899,7 +930,7 @@ class StemWorker:
                 return
         if output.shape != (len(STEMS), WINDOW, CHANNELS) or not np.isfinite(output).all():
             return
-        weighted = output * _WEIGHT[None, :, None]
+        weighted = _weight_window(output)
         with self._condition:
             if self._closed or self._source_generation != pending.command.source_generation:
                 return
@@ -912,15 +943,14 @@ class StemWorker:
                 if start == target + HOP:
                     # A clipped first hop can be too short to resume playback.
                     # Keep its completed successor if the first hop is ready.
-                    prefix = (self._weighted_window_locked(frame)
-                              for frame in range(first, target + HOP, HOP))
-                    if any(window is None or window[0] is not source for window in prefix):
+                    if any(not self._has_cached_contributor_locked(frame, source, frame < target)
+                           for frame in range(first, target + HOP, HOP)):
                         return
                 elif not first <= start <= target:
                     return
                 # The successor cannot evict any first-hop contributor.
                 evict = next(window for window in self._weighted_windows if not first <= window <= target)
-                del self._weighted_windows[evict]
+                self._evict_window_locked(evict)
             self._remember_window_locked(start, source, pending.event["request_id"], weighted)
             # Give unconsumed work lower priority than normally published windows.
             if start:
@@ -944,7 +974,11 @@ class StemWorker:
                         raise _Superseded
                     self._condition.wait()
                 cached = self._weighted_window_locked(start)
+                overlap_only = self._weighted_overlap_locked(start, source) if preroll else None
             self._check(command)
+            if overlap_only is not None and _signature(source.path) == source.signature:
+                previous = overlap_only
+                continue
             service_started = time.monotonic()
             if retained_service is not None and (retained_service[0] == start or
                     self._matches_window(self._retained_target, command, source, start)):
@@ -974,29 +1008,33 @@ class StemWorker:
                 overlap_started = time.monotonic()
                 # Fixed source grid, including a zero-padded final window. This avoids
                 # the upstream offline session's moving, centered final-window grid.
-                weighted = output * _WEIGHT[None, :, None]
+                weighted = _weight_window(output)
                 timings = dict(request_ms=elapsed, metrics=metrics, source_read_ms=source_read_ms)
-            valid = min(HOP, source.frames - start)
-            hop = weighted[:, :valid].copy()
-            denominator = _WEIGHT[:valid].copy()
-            if previous is not None:
-                overlap = min(valid, OVERLAP)
-                hop[:, :overlap] += previous[:, :overlap]
-                denominator[:overlap] += _WEIGHT[HOP:HOP + overlap]
-            previous = weighted[:, HOP:].copy()
+            weighted_hop, overlap_tail = weighted
             if preroll:
+                previous = overlap_tail
                 if source.source_format == "f32le" and not timings.get("inference_reused", False):
                     with self._condition:
                         if self._closed or self._command != command:
                             raise _Superseded
                         target = self._weighted_window_locked(start + HOP)
-                        # Retain an overlap for repeat seeks when it fits without
-                        # eviction. Keep a full cached suffix for an already-ready target.
+                        # An already-ready target and its forward suffix keep
+                        # the full slots. A repeat seek only needs this tail.
                         has_room = len(self._weighted_windows) < _SEEK_CACHE_WINDOWS
                         if start == 0 or has_room or target is None or target[0] is not source:
                             self._remember_window_locked(start, source, request_id, weighted)
+                        else:
+                            self._remember_overlap_locked(start, source, overlap_tail)
                         self._retire_inference_locked(request_id)
                 continue
+            valid = min(HOP, source.frames - start)
+            hop = weighted_hop[:, :valid].copy()
+            denominator = _WEIGHT[:valid].copy()
+            if previous is not None:
+                overlap = min(valid, OVERLAP)
+                hop[:, :overlap] += previous[:, :overlap]
+                denominator[:overlap] += _WEIGHT[HOP:HOP + overlap]
+            previous = overlap_tail
             hop /= denominator[None, :, None]
             # audio.cpp restores the track-wide mono mean to EACH source.
             hop *= source.std

@@ -943,6 +943,58 @@ class WorkerTest(unittest.TestCase):
             np.testing.assert_array_equal(replayed["samples"], expected["samples"][:, offset:])
             offset = 0
 
+    def test_rewind_reuses_evicted_overlap_without_reusing_evicted_target(self):
+        target = 4
+        raw = self.root / "evicted-overlap.f32"
+        fixture(self.root / "evicted-overlap.wav", (target + _SEEK_CACHE_WINDOWS) * HOP).astype("<f4").tofile(raw)
+        worker, backend = self.worker(max_ready=1)
+        continuous = self.collect(worker, worker.load_f32(raw))
+        calls = backend.calls
+        frame = target * HOP + 17
+
+        replay = self.collect(worker, worker.seek(frame))
+
+        self.assertEqual(backend.calls, calls)
+        self.assertTrue(all(chunk["inference_reused"] for chunk in replay))
+        self.assertEqual(len(replay), len(continuous) - target)
+        for i, chunk in enumerate(replay):
+            np.testing.assert_array_equal(chunk["samples"],
+                                          continuous[target + i]["samples"][:, 17 if i == 0 else 0:])
+
+        # Only the tail of this window survives. Starting in its own body
+        # still requires its model result even after a successful rewind.
+        offset = OVERLAP
+        in_evicted = self.collect(worker, worker.seek((target - 1) * HOP + offset))
+        self.assertEqual(backend.calls, calls + 1)
+        self.assertFalse(in_evicted[0].get("inference_reused", False))
+        np.testing.assert_array_equal(in_evicted[0]["samples"], continuous[target - 1]["samples"][:, offset:])
+
+        # Replacing the source clears both the full windows and old tails.
+        other = self.root / "other.f32"
+        fixture(self.root / "other.wav", (target + 1) * HOP, phase=10).astype("<f4").tofile(other)
+        before = backend.calls
+        from_new_source, = self.collect(worker, worker.load_f32(other, start_frame=frame))
+        self.assertEqual(backend.calls, before + 2)
+        self.assertNotEqual(from_new_source["source_id"], replay[0]["source_id"])
+
+    def test_cold_preroll_is_reused_on_repeat_with_full_window_cache(self):
+        target = 3
+        raw = self.root / "new-preroll.f32"
+        fixture(self.root / "new-preroll.wav", (target + _SEEK_CACHE_WINDOWS) * HOP).astype("<f4").tofile(raw)
+        worker, backend = self.worker(max_ready=1)
+        self.collect(worker, worker.load_f32(raw, start_frame=target * HOP + OVERLAP))
+        calls = backend.calls
+        frame = target * HOP + 17
+
+        first = self.collect(worker, worker.seek(frame))
+        self.assertEqual(backend.calls, calls + 1)
+        repeat = self.collect(worker, worker.seek(frame + 1))
+
+        self.assertEqual(backend.calls, calls + 1)
+        self.assertEqual(len(repeat), len(first))
+        for i, chunk in enumerate(repeat):
+            np.testing.assert_array_equal(chunk["samples"], first[i]["samples"][:, 1 if i == 0 else 0:])
+
     def test_nearby_rewind_preserves_cached_suffix_after_missing_windows(self):
         target_window = 2
         latest = target_window + _SEEK_CACHE_WINDOWS
