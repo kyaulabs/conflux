@@ -39,11 +39,17 @@ using OutputPointers = std::array<float*, 4>;
 
 bool callbackExpired(const spa_io_clock& current, const CallbackTiming::DriverClock& original) noexcept
 {
-    // The server can advance the graph or assign another driver at the same frame.
+    // A new graph cycle can reuse the driver's sample position.
     static_assert(std::atomic_ref<const std::uint32_t>::is_always_lock_free);
     static_assert(std::atomic_ref<const std::uint64_t>::is_always_lock_free);
-    return std::atomic_ref<const std::uint32_t>(current.id).load(std::memory_order_relaxed) != original.id ||
+    const bool newPosition =
+        std::atomic_ref<const std::uint32_t>(current.id).load(std::memory_order_relaxed) != original.id ||
         std::atomic_ref<const std::uint64_t>(current.position).load(std::memory_order_relaxed) != original.position;
+#ifdef SPA_IO_CLOCK_FLAG_XRUN_RECOVER
+    return newPosition || std::atomic_ref<const std::uint32_t>(current.cycle).load(std::memory_order_relaxed) != original.cycle;
+#else
+    return newPosition;
+#endif
 }
 
 constexpr std::array<const char*, 4> outputNames{"master_FL", "master_FR", "cue_FL", "cue_FR"};
@@ -1052,7 +1058,7 @@ public:
             clock.duration = position->clock.duration; clock.rateNum = position->clock.rate.num;
             clock.rateDenom = position->clock.rate.denom; clock.flags = position->clock.flags;
 #ifdef SPA_IO_CLOCK_FLAG_XRUN_RECOVER
-            clock.cycle = position->clock.cycle;
+            clock.cycle = std::atomic_ref<const std::uint32_t>(position->clock.cycle).load(std::memory_order_relaxed);
 #endif
         }
         const bool durationValid = position && clock.duration && clock.duration <= std::numeric_limits<std::uint32_t>::max();
