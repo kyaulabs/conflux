@@ -112,10 +112,12 @@ public:
         QVariantList ports;
         for (int port = 1; port <= 4; ++port)
             ports.append(QVariantMap{{"key", QString("port%1").arg(port)},
-                                      {"label", QString("Interface output %1").arg(port)}});
+                                      {"label", QString("Interface output %1").arg(port)},
+                                      {"sinkKey", QString::number((port - 1) / 2)}});
         routing_ = {{"ports", ports}, {"masterReady", false}, {"cueReady", false},
                     {"masterLeft", ""}, {"masterRight", ""}, {"cueLeft", ""}, {"cueRight", ""},
-                    {"defaultSink", "Laptop Speakers"}, {"masterError", ""}, {"cueError", ""}};
+                    {"defaultSink", "Laptop Speakers"},
+                    {"defaultMasterPorts", QVariantList{"port1", "port2"}}, {"masterError", ""}, {"cueError", ""}};
         recording_ = {{"status", "Idle"}, {"path", ""}, {"error", ""}, {"active", false},
                       {"acceptedFrames", 0}, {"writtenFrames", 0}, {"overflowFrames", 0}};
         preparation_ = {{"status", "Idle"}, {"deck", -1}, {"name", ""},
@@ -6007,6 +6009,15 @@ private slots:
         };
         QCOMPARE(portDescription("masterLeftPort"), QString("Default master"));
         QCOMPARE(portDescription("cueLeftPort"), QString("Cue disabled"));
+        choosePort("cueLeftPort", 1);
+        choosePort("cueRightPort", 2);
+        QTRY_VERIFY(!apply->isEnabled());
+        QTRY_COMPARE(ui_->item("routingValidation")->property("text").toString(),
+                     QString("Master and cue must use distinct playback ports."));
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        choosePort("cueLeftPort", 0);
+        choosePort("cueRightPort", 0);
+        QTRY_VERIFY(apply->isEnabled());
         choosePort("masterLeftPort", 1);
         QTRY_COMPARE(portDescription("masterLeftPort"), QString("Interface output 1"));
         QTRY_VERIFY(!apply->isEnabled());
@@ -6047,11 +6058,44 @@ private slots:
         QVERIFY(ui_->closeAudioSettings());
     }
 
+    void audioSettingsRejectsChannelsFromDifferentSinks()
+    {
+        QVERIFY(ui_->openAudioSettings());
+        auto* apply = ui_->item("audioRoutingApply");
+        auto* validation = ui_->item("routingValidation");
+        QVERIFY(apply && validation);
+        ui_->endpoint.calls.clear();
+
+        choosePort("masterLeftPort", 1);
+        choosePort("masterRightPort", 4);
+        QTRY_VERIFY(!apply->isEnabled());
+        QTRY_COMPARE(validation->property("text").toString(),
+                     QString("Choose both channels of each pair from the same output device."));
+        choosePort("masterLeftPort", 3);
+        QTRY_VERIFY(apply->isEnabled());
+
+        // The cue can also straddle devices without using any master port.
+        choosePort("masterLeftPort", 0);
+        choosePort("masterRightPort", 0);
+        auto ports = ui_->endpoint.audioRouting()["ports"].toList();
+        ports.append(QVariantMap{{"key", "port5"}, {"label", "Other output 1"}, {"sinkKey", "2"}});
+        ui_->endpoint.setPlaybackPorts(ports);
+        choosePort("cueLeftPort", 3);
+        choosePort("cueRightPort", 5);
+        QTRY_VERIFY(!apply->isEnabled());
+        QTRY_COMPARE(validation->property("text").toString(),
+                     QString("Choose both channels of each pair from the same output device."));
+        choosePort("cueRightPort", 4);
+        QTRY_VERIFY(apply->isEnabled());
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+    }
+
     void matchingOutputDescriptionsKeepRoutesDistinguishableAcrossRefresh()
     {
         const auto port = [](const char* key, const char* label, const char* node, const char* channel) {
             return QVariantMap{{"key", QString::fromLatin1(key)}, {"label", QString::fromLatin1(label)},
-                               {"nodeName", QString::fromLatin1(node)}, {"portName", QString::fromLatin1(channel)}};
+                               {"nodeName", QString::fromLatin1(node)}, {"sinkKey", QString::fromLatin1(node)},
+                               {"portName", QString::fromLatin1(channel)}};
         };
         const auto masterLeft = port("port1", "Left output", "master-node", "playback_FL");
         const auto masterRight = port("port2", "Right output", "master-node", "playback_FR");

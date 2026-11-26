@@ -1162,21 +1162,38 @@ ApplicationWindow {
                 counts.set(port.label, (counts.get(port.label) || 0) + 1)
             return ports.map(port => counts.get(port.label) === 1 ? port : ({
                 key: port.key,
+                sinkKey: port.sinkKey,
                 label: qsTr("%1 (%2 / %3)").arg(port.label).arg(port.nodeName).arg(port.portName)
             }))
         }
         readonly property var masterOptions: [{key: "", label: "Default master"}].concat(playbackOptions)
         readonly property var cueOptions: [{key: "", label: "Cue disabled"}].concat(playbackOptions)
-        readonly property bool completePairs: (masterLeft.length === 0) === (masterRight.length === 0)
-                                             && (cueLeft.length === 0) === (cueRight.length === 0)
-        readonly property bool distinctPorts: {
-            const keys = [masterLeft, masterRight, cueLeft, cueRight].filter(function(key) { return key.length > 0 })
-            return keys.every(function(key, index) { return keys.indexOf(key) === index })
+        readonly property string routingValidationMessage: {
+            if (!visible)
+                return ""
+            if ((masterLeft.length === 0) !== (masterRight.length === 0)
+                    || (cueLeft.length === 0) !== (cueRight.length === 0))
+                return qsTr("Select both channels of each pair, or leave both empty.")
+            const keys = [masterLeft, masterRight, cueLeft, cueRight].filter(key => key.length > 0)
+            if (keys.some(key => optionIndex(playbackOptions, key) < 0))
+                return qsTr("An output is unavailable. Select another playback port.")
+            if (!masterLeft) {
+                const defaultPorts = deckController.audioRouting.defaultMasterPorts
+                for (const key of defaultPorts)
+                    keys.push(key)
+            }
+            if (keys.some((key, index) => keys.indexOf(key) !== index))
+                return qsTr("Master and cue must use distinct playback ports.")
+            if (!pairUsesSameSink(masterLeft, masterRight) || !pairUsesSameSink(cueLeft, cueRight))
+                return qsTr("Choose both channels of each pair from the same output device.")
+            return ""
         }
-        readonly property bool selectedPortsAvailable: optionIndex(masterOptions, masterLeft) >= 0
-                                                      && optionIndex(masterOptions, masterRight) >= 0
-                                                      && optionIndex(cueOptions, cueLeft) >= 0
-                                                      && optionIndex(cueOptions, cueRight) >= 0
+        function pairUsesSameSink(left, right) {
+            if (!left)
+                return true
+            return playbackOptions[optionIndex(playbackOptions, left)].sinkKey
+                === playbackOptions[optionIndex(playbackOptions, right)].sinkKey
+        }
         component OutputPortPicker: ComboBox {
             id: picker
             Layout.fillWidth: true
@@ -1277,7 +1294,7 @@ ApplicationWindow {
                         color: Brand.ConfluxTheme.text
                     }
                     Label {
-                        text: "Refresh playback ports, then choose your outputs. You can save outputs before loading a track. Applying during playback briefly interrupts audio, then restores transport. Headphone cue needs four distinct ports across master and cue; it never falls back to the default master."
+                        text: "Refresh playback ports, then choose your outputs. You can save outputs before loading a track. Changing outputs during playback briefly interrupts audio, then restores transport. Headphone cue needs four distinct ports across master and cue; it never falls back to the default master."
                         wrapMode: Text.WordWrap
                         color: Brand.ConfluxTheme.muted
                         Layout.fillWidth: true
@@ -1328,10 +1345,8 @@ ApplicationWindow {
                     }
                     Label {
                         objectName: "routingValidation"
-                        visible: !audioSettings.completePairs || !audioSettings.distinctPorts || !audioSettings.selectedPortsAvailable
-                        text: !audioSettings.completePairs ? "Select both channels of each pair, or leave both empty."
-                             : !audioSettings.distinctPorts ? "Master and cue must use distinct playback ports."
-                                                          : "An output is unavailable. Select another playback port."
+                        text: audioSettings.routingValidationMessage
+                        visible: text.length > 0
                         wrapMode: Text.WordWrap
                         color: Brand.ConfluxTheme.accent
                         Layout.fillWidth: true
@@ -1351,7 +1366,7 @@ ApplicationWindow {
                             text: "APPLY OUTPUTS"
                             Layout.minimumHeight: 44
                             enabled: !deckController.busy && !deckController.recording.active
-                                     && audioSettings.completePairs && audioSettings.distinctPorts && audioSettings.selectedPortsAvailable
+                                     && audioSettings.routingValidationMessage.length === 0
                             onClicked: deckController.configureAudioRouting(audioSettings.masterLeft, audioSettings.masterRight,
                                                                            audioSettings.cueLeft, audioSettings.cueRight)
                             Accessible.name: "Apply master and headphone cue outputs"

@@ -484,18 +484,28 @@ int main(int argc, char** argv)
                 routeBeforeApply["cueLeft"].toString().isEmpty() &&
                 routeBeforeApply["cueRight"].toString().isEmpty(),
                 "Audio settings Apply uses only existing default master and disabled cue");
+        const auto* applyOutputs = window->findChild<QQuickItem*>("audioRoutingApply");
+        require(applyOutputs && applyOutputs->isEnabled(), "The existing default route can be applied");
+        const auto defaultPorts = routeBeforeApply["defaultMasterPorts"].toList();
+        require(defaultPorts.size() == 2 && defaultPorts[0] != defaultPorts[1],
+                "The controller exposes the two current default output identities");
+        require(settings->setProperty("cueLeft", defaultPorts[0]) && settings->setProperty("cueRight", defaultPorts[1]) &&
+                !applyOutputs->isEnabled(), "The drawer prevents using the default master ports for cue");
+        require(settings->setProperty("cueLeft", QString{}) && settings->setProperty("cueRight", QString{}) &&
+                applyOutputs->isEnabled(), "Disabling cue makes the existing master selection valid again");
         QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, controlPoint("audioRoutingApply"));
-        wait([&] { return controller.completedSessions() == sessionsBeforeApply + 1 &&
-                         !controller.busy() && controller.outputReady(); });
+        wait([&] { return !controller.busy() && controller.outputReady() &&
+                         controller.audioState().sourceFrame[1] >= beforeApply.sourceFrame[1] + 1024; });
         const auto afterApply = controller.audioState();
-        require(controller.error().isEmpty() && afterApply.playing == beforeApply.playing &&
+        require(controller.error().isEmpty() && controller.completedSessions() == sessionsBeforeApply &&
+                afterApply.playing == beforeApply.playing &&
                 afterApply.cueFrame == beforeApply.cueFrame && afterApply.cueSelected == beforeApply.cueSelected &&
                 afterApply.deckGain == beforeApply.deckGain && afterApply.masterGain == beforeApply.masterGain &&
                 afterApply.cueGain == beforeApply.cueGain && afterApply.sourceFrames == beforeApply.sourceFrames &&
                 !afterApply.playing[0] && afterApply.sourceFrame[0] == beforeApply.sourceFrame[0] &&
                 afterApply.playing[1] && afterApply.sourceFrame[1] >= beforeApply.sourceFrame[1] &&
                 !afterApply.cueHeld[0] && !afterApply.cueHeld[1] && !afterApply.cueReady,
-                "Real audio settings Apply reinstalls output and preserves exact cue, selection, gain and play requests");
+                "Reapplying the existing default master retains its session, cue, selection, gain and play requests");
         settingsApply = {{"completed_sessions_before", qint64(sessionsBeforeApply)},
             {"completed_sessions_after", qint64(controller.completedSessions())},
             {"paused_a_source_frame_before", qint64(beforeApply.sourceFrame[0])},
@@ -504,7 +514,7 @@ int main(int argc, char** argv)
             {"playing_b_source_frame_after", qint64(afterApply.sourceFrame[1])},
             {"routing_after", QJsonObject::fromVariantMap(controller.audioRouting())},
             {"preserved_transport_cue_selection_and_gains", true},
-            {"scope", "Actual QML settings button applies existing default master with cue disabled; no explicit hardware or cue endpoint is selected."}};
+            {"scope", "Actual QML settings button reapplies the existing default master with cue disabled without rebuilding the live session."}};
         QTest::qWait(150);
         require(window->grabWindow().save(prefix + "-settings-default.png"), "Default-size audio settings screenshot saved");
         window->resize(1180, 760);

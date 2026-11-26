@@ -484,11 +484,16 @@ QVariantMap DeckController::audioRouting() const
         if (port.channel == "FL") channel = tr("Left");
         else if (port.channel == "FR") channel = tr("Right");
         else if (!port.channel.empty()) channel += " [" + QString::fromStdString(port.channel) + "]";
-        ports.append(QVariantMap{{"key", portKey(port)}, {"label", channel + " · " + name},
+        const auto sinkKey = QString::number(port.nodeId) + ":" + QString::number(port.nodeSerial);
+        ports.append(QVariantMap{{"key", portKey(port)}, {"label", channel + " · " + name}, {"sinkKey", sinkKey},
             {"nodeName", QString::fromStdString(port.nodeName)}, {"portName", QString::fromStdString(port.portName)},
             {"channel", QString::fromStdString(port.channel)}});
     }
-    return {{"ports", ports}, {"masterReady", ready_ && routingSnapshot_.masterReady},
+    QVariantList defaultMasterPorts;
+    if (const auto& pair = routingSnapshot_.defaultMaster)
+        defaultMasterPorts = {portKey(pair->left), portKey(pair->right)};
+    return {{"ports", ports}, {"defaultMasterPorts", defaultMasterPorts},
+        {"masterReady", ready_ && routingSnapshot_.masterReady},
         {"cueReady", ready_ && state_.cueReady && routingSnapshot_.cueReady},
         {"masterLeft", routingConfig_.master ? portKey(routingConfig_.master->left) : QString{}},
         {"masterRight", routingConfig_.master ? portKey(routingConfig_.master->right) : QString{}},
