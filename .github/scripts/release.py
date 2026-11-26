@@ -16,6 +16,9 @@ MIXING_MARKER = "<!-- conflux-mixing-accepted -->"
 M2_MARKER = "<!-- conflux-m2-complete -->"
 M3_MARKER = "<!-- conflux-m3-complete -->"
 WORKFLOW = ".github/workflows/release.yml"
+MAINTAINER = "kyau"
+RELEASE_BOT = "kyaulabs-bot"
+APPROVAL = "✔️ Approved by: @kyau"
 
 
 def require(ok, message):
@@ -196,12 +199,47 @@ def validate_tree(head, target, *, existing_sha=None):
     return previous, provenance
 
 
+def verify_preparation_signatures(base, head, *, token):
+    commits = git("rev-list", f"{base}..{head}").splitlines()
+    require(head in commits, "Release head has no preparation commit")
+    for sha in commits:
+        commit = api(f"commits/{sha}", token=token)
+        proof = commit["commit"]["verification"]
+        require(commit.get("sha") == sha
+                and (commit.get("author") or {}).get("login") == MAINTAINER
+                and (commit.get("committer") or {}).get("login") == MAINTAINER
+                and proof.get("verified") is True
+                and (proof.get("signature") or "").startswith("-----BEGIN PGP SIGNATURE-----"),
+                f"Release preparation commit must be authored and GPG-signed by {MAINTAINER}: {sha}")
+
+
+def verify_release_approval(pr, head, *, token):
+    merged_at = pr.get("merged_at")
+    require(isinstance(merged_at, str) and merged_at.endswith("Z"), "Release merge time is required")
+    reviews = pages(f"pulls/{pr['number']}/reviews", token=token)
+    # GitHub lists reviews in chronological order. Comments and reviews
+    # submitted after the merge cannot replace the decision made before it.
+    decision = next((
+        review for review in reversed(reviews)
+        if (review.get("user") or {}).get("login") == MAINTAINER
+        and review.get("state") in ("APPROVED", "CHANGES_REQUESTED", "DISMISSED")
+        and isinstance(review.get("submitted_at"), str)
+        and review["submitted_at"].endswith("Z") and review["submitted_at"] <= merged_at
+    ), {})
+    require(decision.get("state") == "APPROVED" and decision.get("commit_id") == head
+            and (decision.get("body") or "").strip() == APPROVAL,
+            f"{MAINTAINER} must approve the exact release head before merge with the required approval wording")
+
+
 def resolve(number, *, token="GITHUB_TOKEN"):
     require(str(number).isdigit() and int(number) > 0, "Release PR number is required")
     pr = api(f"pulls/{int(number)}", token=token)
-    require(pr.get("merged") is True and pr.get("draft") is False and pr["base"]["ref"] == "main"
-            and pr["head"]["repo"]["full_name"] == pr["base"]["repo"]["full_name"] == repo(),
+    require(pr.get("number") == int(number) and pr.get("merged") is True and pr.get("draft") is False
+            and pr["base"]["ref"] == "main" and pr["head"]["repo"]["full_name"] == pr["base"]["repo"]["full_name"] == repo(),
             "Expected a merged same-repository release PR into main")
+    require((pr.get("user") or {}).get("login") == RELEASE_BOT
+            and (pr.get("merged_by") or {}).get("login") == RELEASE_BOT,
+            f"Release PR must be opened and merged by {RELEASE_BOT}")
     branch = pr["head"]["ref"]
     require(branch.startswith("release/"), "Only release/X.Y.Z may publish")
     target = branch.removeprefix("release/"); version(target)
@@ -218,6 +256,8 @@ def resolve(number, *, token="GITHUB_TOKEN"):
     previous, provenance = validate_tree(head, target, existing_sha=sha)
     require(git("rev-parse", f"{sha}^{{tree}}") == git("rev-parse", f"{head}^{{tree}}"),
             "Merged release tree differs from prepared release head")
+    verify_preparation_signatures(provenance["develop_sha"], head, token=token)
+    verify_release_approval(pr, head, token=token)
     return {"version": target, "sha": sha, "head_sha": head, "pr": int(number),
             "previous": previous, "provenance": provenance}
 
@@ -400,10 +440,14 @@ def check_pr():
         return
     require(pr["head"]["repo"]["full_name"] == pr["base"]["repo"]["full_name"] == repo()
             and pr["head"]["ref"].startswith("release/"), "Only same-repository release/X.Y.Z PRs may target main")
+    require((pr.get("user") or {}).get("login") == RELEASE_BOT,
+            f"Release PR must be opened by {RELEASE_BOT}")
     target = pr["head"]["ref"].removeprefix("release/"); version(target)
-    require(git("rev-parse", "HEAD") == pr["head"]["sha"], "Check the actual PR head source, not synthetic merge source")
+    head = pr["head"]["sha"]
+    require(git("rev-parse", "HEAD") == head, "Check the actual PR head source, not synthetic merge source")
     git("fetch", "origin", "main", "develop", "--tags")
-    validate_tree(pr["head"]["sha"], target)
+    _, provenance = validate_tree(head, target)
+    verify_preparation_signatures(provenance["develop_sha"], head, token="GITHUB_TOKEN")
 
 
 def main():
