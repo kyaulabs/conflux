@@ -872,6 +872,14 @@ class StemWorker:
             # one opening window outside the recent non-opening slots.
             self._opening_weighted_window = entry
             return
+        if start not in self._weighted_windows and len(self._weighted_windows) >= _SEEK_CACHE_WINDOWS:
+            # A nearby rewind can need a few recomputed windows before the
+            # retained suffix. Retain that suffix while filling the gap;
+            # otherwise every insertion evicts the next reusable window.
+            first_cached = min(self._weighted_windows)
+            if 0 < first_cached - start <= _SEEK_CACHE_WINDOWS * HOP:
+                return
+
         self._weighted_windows[start] = entry
         self._weighted_windows.move_to_end(start)
         if len(self._weighted_windows) > _SEEK_CACHE_WINDOWS:
