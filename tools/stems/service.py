@@ -445,7 +445,7 @@ def serve_f32(source_f32, directory, runtime, model, *, backend="vulkan", thread
                 or stat.S_IMODE(info.st_mode) != 0o600 or info.st_size != 0):
             raise ValueError("unsafe service ownership lock")
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        source = exporter._PinnedFile(source_f32, limits.max_input_bytes, stack, stop, deadline)
+        source = exporter._PinnedFile(source_f32, limits.max_input_bytes, stack, stop, deadline, prepare_f32=True)
         reserved = reservation_bytes(source.size, limits.max_diagnostic_bytes)
         if reserved > limits.max_job_bytes:
             raise ValueError("service exceeds whole-job byte reservation")
@@ -465,7 +465,7 @@ def serve_f32(source_f32, directory, runtime, model, *, backend="vulkan", thread
                                                          max_stderr_bytes=limits.max_diagnostic_bytes)
             worker = (_worker_factory or StemWorker)(runtime_pin.path, model_pin.path, backend=backend,
                 threads=threads, max_ready=1, request_timeout=limits.request_timeout,
-                _backend_factory=native_factory, _model_pin=model_pin)
+                _backend_factory=native_factory, _model_pin=model_pin, _prepared_source=source.prepared_source)
             session = _Session(source, model_pin, runtime_pin, directory, wire, worker, pins)
             wire.emit({"event": "ready", "generation": 0, "describe": description,
                        "source": {"format": "f32le", "sample_rate": RATE, "channels": CHANNELS,

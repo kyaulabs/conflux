@@ -17,11 +17,12 @@ import tempfile
 import threading
 import time
 import unittest
+from unittest.mock import patch
 
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.stems import service
+from tools.stems import service, worker as stem_worker
 from tools.stems.worker import CHANNELS, HOP, OVERLAP, RATE, STEMS, WINDOW, StemWorker
 
 WORKER_PHASES = ("source_read_ms", "request_ms", "overlap_ms")
@@ -543,6 +544,38 @@ class ServiceTest(unittest.TestCase):
         harness.next_id = 4
         harness.event("accepted", identifier=harness.ack(chunk))
         harness.close_clean()
+
+    def test_pinned_f32_source_is_not_read_again_before_first_window(self):
+        class Backend:
+            def start(self):
+                return ready("vulkan", 2)
+
+            def infer(self, samples, request_id):
+                return np.repeat(samples[None], len(STEMS), axis=0), {"elapsed_ms": 1.0}
+
+            def close(self):
+                pass
+
+        def worker_factory(*args, **kwargs):
+            kwargs["_backend_factory"] = lambda *_: Backend()
+            return StemWorker(*args, **kwargs)
+
+        start = HOP + OVERLAP + 9
+        harness = Harness(self, frames=start + 14, worker_factory=worker_factory)
+        with patch.object(stem_worker, "_open_f32", wraps=stem_worker._open_f32) as open_f32:
+            harness.start()
+            identity = digest(harness.source)
+            self.assertEqual(harness.event("ready")["source"]["sha256"], identity)
+            load = harness.event("accepted", identifier=harness.send("load", frame=start))
+            chunk = harness.event("chunk")
+            self.assertEqual((chunk["generation"], chunk["source_id"], chunk["frame_start"], chunk["frames"]),
+                             (load["generation"], identity, start, 14))
+            samples = np.fromfile(harness.directory / chunk["file"], dtype="<f4").reshape(len(STEMS), 14, CHANNELS)
+            np.testing.assert_allclose(samples, np.broadcast_to(harness.audio[start:], samples.shape), atol=2e-7)
+            harness.event("accepted", identifier=harness.ack(chunk))
+            self.assertEqual(harness.event("complete")["generation"], load["generation"])
+            self.assertEqual(harness.close_clean()["outstanding_slots"], 0)
+            open_f32.assert_called_once()
 
     def test_cold_seek_recovers_after_superseded_native_failure(self):
         entered, release = threading.Event(), threading.Event()

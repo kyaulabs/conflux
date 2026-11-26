@@ -87,7 +87,7 @@ def _signature(info):
 
 
 class _PinnedFile:
-    def __init__(self, path, maximum, stack, cancel, deadline):
+    def __init__(self, path, maximum, stack, cancel, deadline, *, prepare_f32=False):
         self.path = Path(path).absolute()
         fd = os.open(self.path, os.O_RDONLY | os.O_NONBLOCK | os.O_CLOEXEC | os.O_NOFOLLOW)
         stack.callback(os.close, fd)
@@ -97,7 +97,20 @@ class _PinnedFile:
             raise ValueError("export input/assets must be bounded nonempty regular files")
         self.signature = _signature(info)
         self.size = info.st_size
-        self.digest = self.hash(cancel, deadline)
+        self.prepared_source = None
+        if prepare_f32:
+            if self.size % (CHANNELS * 4):
+                raise ValueError("F32LE source has an incomplete stereo frame")
+            if not self.matches_signature():
+                raise RuntimeError("export input or tool changed")
+            with os.fdopen(self.fd, "rb", closefd=False) as stream:
+                self.prepared_source = worker_module._inspect_source(
+                    self.path, self.signature, "f32le", lambda: _check(cancel, deadline), raw_stream=stream)
+            if not self.matches_signature():
+                raise RuntimeError("export input or tool changed")
+            self.digest = self.prepared_source.identity
+        else:
+            self.digest = self.hash(cancel, deadline)
 
     def matches_signature(self):
         return (_signature(self.path.lstat()) == self.signature
@@ -205,9 +218,7 @@ def export_f32(source_f32, destination, runtime, model, *, backend="vulkan", thr
             raise ValueError("unsafe export ownership lock")
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         # Keep this fixed empty leaf: stale-job cleanup acquires the same flock.
-        source = _PinnedFile(source_f32, limits.max_input_bytes, stack, cancel, deadline)
-        if source.size % (CHANNELS * 4):
-            raise ValueError("F32LE source has an incomplete stereo frame")
+        source = _PinnedFile(source_f32, limits.max_input_bytes, stack, cancel, deadline, prepare_f32=True)
         reserved = reservation_bytes(source.size, limits.max_diagnostic_bytes)
         if source.size * len(STEMS) > limits.max_output_bytes or reserved > limits.max_job_bytes:
             raise ValueError("export exceeds whole-job byte reservation")
@@ -230,7 +241,8 @@ def export_f32(source_f32, destination, runtime, model, *, backend="vulkan", thr
             factory = _worker_factory or StemWorker
             worker = factory(runtime_pin.path, model_pin.path, backend=backend, threads=threads,
                              max_ready=2, request_timeout=limits.request_timeout,
-                             _backend_factory=native_factory, _model_pin=model_pin)
+                             _backend_factory=native_factory, _model_pin=model_pin,
+                             _prepared_source=source.prepared_source)
             generation = worker.load_f32(source.path)
             frames = source.size // (CHANNELS * 4)
             offset = 0
