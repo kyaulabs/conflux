@@ -342,6 +342,16 @@ def unmeasured_intervals(beat_frames, silent_cores):
         left = beat_frames[max(0, first - 4):first]
         right = beat_frames[last:last + 4]
         if len(left) < 3 or len(right) < 3:
+            # A single interval spanning the whole break can be unsupported
+            # even if one audible passage has too few beats to fit a clock.
+            # Require at least two intervals on one side, one model tick of
+            # agreement across all available intervals, and two periods of silence.
+            if first == last and left and right and max(len(left), len(right)) >= 3:
+                periods = [b - a for side in (left, right) for a, b in zip(side, side[1:])]
+                shortest, longest = min(periods), max(periods)
+                if (7200 <= shortest <= longest <= 144000 and
+                        longest - shortest <= RATE // FPS and end - begin >= 2 * longest):
+                    unmeasured[first] = True
             continue
         periods = [statistics.median(b - a for a, b in zip(side, side[1:]))
                    for side in (left, right)]

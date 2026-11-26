@@ -320,6 +320,42 @@ class AnalyzeBpmTest(unittest.TestCase):
         slow = [i*120000 for i in range(10)]
         self.assertFalse(any(bpm.unmeasured_intervals(slow, [(390000,508000)])))
 
+    def test_silent_gap_with_one_short_flank_does_not_report_bpm(self):
+        import numpy as np
+
+        rate = bpm.RATE
+        stereo = np.full((7 * rate, 2), .1, dtype="<f4")
+        stereo[2 * rate:9 * rate // 2] = 0
+        cores = bpm.interior_silence_cores(stereo, 0, len(stereo) - 1, bpm.MIN_LOCAL_SILENCE)
+        self.assertEqual(cores, [(2 * rate + bpm.SILENCE_MARGIN_FRAMES,
+                                  9 * rate // 2 - bpm.SILENCE_MARGIN_FRAMES)])
+        left, right = [.2, .7, 1.2, 1.7], [4.7, 5.2, 5.7, 6.2]
+        cases = (
+            ("short tail", left, right[:1], True),
+            ("short lead", left[-1:], right, True),
+            ("matching partial clock", left, right[:2], True),
+            ("slower partial clock", left, [4.7, 6.7], False),
+            ("two undersampled clocks", left[-2:], right[:2], False),
+            ("irregular clock", [.2, 1.1, 1.7], right[:1], False),
+        )
+        for name, before, after, unsupported in cases:
+            with self.subTest(case=name):
+                seconds = before + after
+                downbeats = [before[0], after[0]]
+                digest = hashlib.sha256(stereo.tobytes()).hexdigest()
+                tempo, count = bpm.summarize_beats(seconds, len(stereo), silent_cores=cores)
+                self.assertEqual(count, len(seconds))
+                if unsupported:
+                    self.assertEqual(tempo, 120.)
+                output = bpm.encode_result(len(stereo), digest, tempo, seconds, downbeats, cores)
+                header, *events = map(json.loads, output.splitlines())
+                self.assertEqual(header["pcm_sha256"], digest)
+                self.assertEqual(events, [
+                    {"frame": round(t * rate), "downbeat": t in downbeats,
+                     "unmeasured_before": unsupported and index == len(before)}
+                    for index, t in enumerate(seconds)
+                ])
+
     def test_wholly_silent_intervals_need_no_flank_clock(self):
         import numpy as np
 
