@@ -79,6 +79,26 @@ class HarmonyWorkerTest(unittest.TestCase):
                              [(x['tonic'],x['mode']) for x in baseline[0]['candidates']])
             np.testing.assert_allclose(rows[0]['chroma'],baseline[0]['chroma'],rtol=0,atol=1e-6)
 
+    def test_near_silent_tail_does_not_override_a_louder_chord(self):
+        def chord(notes, seconds):
+            time = np.arange(round(seconds * h.RATE)) / h.RATE
+            frequencies = 440 * np.exp2((np.asarray(notes) - 69) / 12)
+            samples = .03 * np.sin(2 * np.pi * frequencies[:, None] * time).sum(axis=0)
+            fade = np.linspace(0, 1, 240)
+            samples[:240] *= fade
+            samples[-240:] *= fade[::-1]
+            return samples
+
+        loud = chord((48, 52, 55, 60), 1.1)
+        residual = chord((56, 59, 63), 2.9) * 1e-4
+        for gain in (1., 1e-4):
+            with self.subTest(gain=gain):
+                mono = np.concatenate((loud, residual)) * gain
+                _, rows, _ = records(np.column_stack((mono, mono * .7)).astype("<f4"))
+                self.assertEqual(rows[0]['status'], 'Estimated')
+                self.assertEqual((rows[0]['candidates'][0]['tonic'],
+                                  rows[0]['candidates'][0]['mode']), (0, 'Major'))
+
     def test_unknown_short_tail_is_retained_without_padding_or_extrapolation(self):
         _,rows,end=records(np.concatenate((cadence(),np.zeros((13,2),dtype='<f4'))))
         self.assertEqual((rows[1]['first_frame'],rows[1]['end_frame']),(192000,192013))
