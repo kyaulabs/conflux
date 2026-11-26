@@ -1104,8 +1104,15 @@ public:
         const bool readyForQuantum = !expiredDuringAcquire && durationValid && rateValid && self.ready();
         const bool changingQuantum = readyForQuantum &&
             self.lastUsableQuantum_ && self.lastUsableQuantum_ != frames;
-        if (readyForQuantum)
+        // An established master route can miss one dequeue at a steady quantum.
+        // Keep the miss counted and require a complete pair on the next callback.
+        const bool retryMaster = readyForQuantum && !masterValid && !self.masterMissedBlock_ &&
+            self.playbackInitialized_.load(std::memory_order_acquire) &&
+            (!buffers[0] || valid[0]) && (!buffers[1] || valid[1]);
+        if (readyForQuantum) {
+            self.masterMissedBlock_ = !masterValid;
             self.lastUsableQuantum_ = masterValid && (!cue || cueValid) ? frames : 0;
+        }
         if (cue && self.ready() && rateValid && masterValid && !cueValid) {
             // Initial link allocation can precede the first usable cue pair.
             // Only a pair that was actually usable can subsequently be lost.
@@ -1131,7 +1138,8 @@ public:
             self.restoreOutput(clock, frames, outputs, cue, replacementPending);
         if (!expiredDuringAcquire && !resumed) self.retained_.valid = false;
         if (!durationValid || (!expiredDuringAcquire && self.ready() && !masterValid && !changingQuantum)) {
-            ++self.invalidBuffers_; self.bufferFault_.store(true, std::memory_order_relaxed);
+            ++self.invalidBuffers_;
+            if (!retryMaster) self.bufferFault_.store(true, std::memory_order_relaxed);
         } else if (!resumed && self.ready() && rateValid && masterValid) {
             self.consumeCommands(); self.meters_ = {};
             const auto tryContinuation = [&]() noexcept {
@@ -1336,7 +1344,7 @@ public:
         discoveryRound_=0; discoverySequence_=linksSequence_=cueCleanupSequence_=-1; filterState_=PW_FILTER_STATE_UNCONNECTED;
         ready_.store(false); masterGate_.store(false); cueGate_.store(CueGate::Closed); graphValid_.store(false);
         masterBuffersReady_.store(false); cueBuffersReady_.store(false);
-        cueMissedBlock_ = false;
+        masterMissedBlock_ = cueMissedBlock_ = false;
         playbackInitialized_.store(false);
         bufferFault_.store(false); graphFault_.store(false); graphRate_.store(0);
         cueStatus_.store(config.cue ? CueRouteStatus::Pending : CueRouteStatus::Disabled);
@@ -1491,7 +1499,7 @@ public:
     std::array<float,scratchFrames*2> masterScratch_{},cueScratch_{};
     RetainedOutput retained_;
     std::uint32_t lastUsableQuantum_ = 0; // Real-time callback owned.
-    bool cueMissedBlock_ = false; // Real-time callback owned.
+    bool masterMissedBlock_ = false, cueMissedBlock_ = false; // Real-time callback owned.
     // Keep the previous mapped payload intact until the new PCM is ready.
     std::array<std::array<float, scratchFrames>, 4> publishScratch_{};
     bool readersStopped_=false, detached_=false, startFailed_=false;
