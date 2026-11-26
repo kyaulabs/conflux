@@ -315,6 +315,24 @@ private:
     bool started_ = false;
 };
 
+std::array<QString, 2> stereoSinkPorts(conflux::DeckController& controller, const Sink& sink)
+{
+    std::array<QString, 2> keys;
+    const auto node = QString::fromStdString(sink.name());
+    for (const auto& value : controller.audioRouting()["ports"].toList()) {
+        const auto port = value.toMap();
+        if (port["nodeName"].toString() != node) continue;
+        if (port["portName"] == "input_0" && port["channel"] == "FL") keys[0] = port["key"].toString();
+        if (port["portName"] == "input_1" && port["channel"] == "FR") keys[1] = port["key"].toString();
+    }
+    return keys;
+}
+
+bool hasStereoPair(const std::array<QString, 2>& ports)
+{
+    return !ports[0].isEmpty() && !ports[1].isEmpty();
+}
+
 QJsonObject inspectStemRecording(const QString& path, std::uint64_t prefixFrames, std::uint64_t expectedFrames,
                                  float expectedGain = 1.F, bool excludeRebuildMiddle = false,
                                  const std::array<float, 2>& expectedSamples = expected)
@@ -405,22 +423,19 @@ void runStemController(const std::filesystem::path& output, const QString& fixtu
     options.stemEngine = engine;
     conflux::DeckController controller(options);
     Sink sink("conflux-stem-controller-master-" + std::to_string(::getpid()), 1e-6F);
+    Sink routeCue("conflux-stem-controller-route-cue-" + std::to_string(::getpid()));
     // Instrumented functional checks still inspect every steady recorded frame.
     // They report downstream virtual-sink discrepancies separately: maintaining
     // that graph's wall-clock deadlines is a different qualification.
     const auto sinkMatches = [&] { return functionalOnly || (!sink.wrong() && !sink.zeros()); };
     controller.refreshAudioRouting();
-    QString left, right;
+    std::array<QString, 2> masterPorts, cuePorts;
     wait([&] {
-        for (const auto& value : controller.audioRouting()["ports"].toList()) {
-            const auto port = value.toMap();
-            if (port["nodeName"].toString() != QString::fromStdString(sink.name())) continue;
-            if (port["portName"] == "input_0" && port["channel"] == "FL") left = port["key"].toString();
-            if (port["portName"] == "input_1" && port["channel"] == "FR") right = port["key"].toString();
-        }
-        return !left.isEmpty() && !right.isEmpty() && controller.libraryReady();
+        masterPorts = stereoSinkPorts(controller, sink);
+        cuePorts = stereoSinkPorts(controller, routeCue);
+        return hasStereoPair(masterPorts) && hasStereoPair(cuePorts) && controller.libraryReady();
     }, "Stem controller private routing/library discovery timed out");
-    controller.configureAudioRouting(left, right, {}, {});
+    controller.configureAudioRouting(masterPorts[0], masterPorts[1], {}, {});
     require(controller.stemsAvailable() && controller.error().isEmpty(),
             "Explicit local stem engine is available on the private master-only pair");
     controller.loadStemDeck(0, QUrl::fromLocalFile(a));
@@ -586,7 +601,7 @@ void runStemController(const std::filesystem::path& output, const QString& fixtu
     const auto beforeRoute = controller.audioState();
     const auto prefixFrames = controller.recording()["acceptedFrames"].toULongLong();
     sink.validate(false); // Explicit routing rebuild may omit wall time and ramp.
-    controller.configureAudioRouting(left, right, {}, {});
+    controller.configureAudioRouting(masterPorts[0], masterPorts[1], cuePorts[0], cuePorts[1]);
     wait([&] {
         return !controller.busy() && controller.outputReady() &&
             controller.audioState().sourceFrame[0] >= beforeRoute.sourceFrame[0] + 4096;
@@ -1130,24 +1145,18 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
     };
     conflux::DeckController controller;
     Sink master("conflux-eq-master-" + std::to_string(::getpid()));
+    Sink nextMaster("conflux-eq-next-master-" + std::to_string(::getpid()));
     constexpr std::uint64_t cueProbeFrames = 1024;
     Sink cue("conflux-eq-cue-" + std::to_string(::getpid()), 1e-6F, cueProbeFrames);
     controller.refreshAudioRouting();
-    std::array<QString, 4> ports;
+    std::array<QString, 2> masterPorts, nextMasterPorts, cuePorts;
     await([&] {
-        for (const auto& value : controller.audioRouting()["ports"].toList()) {
-            const auto port = value.toMap();
-            for (std::size_t bus = 0; bus < 2; ++bus)
-                for (std::size_t channel = 0; channel < 2; ++channel) {
-                    if (port["nodeName"].toString() == QString::fromStdString(bus ? cue.name() : master.name()) &&
-                        port["portName"].toString() == QString("input_%1").arg(channel) &&
-                        port["channel"].toString() == (channel ? "FR" : "FL"))
-                        ports[bus * 2 + channel] = port["key"].toString();
-                }
-        }
-        return std::all_of(ports.begin(), ports.end(), [](const auto& port) { return !port.isEmpty(); });
+        masterPorts = stereoSinkPorts(controller, master);
+        nextMasterPorts = stereoSinkPorts(controller, nextMaster);
+        cuePorts = stereoSinkPorts(controller, cue);
+        return hasStereoPair(masterPorts) && hasStereoPair(nextMasterPorts) && hasStereoPair(cuePorts);
     }, "EQ master/cue private pairs were not discovered");
-    controller.configureAudioRouting(ports[0], ports[1], ports[2], ports[3]);
+    controller.configureAudioRouting(masterPorts[0], masterPorts[1], cuePorts[0], cuePorts[1]);
     controller.loadDeck(0, QUrl::fromLocalFile(a));
     await([&] { return !controller.busy() && controller.outputReady(); }, "EQ A did not load");
     controller.loadDeck(1, QUrl::fromLocalFile(b));
@@ -1263,7 +1272,7 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
         // It must not later be mistaken for settled output from the rebuilt session.
         await([&] { return controller.audioState().outputFrame >= beforeRoute.outputFrame + 8192; },
               "Old EQ session did not advance beyond the captured routing checkpoint");
-        controller.configureAudioRouting(ports[0], ports[1], ports[2], ports[3]);
+        controller.configureAudioRouting(nextMasterPorts[0], nextMasterPorts[1], cuePorts[0], cuePorts[1]);
         await([&] { return !controller.busy() && controller.outputReady() && controller.completedSessions() == sessions + 1 &&
             controller.audioState().cueReady &&
             controller.audioState().sourceFrame[0] >= beforeRoute.sourceFrame[0] + 4096; }, "EQ routing rebuild did not restore cue readiness");
@@ -1560,6 +1569,13 @@ void runLiveStemController(const std::filesystem::path& output, const QString& p
     const auto sinkMatches = [&] { return functionalOnly || (!sink.wrong() && !sink.zeros()); };
     QString left, right;
     privateLivePair(controller, sink, left, right, require);
+    Sink routeCue("conflux-live-controller-route-cue-" + std::to_string(::getpid()));
+    std::array<QString, 2> cuePorts;
+    controller.refreshAudioRouting();
+    wait([&] {
+        cuePorts = stereoSinkPorts(controller, routeCue);
+        return hasStereoPair(cuePorts);
+    }, "Live route rebuild cue pair was not discovered");
     const auto source = directory.filePath("live-bass-source.wav");
     constexpr std::uint32_t liveFrames = 30 * 48000;
     writeFixture(source, 8192, -4096, 30 * 44100, 44100);
@@ -1682,7 +1698,7 @@ void runLiveStemController(const std::filesystem::path& output, const QString& p
     const auto prefixFrames = controller.recording()["acceptedFrames"].toULongLong();
     const auto seeks = trace.count(0, "command", "seek");
     sink.validate(false); // Explicit rebuild/start ramps and omitted wall time are excluded.
-    controller.configureAudioRouting(left, right, {}, {});
+    controller.configureAudioRouting(left, right, cuePorts[0], cuePorts[1]);
     wait([&] {
         if (!controller.busy() && !controller.error().isEmpty()) throw std::runtime_error(controller.error().toStdString());
         return !controller.busy() && controller.outputReady() && controller.audioState().sourceFrame[0] >= beforeRoute.sourceFrame[0] + 4096;
@@ -1731,7 +1747,9 @@ void runLiveStemController(const std::filesystem::path& output, const QString& p
         require(before.tempo[0].active && before.sourcePosition[0] != double(before.sourceFrame[0]),
                 "The paused live deck has a fractional tempo position");
         const auto workerSeeks = trace.count(0, "command", "seek");
-        controller.configureAudioRouting(left, right, {}, {});
+        const auto beforeSessions = controller.completedSessions();
+        controller.configureAudioRouting(left, right, keyLock ? cuePorts[0] : QString{},
+                                         keyLock ? cuePorts[1] : QString{});
         wait([&] {
             if (!controller.busy() && !controller.error().isEmpty())
                 throw std::runtime_error(controller.error().toStdString());
@@ -1748,7 +1766,8 @@ void runLiveStemController(const std::filesystem::path& output, const QString& p
         require(!after.playing[0] && after.sourcePosition[0] == before.sourcePosition[0] &&
                     after.tempo[0].generation == before.tempo[0].generation && after.tempo[0].keyLock == keyLock &&
                     after.tempo[0].percent == requestedTempo && after.stemGain[0] == bass && routeSeeks == 0 &&
-                    controller.liveStemObservations(0) == liveObservations,
+                    controller.liveStemObservations(0) == liveObservations &&
+                    controller.completedSessions() == beforeSessions + 1,
                 "Output rebuild retains the live tempo processor, stem gains and exact source position");
         controller.setPlaying(0, true);
         wait([&] {
@@ -1779,8 +1798,14 @@ void runLostLiveOwners(const QString& parent, Check&& require, QJsonObject& obse
     options.stemEngine = fixture.engine; options.stemServicePath = fixture.service;
     conflux::DeckController controller(options);
     Sink sink("conflux-lost-live-master-" + std::to_string(::getpid()));
+    Sink routeCue("conflux-lost-live-route-cue-" + std::to_string(::getpid()));
     QString left, right;
     privateLivePair(controller, sink, left, right, require);
+    std::array<QString, 2> cuePorts;
+    wait([&] {
+        cuePorts = stereoSinkPorts(controller, routeCue);
+        return hasStereoPair(cuePorts);
+    }, "Lost-owner route rebuild cue pair was not discovered");
     const auto a = directory.filePath("lost-live-a.wav"), b = directory.filePath("lost-live-b.wav");
     writeFixture(a, 4096, -2048, 30 * 44100, 44100); writeFixture(b, 2048, 3072, 30 * 44100, 44100);
     for (int deck = 0; deck < 2; ++deck) {
@@ -1802,7 +1827,7 @@ void runLostLiveOwners(const QString& parent, Check&& require, QJsonObject& obse
     require(trace.size() == 2 && trace.alive(0) && trace.alive(1) &&
             trace.count(0, "command", "load") == 1 && trace.count(1, "command", "load") == 1,
             "Two independent live services each render before the constructor-failure route rebuild");
-    controller.configureAudioRouting(left, right, {}, {});
+    controller.configureAudioRouting(left, right, cuePorts[0], cuePorts[1]);
     wait([&] { return !controller.busy() && !controller.error().isEmpty() && trace.gone(0) && trace.gone(1); },
          "Stale re-prime did not fail and retire both consumed owners", true, std::chrono::seconds(60));
     const auto lost = controller.decks();
@@ -2735,9 +2760,16 @@ void residentScenario(const QString& output, const QString& privateRoot, QJsonAr
         controller.setPlaying(0, false); controller.setPlaying(1, false);
         await(evidence, [&] { const auto s = controller.audioState(); return !s.playing[0] && !s.playing[1]; },
             "Both exact owners did not pause before deterministic routing reconstruction");
+        Sink routeCue("conflux-resident-route-cue-" + std::to_string(::getpid()));
+        std::array<QString, 2> cuePorts;
+        controller.refreshAudioRouting();
+        await(evidence, [&] {
+            cuePorts = stereoSinkPorts(controller, routeCue);
+            return hasStereoPair(cuePorts);
+        }, "Resident route rebuild cue pair was not discovered");
         const auto oldSession = hold()["outputSession"].toString();
         const auto beforeRebuild = controller.audioState();
-        controller.configureAudioRouting(left, right, {}, {});
+        controller.configureAudioRouting(left, right, cuePorts[0], cuePorts[1]);
         await(evidence, [&] {
             if (!controller.busy() && !controller.error().isEmpty()) throw std::runtime_error(controller.error().toStdString());
             return !controller.busy() && controller.outputReady();
@@ -3441,22 +3473,25 @@ int main(int argc, char** argv)
         writeFixture(b, 2048, 3072);
         pw_init(nullptr, nullptr);
         Sink sink("conflux-preparation-controller-master-" + std::to_string(::getpid()));
+        Sink routeCue("conflux-preparation-controller-route-cue-" + std::to_string(::getpid()));
         // Functional mode checks every rendered master frame in the owned WAV.
         // The downstream virtual graph's scheduling remains separate telemetry.
         const auto sinkMatches = [&] { return functionalOnly || (!sink.wrong() && !sink.zeros()); };
         conflux::DeckController controller;
         controller.refreshAudioRouting();
-        QString left, right;
+        std::array<QString, 2> masterPorts, cuePorts;
         wait([&] {
-            for (const auto& value : controller.audioRouting()["ports"].toList()) {
-                const auto port = value.toMap();
-                if (port["nodeName"].toString() != QString::fromStdString(sink.name())) continue;
-                if (port["portName"] == "input_0" && port["channel"] == "FL") left = port["key"].toString();
-                if (port["portName"] == "input_1" && port["channel"] == "FR") right = port["key"].toString();
-            }
-            return !left.isEmpty() && !right.isEmpty();
-        }, "Private stereo sink discovery timed out");
-        controller.configureAudioRouting(left, right, {}, {});
+            masterPorts = stereoSinkPorts(controller, sink);
+            cuePorts = stereoSinkPorts(controller, routeCue);
+            return hasStereoPair(masterPorts) && hasStereoPair(cuePorts);
+        }, "Private master/cue stereo sink discovery timed out");
+        controller.configureAudioRouting(masterPorts[0], masterPorts[1], {}, {});
+        bool cueEnabled = false;
+        const auto changeCueRoute = [&] {
+            cueEnabled = !cueEnabled;
+            controller.configureAudioRouting(masterPorts[0], masterPorts[1],
+                cueEnabled ? cuePorts[0] : QString{}, cueEnabled ? cuePorts[1] : QString{});
+        };
         require(controller.error().isEmpty(), "Exact private master pair is configured with cue disabled");
         controller.loadDeck(0, QUrl::fromLocalFile(a));
         try {
@@ -3490,6 +3525,11 @@ int main(int argc, char** argv)
         controller.setPlaying(0, true);
         wait([&] { return controller.audioState().playing[0] && controller.audioState().sourceFrame[0] >= 4096; },
              "A transport did not advance");
+        const auto initialSessions = controller.completedSessions();
+        controller.configureAudioRouting(masterPorts[0], masterPorts[1], {}, {});
+        require(!controller.busy() && controller.outputReady() && controller.audioState().playing[0] &&
+                    controller.completedSessions() == initialSessions,
+                "Reapplying an identical healthy route retains the playing session");
         require(QThreadPool::globalInstance()->waitForDone(8000),
                 "Drain earlier workers before ordering recording and output installation");
         for (const bool stopWhileInstalling : {false, true}) {
@@ -3502,7 +3542,7 @@ int main(int argc, char** argv)
                 // The WAV open completes first. Block the next global pool
                 // job (installation), then deliver the open acknowledgment.
                 RetirementGate installerGate;
-                controller.configureAudioRouting(left, right, {}, {});
+                changeCueRoute();
                 QCoreApplication::sendPostedEvents(nullptr, QEvent::FutureCallOut);
                 const auto starting = controller.recording();
                 require(controller.busy() && !controller.outputReady() && QFile::exists(path) &&
@@ -3552,7 +3592,8 @@ int main(int argc, char** argv)
             require(!before.loops[0].inSet && before.tempo[0].active &&
                         before.sourcePosition[0] != double(before.sourceFrame[0]),
                     "The paused prepared deck has a fractional tempo position and no loop");
-            controller.configureAudioRouting(left, right, {}, {});
+            const auto beforeSessions = controller.completedSessions();
+            changeCueRoute();
             wait([&] { return !controller.busy() && controller.outputReady(); },
                  "Prepared tempo route did not rebuild");
             const auto after = controller.audioState();
@@ -3563,7 +3604,8 @@ int main(int argc, char** argv)
             observations["prepared_tempo_route_rebuild"] = rebuiltTempo;
             require(!after.playing[0] && after.sourcePosition[0] == before.sourcePosition[0] &&
                         after.tempo[0].generation == before.tempo[0].generation &&
-                        after.tempo[0].keyLock == keyLock && after.tempo[0].percent == requestedTempo,
+                        after.tempo[0].keyLock == keyLock && after.tempo[0].percent == requestedTempo &&
+                        controller.completedSessions() == beforeSessions + 1,
                     "Output rebuild retains the paused prepared tempo processor and exact source position");
             controller.setPlaying(0, true);
             wait([&] {

@@ -2770,10 +2770,17 @@ void DeckController::configureAudioRouting(const QString& masterLeft, const QStr
         fail(QString::fromStdString(!resolved.master ? resolved.masterError : resolved.cueError));
         return;
     }
-    // Runtime identities protect against ID reuse. Reconfiguration intentionally
-    // interrupts output, then restores the exact stopped transport state.
+    const auto samePair = [](const auto& selected, const auto& active) {
+        if (!selected || !active) return !selected && !active;
+        return audio::samePortIdentity(selected->left, active->left) &&
+            audio::samePortIdentity(selected->right, active->right);
+    };
+    const auto expectedCueStatus = resolved.cue ? audio::CueRouteStatus::Ready : audio::CueRouteStatus::Disabled;
+    const bool unchanged = session_ && ready_ && routingSnapshot_.masterReady &&
+        routingSnapshot_.cueStatus == expectedCueStatus && routingSnapshot_.cueReady == bool(resolved.cue) &&
+        samePair(resolved.master, routingSnapshot_.master) && samePair(resolved.cue, routingSnapshot_.cue);
     routingConfig_ = std::move(config);
-    if (!clips_[0] && !clips_[1]) {
+    if (unchanged || (!clips_[0] && !clips_[1])) {
         error_.clear();
         notifyStateChanged();
         return;
