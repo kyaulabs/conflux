@@ -25,9 +25,32 @@ def release_record():
 
 def pull_request():
     return {"number": 7, "merged": True, "draft": False, "merge_commit_sha": MERGE,
+        "user": {"login": "kyaulabs-bot"}, "merged_by": {"login": "kyaulabs-bot"},
+        "merged_at": "2026-01-02T12:05:00Z",
         "head": {"ref": "release/0.1.0", "sha": HEAD, "repo": {"full_name": REPOSITORY}},
         # Deliberately mutable/current base SHA, not the immutable first parent.
         "base": {"ref": "main", "sha": MERGE, "repo": {"full_name": REPOSITORY}}}
+
+
+def approval(head=HEAD):
+    return {"user": {"login": "kyau"}, "state": "APPROVED", "commit_id": head,
+            "submitted_at": "2026-01-02T12:04:00Z", "body": "✔️ Approved by: @kyau"}
+
+
+def merged_release_api(pr, reviews=None, unsigned=None, non_pgp=None, wrong_author=None, wrong_committer=None):
+    def api(path, **_):
+        if path == "pulls/7":
+            return pr
+        if path == "pulls/7/reviews?per_page=100&page=1":
+            return [approval(pr["head"]["sha"])] if reviews is None else reviews
+        sha = path.removeprefix("commits/")
+        assert path.startswith("commits/")
+        author = {"login": "other" if sha == wrong_author else "kyau"}
+        committer = {"login": "other" if sha == wrong_committer else "kyau"}
+        signature = "-----BEGIN SSH SIGNATURE-----" if sha == non_pgp else "-----BEGIN PGP SIGNATURE-----"
+        return {"sha": sha, "author": author, "committer": committer,
+                "commit": {"verification": {"verified": sha != unsigned, "signature": signature}}}
+    return api
 
 
 def successful_run():
@@ -66,10 +89,10 @@ class ReleaseUnitTests(unittest.TestCase):
     def test_resolve_exact_verified_merge_head_without_mutable_base_sha_assumption(self):
         def git(*args):
             if args[:3] == ("rev-list", "--parents", "-n"): return f"{MERGE} {BASE} {HEAD}"
+            if args[0] == "rev-list": return HEAD
             if args[0] == "rev-parse": return "d" * 40
             return ""
-        def api(path, **_):
-            return pull_request() if path == "pulls/7" else {"sha": MERGE, "commit": {"verification": {"verified": True}}}
+        api = merged_release_api(pull_request())
         with mock.patch.object(release, "api", side_effect=api), mock.patch.object(release, "git", side_effect=git), \
              mock.patch.object(release, "validate_tree", return_value=(None, release_record()["provenance"])):
             self.assertEqual(release.resolve(7), release_record())
@@ -90,6 +113,77 @@ class ReleaseUnitTests(unittest.TestCase):
                 with mock.patch.object(release, "api", side_effect=api), \
                      mock.patch.object(release, "git", side_effect=lambda *a: f"{MERGE} {BASE} {HEAD}" if a[0] == "rev-list" else ""):
                     with self.assertRaises(ValueError): release.resolve(7)
+
+    def test_release_requires_bot_signed_preparation_and_exact_premerge_approval(self):
+        setup_commit = "f" * 40
+
+        def git(*args):
+            if args[:3] == ("rev-list", "--parents", "-n"):
+                return f"{MERGE} {BASE} {HEAD}"
+            if args[0] == "rev-list":
+                self.assertEqual(args[1:], (f"{BASE}..{HEAD}",))
+                return f"{HEAD}\n{setup_commit}"
+            if args[0] == "rev-parse":
+                return "d" * 40
+            return ""
+
+        tests = [
+            ("foreign opener", {"user": {"login": "another-account"}}, {}, "opened and merged"),
+            ("foreign merger", {"merged_by": {"login": "another-account"}}, {}, "opened and merged"),
+            ("unsigned intermediate commit", {}, {"unsigned": setup_commit}, "signed by kyau"),
+            ("wrong head author", {}, {"wrong_author": HEAD}, "signed by kyau"),
+            ("wrong head committer", {}, {"wrong_committer": HEAD}, "signed by kyau"),
+            ("non-GPG signature", {}, {"non_pgp": HEAD}, "signed by kyau"),
+            ("missing review", {}, {"reviews": []}, "exact release head"),
+            ("stale reviewed commit", {}, {"reviews": [approval(BASE)]}, "exact release head"),
+            ("foreign reviewer", {}, {"reviews": [{**approval(), "user": {"login": "not-kyau"}}]}, "exact release head"),
+            ("missing approval wording", {}, {"reviews": [{**approval(), "body": "Looks good"}]}, "exact release head"),
+            ("approval after merge", {}, {"reviews": [{**approval(), "submitted_at": "2026-01-02T12:06:00Z"}]},
+             "exact release head"),
+            ("review dismissed", {}, {"reviews": [{**approval(), "state": "DISMISSED"}]}, "exact release head"),
+            ("later request for changes", {}, {"reviews": [approval(),
+                {**approval(), "state": "CHANGES_REQUESTED", "submitted_at": "2026-01-02T12:04:30Z"}]}, "exact release head"),
+        ]
+        with mock.patch.object(release, "git", side_effect=git), \
+             mock.patch.object(release, "validate_tree", return_value=(None, release_record()["provenance"])):
+            for name, fields, controls, error in tests:
+                pr = {**pull_request(), **fields}
+                with self.subTest(name=name), mock.patch.object(release, "api", side_effect=merged_release_api(pr, **controls)):
+                    with self.assertRaisesRegex(ValueError, error):
+                        release.resolve(7)
+            approved = approval()
+            comments = [{**approved, "state": "COMMENTED", "submitted_at": "2026-01-02T12:04:45Z"},
+                        {**approved, "state": "CHANGES_REQUESTED", "submitted_at": "2026-01-02T12:06:00Z"}]
+            with mock.patch.object(release, "api", side_effect=merged_release_api(pull_request(), [approved, *comments])) as api:
+                self.assertEqual(release.resolve(7, token="GH_TOKEN"), release_record())
+                self.assertTrue(all(item.kwargs["token"] == "GH_TOKEN" for item in api.call_args_list))
+
+    def test_release_pr_build_checks_signed_preparation_before_review(self):
+        def git(*args):
+            if args == ("rev-parse", "HEAD"):
+                return HEAD
+            if args == ("rev-list", f"{BASE}..{HEAD}"):
+                return HEAD
+            self.assertEqual(args, ("fetch", "origin", "main", "develop", "--tags"))
+            return ""
+
+        event = {"pull_request": pull_request()}
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "event.json"
+            path.write_text(json.dumps(event))
+            with mock.patch.dict(os.environ, {"GITHUB_EVENT_PATH": str(path)}), \
+                 mock.patch.object(release, "git", side_effect=git), \
+                 mock.patch.object(release, "validate_tree", return_value=(None, release_record()["provenance"])):
+                with mock.patch.object(release, "api", side_effect=merged_release_api(event["pull_request"], reviews=[])) as api:
+                    self.assertIsNone(release.check_pr())
+                    api.assert_called_once_with(f"commits/{HEAD}", token="GITHUB_TOKEN")
+                with mock.patch.object(release, "api", side_effect=merged_release_api(event["pull_request"], unsigned=HEAD)):
+                    with self.assertRaisesRegex(ValueError, "signed by kyau"):
+                        release.check_pr()
+                event["pull_request"]["user"] = {"login": "other"}
+                path.write_text(json.dumps(event))
+                with self.assertRaisesRegex(ValueError, "opened by kyaulabs-bot"):
+                    release.check_pr()
 
     def test_publish_missing_token_moving_tag_and_foreign_notes_fail_without_writes(self):
         with mock.patch.dict(os.environ, {"GITHUB_TOKEN": ""}):
@@ -301,9 +395,7 @@ class ReleaseGitCliffTests(unittest.TestCase):
         self.g("tag", "v0.1.0")
         self.assertEqual(release.notes(record), before_tag)
         pr = pull_request(); pr["head"]["sha"] = head; pr["merge_commit_sha"] = merge; pr["base"]["sha"] = merge
-        def api(path, **_):
-            return pr if path == "pulls/7" else {"sha": merge, "commit": {"verification": {"verified": True}}}
-        with mock.patch.object(release, "api", side_effect=api):
+        with mock.patch.object(release, "api", side_effect=merged_release_api(pr)):
             for _ in range(2):
                 self.assertEqual(release.resolve(7)["sha"], merge)
 
@@ -346,9 +438,7 @@ class ReleaseGitCliffTests(unittest.TestCase):
         merge = self.g("rev-parse", "HEAD")
         self.assertEqual(self.g("diff", "--name-only", head, merge), "source.cpp")
         pr = pull_request(); pr["head"]["sha"] = head; pr["merge_commit_sha"] = merge
-        def api(path, **_):
-            return pr if path == "pulls/7" else {"sha": merge, "commit": {"verification": {"verified": True}}}
-        with mock.patch.object(release, "api", side_effect=api):
+        with mock.patch.object(release, "api", side_effect=merged_release_api(pr)):
             with self.assertRaisesRegex(ValueError, "Merged release tree differs"):
                 release.resolve(7)
 
