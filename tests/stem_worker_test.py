@@ -703,6 +703,54 @@ class WorkerTest(unittest.TestCase):
         np.testing.assert_array_equal(remaining["samples"], expected[:, 2 * HOP:])
         self.assertEqual(fake.calls, 3)
 
+    def test_repeat_seek_retains_interior_preroll_when_cache_has_space(self):
+        target = 2 * HOP
+        tail = 4 * HOP
+        raw = self.root / "interior-preroll.f32"
+        fixture(self.root / "interior-preroll.wav", tail + 137).astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([chunk["samples"] for chunk in
+                                   self.collect(reference, reference.load_f32(raw))], axis=1)
+        worker, fake = self.worker(FakeRuntime(blocked=True), max_ready=1)
+
+        entered = worker.load_f32(raw, start_frame=target + OVERLAP)
+        self.assertTrue(fake.wait_call(1))
+        fake.release()
+        initial = self.event(worker, "chunk", entered)
+        self.assertEqual((initial["request_id"], initial["frame_start"]), (1, target + OVERLAP))
+        self.assertTrue(fake.wait_call(2))
+        with worker._condition:
+            self.assertEqual(list(worker._weighted_windows), [target])
+
+        first = worker.seek(target + 17)
+        fake.release()
+        preroll = self.event(worker, "started", first)
+        self.assertTrue(preroll["preroll"])
+        self.assertEqual((preroll["request_id"], preroll["window_start_frame"]), (3, target - HOP))
+        self.assertTrue(fake.wait_call(3))
+        fake.release()
+        first_pass = [self.event(worker, "chunk", first) for _ in range(2)]
+        self.assertEqual([chunk["request_id"] for chunk in first_pass], [1, 2])
+        np.testing.assert_array_equal(np.concatenate([chunk["samples"] for chunk in first_pass], axis=1),
+                                      expected[:, target + 17:tail])
+        self.assertTrue(fake.wait_call(4))
+
+        repeat = worker.seek(target + 37)
+        replay = [self.event(worker, "chunk", repeat, timeout=1) for _ in range(2)]
+        self.assertEqual([chunk["request_id"] for chunk in replay], [1, 2])
+        self.assertTrue(all(chunk["inference_reused"] for chunk in replay))
+        self.assertEqual(fake.calls, 4)
+        self.assertEqual(worker.statistics()["inflight"]["request_id"], 4)
+        np.testing.assert_array_equal(np.concatenate([chunk["samples"] for chunk in replay], axis=1),
+                                      expected[:, target + 37:tail])
+        with worker._condition:
+            self.assertEqual(set(worker._weighted_windows), {target - HOP, target, target + HOP})
+        fake.release()
+        remainder, = self.collect(worker, repeat)
+        self.assertEqual(remainder["request_id"], 4)
+        np.testing.assert_array_equal(remainder["samples"], expected[:, tail:])
+        self.assertEqual(fake.calls, 4)
+
     def test_repeat_seek_keeps_opening_preroll_with_cached_forward_windows(self):
         capacity = _SEEK_CACHE_WINDOWS
         suffix_frame = (capacity + 1) * HOP

@@ -990,9 +990,10 @@ class StemWorker:
                         if self._closed or self._command != command:
                             raise _Superseded
                         target = self._weighted_window_locked(start + HOP)
-                        # The opening slot cannot evict cached forward windows.
-                        # For other preroll, preserve the existing cached suffix.
-                        if start == 0 or target is None or target[0] is not source:
+                        # Retain an overlap for repeat seeks when it fits without
+                        # eviction. Keep a full cached suffix for an already-ready target.
+                        has_room = len(self._weighted_windows) < _SEEK_CACHE_WINDOWS
+                        if start == 0 or has_room or target is None or target[0] is not source:
                             self._remember_window_locked(start, source, request_id, weighted)
                         self._retire_inference_locked(request_id)
                 continue
