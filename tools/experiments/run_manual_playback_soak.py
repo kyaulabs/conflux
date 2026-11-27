@@ -222,6 +222,66 @@ def live_timing_passes(observations):
                     for key, row in phases.items()))
 
 
+HOUR_CACHED_SOURCE = (1031940, 1123201)
+HOUR_FRESH_SOURCE = (4127760, 4492801)
+STEM_HOP_FRAMES = 257985
+
+
+def hour_inference_coverage(native, observations, geometry):
+    if geometry == HOUR_CACHED_SOURCE:
+        return {"source_profile": "short_replay", "fresh_inference_sustained": False}
+    source_frames = geometry[1]
+    replays = [event for event in native["controls"] if event.get("kind") == "replay_recovery"]
+    begin, end = native["measurement_begin_output_frame"], native["measurement_end_output_frame"]
+    boundaries = [begin, *(event["output_begin"] for event in replays), end]
+    if len(replays) < 2 or any(not 0 < b - a <= 2 * source_frames for a, b in zip(boundaries, boundaries[1:])):
+        raise RuntimeError("Hour qualification: live replays did not span the measured hour")
+    previous = [event.get("previous_generation") for event in replays]
+    if (any(type(generation) is not int or generation < 1 for generation in previous)
+            or any(b != a + 1 for a, b in zip(previous, previous[1:]))):
+        raise RuntimeError("Hour qualification: full replay generations are incomplete")
+    issued = [event.get("issued_ns") for event in replays]
+    if (any(type(stamp) is not int or stamp <= 0 for stamp in issued)
+            or any(b <= a for a, b in zip(issued, issued[1:]))):
+        raise RuntimeError("Hour qualification: replay issue clocks are invalid")
+    spans = dict(zip(previous[1:], zip(issued, issued[1:])))
+    epochs = {row["generation"]: row for row in observations["epochs"].values()}
+    for generation, (begin_ns, end_ns) in spans.items():
+        epoch = epochs.get(generation, {})
+        if (epoch.get("target") != 0 or epoch.get("final") is not True
+                or not begin_ns <= epoch.get("command_ns", 0) <= epoch.get("converter_complete_ns", 0) < end_ns):
+            raise RuntimeError("Hour qualification: completed replay lost its exact command/EOF binding")
+    fresh = {generation: set() for generation in spans}
+    request_ids = set()
+    for row in observations["chunk_phases"].get("hops", ()):
+        if row.get("inference_reused"):
+            continue
+        request = row["request_id"]
+        if request in request_ids:
+            raise RuntimeError("Hour qualification: duplicate fresh inference request")
+        request_ids.add(request)
+        generation, start = row["generation"], row["input_first"]
+        if generation not in spans or not (0 < start < geometry[0] and start % STEM_HOP_FRAMES == 0
+                                            and row["input_frames"] == STEM_HOP_FRAMES):
+            continue
+        begin_ns, end_ns = spans[generation]
+        started = row.get("matching_worker_start_ns", 0)
+        if begin_ns <= started <= row["validated_ns"] < end_ns:
+            fresh[generation].add(start)
+    if len(request_ids) != observations.get("inferred_service_hops", {}).get("count"):
+        raise RuntimeError("Hour qualification: fresh replay timing evidence differs")
+    # Sixteen windows force new work with the tested one-opening/seven-recent
+    # window cache. Require fresh coverage in each entire measured replay,
+    # giving the initial partial generation and terminal drain no credit.
+    counts = [len(windows) for windows in fresh.values()]
+    minimum = geometry[0] // STEM_HOP_FRAMES // 2
+    if min(counts) < minimum:
+        raise RuntimeError("Hour qualification: replay span lacks sustained fresh inference")
+    return {"source_profile": "fresh_replay", "fresh_inference_sustained": True,
+            "completed_replays": len(counts), "minimum_fresh_nonopening_windows": min(counts),
+            "fresh_nonopening_windows_by_complete_replay": counts}
+
+
 def validate_hour_result(native, observations, background=False):
     """Check bounded native hour evidence before the wrapper's cleanup gate."""
     def check(condition, description):
@@ -247,8 +307,8 @@ def validate_hour_result(native, observations, background=False):
     else:
         check(isinstance(coverage, dict) and coverage.get("visible_ui_qualification_eligible", True) is True,
               "background UI evidence cannot enter visible qualification")
-    check(native["setup"]["input_frames"] == 1031940 and native["setup"]["output_frames"] == 1123201
-          and native["peer"]["frames"] == 480 * 48000,
+    geometry = native["setup"]["input_frames"], native["setup"]["output_frames"]
+    check(geometry in (HOUR_CACHED_SOURCE, HOUR_FRESH_SOURCE) and native["peer"]["frames"] == 480 * 48000,
           "changed source/peer geometry")
     check(native["measurement_intervals_closed"] and native["last_recovery_complete"], "open measurement/control")
     begin, end = native["measurement_begin_output_frame"], native["measurement_end_output_frame"]
@@ -312,7 +372,8 @@ def validate_hour_result(native, observations, background=False):
           "deck-specific steady starvation observed")
     hops = observations["service_hops"]
     check(live_timing_passes(observations), "service hop p99/loss/thirteen-phase gate failed")
-    return {"peer_rewinds": len(peers), "service_hops": hops["count"],
+    coverage = hour_inference_coverage(native, observations, geometry)
+    return {**coverage, "peer_rewinds": len(peers), "service_hops": hops["count"],
             "service_hops_at_or_above_target": hops["at_or_above_target"],
             "strict_service_p99_target_ms": 4095, "steady_starved_a": steady[0], "steady_starved_b": steady[1],
             "visible_ui_qualification_eligible": not background,
@@ -416,7 +477,8 @@ def live_qualified(result, hour, background=False):
                 and result.get("ui_mode", "visible") == "visible" and isinstance(native, dict)
                 and native.get("mode") != "live-stems-controls-normal-redraw"
                 and native.get("ui_mode", "visible") == "visible" and isinstance(gates, dict) and gates
-                and gates.get("visible_ui_qualification_eligible", True) is True)
+                and gates.get("visible_ui_qualification_eligible", True) is True
+                and gates.get("fresh_inference_sustained") is True)
 
 
 def summarize_live_observations(path, native):
@@ -446,7 +508,7 @@ def summarize_live_observations(path, native):
     names = ("ServiceReady", "RuntimeReady", "RequestObserved", "CommandQueued", "CommandAccepted", "ChunkValidated",
              "PacketAccepted", "PacketDiscarded", "RawComplete", "ConverterComplete", "ServiceClosed", "WorkerRequestStarted")
     counts = dict.fromkeys(names, 0)
-    request_starts = set()
+    request_starts = {}
     hops, inferred_hops, ready_to_pre_emit, validation, publication, full_waits = [], [], [], [], [], []
     phase_names = LIVE_PHASE_NAMES
     phases = {key: [] for key in phase_names}
@@ -495,7 +557,7 @@ def summarize_live_observations(path, native):
                     or type(row.get("worker_preroll")) is not bool or type(started) not in (int, float)
                     or not math.isfinite(started) or started < 0):
                 raise RuntimeError("Invalid worker request start observation")
-            request_starts.add(request)
+            request_starts[request] = row
         elif kind == "ChunkValidated":
             epoch = epochs[row["epoch"]]
             end = row["input_first"] + row["input_frames"]
@@ -525,7 +587,14 @@ def summarize_live_observations(path, native):
                 hops.append(row["hop_service_ms"])
                 if not reused:
                     inferred_hops.append(row["hop_service_ms"])
-            phase_row = {key: row[key] for key in ("epoch", "generation", "request_id", "lease_sequence", "input_first", "input_frames")}
+            phase_row = {key: row[key] for key in (
+                "epoch", "generation", "request_id", "lease_sequence", "input_first", "input_frames", "validated_ns")}
+            started = request_starts.get(row["request_id"])
+            # Count only a distinct native start bound to this exact replay
+            # and input window. An adopted older request remains a valid hop.
+            if (not reused and started and not started["worker_preroll"]
+                    and all(started[key] == row[key] for key in ("epoch", "generation", "input_first"))):
+                phase_row["matching_worker_start_ns"] = started["observed_ns"]
             if row["hop_service_present"]:
                 phase_row["hop_service_ms"] = row["hop_service_ms"]
             if reused:
@@ -571,6 +640,7 @@ def summarize_live_observations(path, native):
                     not epochs[row["epoch"]]["validated_contiguous"] or epochs[row["epoch"]]["validated_end"] != total_input):
                 raise RuntimeError("Converter completion endpoint/binding differs")
             epochs[row["epoch"]]["converter_complete"] = True
+            epochs[row["epoch"]]["converter_complete_ns"] = row["observed_ns"]
         elif kind == "ServiceClosed":
             if (row["epoch"] != last_accepted_epoch or row["generation"] != last_generation or
                     not epochs[last_accepted_epoch]["validated_end"] <= row["input_first"] <= total_input):

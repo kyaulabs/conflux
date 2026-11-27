@@ -470,10 +470,18 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
             {"source_token", qint64(context.sourceToken)}, {"input_frames", qint64(context.inputFrames44100)}, {"output_frames", qint64(context.outputFrames48000)},
             {"source_sha256", sha(context.sourceSha256)}, {"input_sha256", sha(context.inputSha256)}, {"model_sha256", sha(context.modelSha256)},
             {"runtime_sha256", sha(context.runtimeSha256)}, {"service_sha256", sha(context.serviceSha256)}};
-        require(context.outputFrames48000 && context.outputFrames48000 <= 48000ULL * 30 &&
-            context.outputFrames48000 == controller.audioState().sourceFrames[0], "Use a bounded short source for EOF/replay");
-        require(!hour || (context.inputFrames44100 == 1031940 && context.outputFrames48000 == 1123201),
-            "Hour mode requires the same counted 23.4-second source geometry");
+        constexpr std::uint64_t legacyHourInputFrames = 1031940, legacyHourOutputFrames = 1123201;
+        constexpr std::uint64_t freshHourInputFrames = 4127760, freshHourOutputFrames = 4492801;
+        if (hour) {
+            require((context.inputFrames44100 == legacyHourInputFrames && context.outputFrames48000 == legacyHourOutputFrames) ||
+                    (context.inputFrames44100 == freshHourInputFrames && context.outputFrames48000 == freshHourOutputFrames),
+                "Hour mode requires the measured 23.4-second playback or 93.6-second fresh-replay source geometry");
+        } else {
+            require(context.outputFrames48000 && context.outputFrames48000 <= 48000ULL * 30,
+                "Use a bounded short source for EOF/replay");
+        }
+        require(context.outputFrames48000 == controller.audioState().sourceFrames[0],
+            "Live source context differs from the installed deck");
         write({{"type", "setup"}, {"context", setup}}); drain();
         command([&] { controller.setDeckGain(0, .25); }); command([&] { controller.setPlaying(0, true); });
         const auto route = controller.audioRouting();
