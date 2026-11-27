@@ -484,7 +484,8 @@ def live_qualified(result, hour, background=False):
 def summarize_live_observations(path, native):
     # The writer has already bounded lines/bytes. Enforce the same bounds when
     # reopening evidence; this parser never reads a media or slot file.
-    line_limit, byte_limit = live_evidence_limits(native.get("mode") == "live-stems-hour")
+    hour = native.get("mode") == "live-stems-hour"
+    line_limit, byte_limit = live_evidence_limits(hour)
     if path.stat().st_size > byte_limit:
         raise RuntimeError("Observation file exceeds its bound")
     rows = []
@@ -588,13 +589,15 @@ def summarize_live_observations(path, native):
                 if not reused:
                     inferred_hops.append(row["hop_service_ms"])
             phase_row = {key: row[key] for key in (
-                "epoch", "generation", "request_id", "lease_sequence", "input_first", "input_frames", "validated_ns")}
-            started = request_starts.get(row["request_id"])
-            # Count only a distinct native start bound to this exact replay
-            # and input window. An adopted older request remains a valid hop.
-            if (not reused and started and not started["worker_preroll"]
-                    and all(started[key] == row[key] for key in ("epoch", "generation", "input_first"))):
-                phase_row["matching_worker_start_ns"] = started["observed_ns"]
+                "epoch", "generation", "request_id", "lease_sequence", "input_first", "input_frames")}
+            if hour:
+                phase_row["validated_ns"] = row["validated_ns"]
+                started = request_starts.get(row["request_id"])
+                # Count only a distinct native start bound to this replay and
+                # input window. An adopted older request remains a valid hop.
+                if (not reused and started and not started["worker_preroll"]
+                        and all(started[key] == row[key] for key in ("epoch", "generation", "input_first"))):
+                    phase_row["matching_worker_start_ns"] = started["observed_ns"]
             if row["hop_service_present"]:
                 phase_row["hop_service_ms"] = row["hop_service_ms"]
             if reused:
@@ -640,7 +643,8 @@ def summarize_live_observations(path, native):
                     not epochs[row["epoch"]]["validated_contiguous"] or epochs[row["epoch"]]["validated_end"] != total_input):
                 raise RuntimeError("Converter completion endpoint/binding differs")
             epochs[row["epoch"]]["converter_complete"] = True
-            epochs[row["epoch"]]["converter_complete_ns"] = row["observed_ns"]
+            if hour:
+                epochs[row["epoch"]]["converter_complete_ns"] = row["observed_ns"]
         elif kind == "ServiceClosed":
             if (row["epoch"] != last_accepted_epoch or row["generation"] != last_generation or
                     not epochs[last_accepted_epoch]["validated_end"] <= row["input_first"] <= total_input):

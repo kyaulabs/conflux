@@ -1237,7 +1237,7 @@ for line in sys.stdin:
 
 
 class PhaseObservationAnalysisTest(unittest.TestCase):
-    def summary(self, phases, terminal_records=()):
+    def summary(self, phases, terminal_records=(), *, hour_request=None):
         from tools.experiments.run_manual_playback_soak import summarize_live_observations
 
         setup = {"input_frames": 17, "output_frames": 19, "factory_entry_ns": 1,
@@ -1246,12 +1246,19 @@ class PhaseObservationAnalysisTest(unittest.TestCase):
                   "observation_counters": {"producer_finished": True, "dropped": 0, "invalid_clock_reads": 0,
                                            "retained": 4, "attempted": 4}}
         rows = [{"type": "setup", "context": setup}]
-        for ordinal, kind in enumerate((2, 3, 4, 5), 1):
+        kinds = (2, 3, 4, 5)
+        if hour_request is not None:
+            native["mode"] = "live-stems-hour"
+            kinds = (2, 3, 4, 11, 5)
+        for ordinal, kind in enumerate(kinds, 1):
             row = {"type": "record", "kind": kind, "ordinal": ordinal, "observed_ns": ordinal * 100,
                    "epoch": 11, "generation": 1, "command_id": 7, "input_first": 0, "input_frames": 0,
                    "output_first": 0, "output_frames": 0, "telemetry_dropped_present": False}
+            if kind == 11:
+                row.update(request_id=hour_request, worker_preroll=False, worker_started_seconds=1000.)
             if kind == 5:
-                row.update(input_frames=17, final=True, lease_sequence=1, request_id=42, validated_ns=450,
+                row.update(input_frames=17, final=True, lease_sequence=1, request_id=42,
+                           validated_ns=ordinal * 100 + 50,
                            worker_ready_seconds=1000.25, service_published_seconds=1000.375,
                            hop_service_present=True, hop_service_ms=125.0, **phases)
             rows.append(row)
@@ -1282,6 +1289,15 @@ class PhaseObservationAnalysisTest(unittest.TestCase):
                         "nearest_rank_p99_ms": phases.get(key), "present_for_all_chunks": key in phases})
                 self.assertEqual(result["service_hops"]["strict_target_ms"], 4095)
                 self.assertEqual(result["service_hops"]["nearest_rank_p99_ms"], 125.0)
+
+    def test_hour_hop_attaches_only_its_matching_native_start(self):
+        matching = self.summary({}, hour_request=42)["chunk_phases"]["hops"][0]
+        self.assertEqual(matching["matching_worker_start_ns"], 400)
+        self.assertEqual(matching["validated_ns"], 550)
+
+        other = self.summary({}, hour_request=43)["chunk_phases"]["hops"][0]
+        self.assertEqual(other["validated_ns"], 550)
+        self.assertNotIn("matching_worker_start_ns", other)
 
     def test_cached_hop_contributes_to_delivery_only(self):
         result = self.summary({"inference_reused": True, "overlap_ms": .25}, ({},))
