@@ -568,8 +568,12 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
             }
             const bool eof = state.sourceFrame[0] == state.sourceFrames[0];
             if (eof && !eofAtOutput && !replayPending) { ++eofCount; eofAtOutput = state.outputFrame; }
-            if (eofAtOutput && state.outputFrame >= eofAtOutput + 1024 && !recovering && !controlPending && measure.elapsed() < seconds * 1000LL - (shortFunctional ? 200 : 5000)) {
-                beginRecovery(0, "replay_recovery"); ++replayCount; replayPending = true; eofAtOutput = 0;
+            const auto remainingMs = seconds * 1000LL - measure.elapsed();
+            if (eofAtOutput && state.outputFrame >= eofAtOutput + 1024 && !recovering && !controlPending &&
+                remainingMs > (shortFunctional ? 200 : 5000)) {
+                const auto startFrame = hour ? conflux::experiments::hourReplayStartFrame(state.sourceFrames[0], remainingMs) : 0;
+                beginRecovery(double(startFrame) / 48000, "replay_recovery");
+                ++replayCount; replayPending = true; eofAtOutput = 0;
             } else if (replayPending && !eof) replayPending = false;
             if (!seekIssued && firstAdvanceNs && !recovering && !controlPending && !eof && measure.elapsed() < seconds * 1000LL - (shortFunctional ? 200 : 15000) && acceptedGeneration && acceptedGeneration != completedGeneration) {
                 auto target = std::min<std::uint64_t>(280800, state.sourceFrames[0] / 2);
@@ -642,10 +646,11 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         // generation; no tail replay/seek and no time-based hop filtering.
         tailStarted = true; tailBegin = tailEnd = controller.audioState();
         const auto tailEpoch = acceptedEpoch, tailGeneration = acceptedGeneration;
-        const auto tailDeadline = std::chrono::steady_clock::now() + std::chrono::seconds(60);
+        constexpr auto tailSeconds = conflux::experiments::liveDiagnosticTailSeconds;
+        const auto tailDeadline = std::chrono::steady_clock::now() + std::chrono::seconds(tailSeconds);
         QElapsedTimer tailClock; tailClock.start();
         diagnosticTail = {{"status", "WaitingForFiniteEof"}, {"epoch", qint64(tailEpoch)}, {"generation", qint64(tailGeneration)},
-            {"begin_ns", nowNs()}, {"tail_budget_seconds", 60}, {"close_budget_seconds", 3}, {"measured_boundary_closed", true},
+            {"begin_ns", nowNs()}, {"tail_budget_seconds", tailSeconds}, {"close_budget_seconds", 3}, {"measured_boundary_closed", true},
             {"measured_wall_ms_begin", measuredWallMs}, {"measured_output_end_begin", qint64(measurementEndOutputFrame)},
             {"validated_hops_begin", qint64(validatedHops)},
             {"scope", "Measured interval is closed; WAV finalized before EOF/idle-close drain, whose later audio is unrecorded; every completed hop retained"}};

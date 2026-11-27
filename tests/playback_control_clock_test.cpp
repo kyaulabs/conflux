@@ -57,6 +57,29 @@ void invalidCountersAndEof()
     require(!playbackControlClockMatches(before, after), "Out-of-range source cursor accepted");
 }
 
+void terminalReplayFitsTheFiniteDrain()
+{
+    using conflux::experiments::hourReplayStartFrame;
+    constexpr std::uint64_t shortSource = 1123201;
+    constexpr std::uint64_t longSource = 4492801;
+    constexpr std::uint64_t framesPerMs = 48;
+    constexpr std::uint64_t nominalTailFrames = 50 * 1000 * framesPerMs;
+    static_assert(hourReplayStartFrame(shortSource, 5001) == 0);
+    static_assert(hourReplayStartFrame(longSource, 50000) == 0);
+    static_assert(hourReplayStartFrame(longSource, 43600) == 1);
+    for (std::uint64_t ms = 5001; ms <= 100000; ++ms) {
+        const auto start = hourReplayStartFrame(longSource, ms);
+        const auto remainingFrames = ms * framesPerMs;
+        const auto nominalAdvance = longSource - start;
+        require(nominalAdvance == std::min(longSource, remainingFrames + nominalTailFrames),
+            "Replay left an unbounded tail or omitted more source than needed");
+        require(!start || nominalAdvance > remainingFrames,
+            "A shortened replay would finish before the measured hour ends");
+    }
+    constexpr auto maximum = std::numeric_limits<std::uint64_t>::max();
+    static_assert(hourReplayStartFrame(longSource, maximum) == 0);
+}
+
 void clocksNearIntegerLimit()
 {
     State before, after;
@@ -75,6 +98,7 @@ int main()
 {
     try {
         advancingAndStarvedDecks(); invalidCountersAndEof(); clocksNearIntegerLimit();
+        terminalReplayFitsTheFiniteDrain();
         std::cout << "Control clock starvation, peer, EOF and invalid-counter checks passed\n";
         return 0;
     } catch (const std::exception& error) {
