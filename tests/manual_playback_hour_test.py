@@ -91,6 +91,18 @@ class HourPlaybackTest(unittest.TestCase):
                       ("--live-stems-hour", "--active-controls"), ("--active-controls",)):
             with self.subTest(extra=extra), self.assertRaises(SystemExit): self.cli(*extra)
 
+    def test_expected_runtime_sha256_cli_admission(self):
+        digest = "a1" * 32
+        _, hour = self.cli("--live-stems-hour", "--expected-runtime-sha256", digest)
+        self.assertEqual(hour.expected_runtime_sha256, digest)
+        _, legacy = self.cli("--live-stems-hour")
+        self.assertIsNone(legacy.expected_runtime_sha256)
+        for malformed in ("", "a" * 63, "A" * 64, "g" * 64, "a" * 65):
+            with self.subTest(malformed=malformed), self.assertRaises(SystemExit):
+                self.cli("--live-stems-hour", "--expected-runtime-sha256", malformed)
+        with self.assertRaises(SystemExit):
+            self.cli("--expected-runtime-sha256", digest, live_paths=False)
+
     def test_normal_redraw_requires_explicit_short_visible_controls(self):
         _, args = self.cli("--live-stems", "--active-controls", "--normal-redraw")
         self.assertTrue(args.normal_redraw)
@@ -198,7 +210,8 @@ class HourPlaybackTest(unittest.TestCase):
                 routing.main()
             spawn.assert_not_called()
 
-    def live_watchdog_run(self, readiness_seconds, child_ages, progress=False, completed_controls=None, hour=False):
+    def live_watchdog_run(self, readiness_seconds, child_ages, progress=False, completed_controls=None, hour=False,
+                          *, runtime_bytes=b"generated fixture", expected_runtime_sha256=None, expect_launch=True):
         # Run the actual launch/watchdog/cleanup path with generated files and a
         # fake child. No host commands, audio, native process or real wait runs.
         clock = [0.0]; launched = []; polls = []; ready_calls = []
@@ -215,8 +228,10 @@ class HourPlaybackTest(unittest.TestCase):
             assets = {name: root / name for name in names}
             for path in [wrapper, *assets.values(), *(root / name for name in ui)]:
                 path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"generated fixture")
+            assets["runtime"].write_bytes(runtime_bytes)
             args = SimpleNamespace(**assets, output=root / "run", seconds=3600 if hour else 120, live_stems_hour=hour,
-                background=completed_controls is None, active_controls=completed_controls is not None)
+                background=completed_controls is None, active_controls=completed_controls is not None,
+                expected_runtime_sha256=expected_runtime_sha256)
             proc = root / "proc"; task = proc / "101/task/101"; task.mkdir(parents=True)
             fields = ["S", "1", "101", "101"] + ["0"] * 15 + ["1001"]
             (proc / "101/stat").write_text("101 (fixture) " + " ".join(fields))
@@ -248,6 +263,7 @@ class HourPlaybackTest(unittest.TestCase):
                             digest = hashlib.sha256(b"generated fixture").hexdigest()
                             native.update(source_root=str(root), setup={key: digest for key in
                                 ("source_sha256", "model_sha256", "runtime_sha256", "service_sha256")})
+                            native["setup"]["runtime_sha256"] = hashlib.sha256(runtime_bytes).hexdigest()
                         (args.output / "native-result.json").write_text(json.dumps(native))
                     return self.returncode
                 def wait(self, timeout): return self.poll()
@@ -298,10 +314,38 @@ class HourPlaybackTest(unittest.TestCase):
                 code = soak.run_live(args)
             result = json.loads((args.output / "result.json").read_text())
             stop = (args.output / "stop").read_text().strip() if (args.output / "stop").exists() else None
-            self.assertEqual(popen.call_count, 1); self.assertEqual(len(ready_calls), 2)
-            self.assertTrue(popen.call_args.kwargs["start_new_session"])
+            if expect_launch:
+                popen.assert_called_once()
+                self.assertTrue(popen.call_args.kwargs["start_new_session"])
+                self.assertEqual(len(ready_calls), 2)
+            else:
+                popen.assert_not_called()
+                self.assertEqual(len(ready_calls), 1)
             self.assertFalse(result["passed"]); self.assertFalse(result["qualified"])
-            return code, result, stop, launched[0], polls
+            return code, result, stop, launched[0] if launched else None, polls
+
+    def test_host_runtime_pin_allows_exact_alternate_and_rejects_unbound_runtimes(self):
+        runtime = b"new stock runtime fixture"
+        expected = hashlib.sha256(runtime).hexdigest()
+        native, observations = self.controls_fixture()
+        observations["service_hops"]["nearest_rank_p99_ms"] = 4095
+        code, result, stop, _, _ = self.live_watchdog_run(0, [.1],
+            completed_controls=(native, observations), runtime_bytes=runtime, expected_runtime_sha256=expected)
+        self.assertEqual(code, 1)
+        self.assertIsNone(stop)
+        self.assertEqual(result["expected_runtime_sha256"], expected)
+        self.assertEqual(result["native"]["setup"]["runtime_sha256"], expected)
+        self.assertEqual(result["pins_before"], result["pins_after"])
+        self.assertEqual(result["error"], "Active controls: strict service p99/loss/thirteen-phase gate failed")
+
+        for supplied in (None, "0" * 64):
+            with self.subTest(supplied=supplied):
+                code, result, stop, _, _ = self.live_watchdog_run(0, [], runtime_bytes=runtime,
+                    expected_runtime_sha256=supplied, expect_launch=False)
+                self.assertEqual(code, 1)
+                self.assertIsNone(stop)
+                self.assertNotIn("command", result)
+                self.assertEqual(result["error"], "Actual-model host check runtime does not match the expected SHA-256")
 
     def test_failed_service_target_retains_final_input_guard_and_power_evidence(self):
         native, observations = self.controls_fixture()

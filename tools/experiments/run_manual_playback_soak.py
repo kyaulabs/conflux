@@ -165,7 +165,7 @@ def owned_objects(objects, pid):
 
 
 
-# These identities select the previously promoted pair; paths remain explicit.
+# Preserve the promoted runtime as the default and pin the model in every host run.
 FLASH_RUNTIME_SHA256 = "6f4dca329ee158ad4c1abe963cd9d0940d63ba8a309afdc8b4cd1b7259edbc53"
 FLASH_MODEL_SHA256 = "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
 
@@ -954,8 +954,13 @@ def run_live(args):
         paths = {"binary": binary, "track_a": source, "track_b": peer, "runner": Path(__file__).resolve(), **assets,
                  **{"ui:" + name: source_root / name for name in ui_assets}}
         result["pins_before"] = {name: live_pin(path, 256 * 1024 * 1024 if name not in ("track_a", "track_b") else 1024**3) for name, path in paths.items()}
-        if result["pins_before"]["runtime"]["sha256"] != FLASH_RUNTIME_SHA256 or result["pins_before"]["model"]["sha256"] != FLASH_MODEL_SHA256:
-            raise RuntimeError("Actual-model host check requires the exact promoted Flash runtime/model")
+        expected_runtime = getattr(args, "expected_runtime_sha256", None) or FLASH_RUNTIME_SHA256
+        if result["pins_before"]["runtime"]["sha256"] != expected_runtime:
+            raise RuntimeError("Actual-model host check runtime does not match the expected SHA-256")
+        if result["pins_before"]["model"]["sha256"] != FLASH_MODEL_SHA256:
+            raise RuntimeError("Actual-model host check requires the exact promoted model")
+        if expected_runtime != FLASH_RUNTIME_SHA256:
+            result["expected_runtime_sha256"] = expected_runtime
         result["guard_before"] = live_guard()
         result["power_before"] = power_state()
         if not result["power_before"]["ac_online"] or not result["power_before"]["lid_open"]:
@@ -1171,9 +1176,17 @@ def main():
     parser.add_argument("--normal-redraw", action="store_true", help="explicit 50 ms forced-redraw diagnostic; requires exactly 120s visible active controls")
     for name in ("python", "exporter", "worker", "service", "runtime", "model", "readiness-decision"):
         parser.add_argument("--" + name, type=Path)
+    parser.add_argument("--expected-runtime-sha256", metavar="HEX",
+                        help="Expected SHA-256 of the actual live runtime (default: promoted Flash runtime)")
     parser.add_argument("--guard-script", type=Path, default=Path.home() / ".local/bin/thermal-guard")
     parser.add_argument("--guard-unit", type=Path, default=Path.home() / ".config/systemd/user/thermal-guard.service")
     args = parser.parse_args()
+    if args.expected_runtime_sha256 is not None:
+        if not (args.live_stems or args.live_stems_hour):
+            parser.error("--expected-runtime-sha256 requires a live stem mode")
+        digest = args.expected_runtime_sha256
+        if len(digest) != 64 or any(char not in "0123456789abcdef" for char in digest):
+            parser.error("--expected-runtime-sha256 requires 64 lowercase hexadecimal digits")
     if args.active_controls and (not args.live_stems or args.live_stems_hour or args.background):
         parser.error("--active-controls requires short visible --live-stems")
     if args.background and not (args.live_stems or args.live_stems_hour):
