@@ -660,11 +660,17 @@ class HourPlaybackTest(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             self.readiness(record)
 
-    def fixture(self, preparation_seconds=75, overlap=False):
+    def fixture(self, preparation_seconds=75, overlap=False, fresh=False):
         rate = 48000
         begin = 123456
         finish = begin + 3600 * rate
         a_controls = [{"output_begin": begin + 10 * rate, "output_end": begin + 14 * rate}]
+        if fresh:
+            for generation, seconds in enumerate(range(94, 3600, 94), 5):
+                issue = begin + seconds * rate
+                a_controls.append({"kind": "replay_recovery", "previous_generation": generation,
+                                   "output_begin": issue, "output_end": issue + rate,
+                                   "issued_ns": issue * 1000000000 // rate})
         peers = []
         cursor = preparation_seconds * rate
         anchor = begin
@@ -709,6 +715,30 @@ class HourPlaybackTest(unittest.TestCase):
         observations = {"kind_counts": {"ChunkValidated": 200}, "service_metrics_complete": True,
                         "service_hops": {**soak.duration_stats([3000] * 199 + [5000]), "complete": True, "at_or_above_target": 1},
                         "chunk_phases": {"fields": {name: {"count": 200, "present_for_all_chunks": True} for name in soak.LIVE_PHASE_NAMES}}}
+        if fresh:
+            native["setup"] = {"input_frames": 4127760, "output_frames": 4492801}
+            epochs = {}
+            hops = []
+            for control in a_controls[1:]:
+                generation = control["previous_generation"] + 1
+                issued = control["issued_ns"]
+                epochs[generation] = {"generation": generation, "target": 0, "final": True,
+                                      "command_ns": issued + 1000000,
+                                      "converter_complete_ns": issued + 90000000000}
+                for window in range(1, 16):
+                    started = issued + window * 5700000000
+                    hops.append({"generation": generation, "input_first": window * 257985,
+                                 "input_frames": 257985, "matching_worker_start_ns": started,
+                                 "validated_ns": started + 3000000000})
+            for request, row in enumerate(hops, 1):
+                row["request_id"] = request
+            count = len(hops)
+            observations.update(kind_counts={"ChunkValidated": count},
+                                service_hops={**soak.duration_stats([3000] * count), "complete": True,
+                                              "at_or_above_target": 0},
+                                inferred_service_hops=soak.duration_stats([3000] * count), epochs=epochs,
+                                chunk_phases={"hops": hops, "fields": {key: {"count": count}
+                                                                      for key in soak.LIVE_PHASE_NAMES}})
         return native, observations
 
     def background_fixture(self):
@@ -778,8 +808,36 @@ class HourPlaybackTest(unittest.TestCase):
             with self.subTest(label=label), self.assertRaises(RuntimeError):
                 soak.validate_hour_result(native, invalid, background=True)
 
-    def test_public_qualification_gate_never_promotes_background_or_missing_cleanup(self):
+    def test_only_fresh_inference_throughout_the_hour_qualifies(self):
         native, observations = self.fixture()
+        gates = soak.validate_hour_result(native, observations)
+        self.assertEqual(gates["source_profile"], "short_replay")
+        self.assertFalse(soak.live_qualified({"passed": True, "cleanup_proven": True,
+                                              "native": native, "hour_gates": gates}, True))
+        native, observations = self.fixture(fresh=True)
+        gates = soak.validate_hour_result(native, observations)
+        self.assertTrue(gates["fresh_inference_sustained"])
+        self.assertGreater(gates["completed_replays"], 30)
+        self.assertEqual(gates["minimum_fresh_nonopening_windows"], 15)
+        for case in ("one_generation", "no_matching_start", "started_before_replay", "validated_after_replay"):
+            invalid = copy.deepcopy(observations)
+            for row in invalid["chunk_phases"]["hops"]:
+                if case == "one_generation":
+                    row["generation"] = 6
+                elif case == "no_matching_start":
+                    row.pop("matching_worker_start_ns")
+                elif case == "started_before_replay":
+                    row["matching_worker_start_ns"] = 1
+                else:
+                    row["validated_ns"] += 100000000000
+            with self.subTest(case=case), self.assertRaisesRegex(RuntimeError, "lacks sustained fresh inference"):
+                soak.validate_hour_result(native, invalid)
+        observations["epochs"][6]["final"] = False
+        with self.assertRaisesRegex(RuntimeError, "exact command/EOF binding"):
+            soak.validate_hour_result(native, observations)
+
+    def test_public_qualification_gate_never_promotes_background_or_missing_cleanup(self):
+        native, observations = self.fixture(fresh=True)
         gates = soak.validate_hour_result(native, observations)
         result = {"passed": True, "cleanup_proven": True, "ui_mode": "visible",
                   "native": native, "hour_gates": gates}
