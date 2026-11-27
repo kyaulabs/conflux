@@ -1274,35 +1274,49 @@ public:
             expired = durationValid && callbackExpired(position->clock, clock);
         }
         const bool renderedPlayback = resumed || rendered != 0;
-        bool publishedSamples = false;
+        std::array<spa_chunk*, 4> queuedChunks{};
         for (std::size_t index = 0; index < 4; ++index) {
             if (!buffers[index]) continue;
             auto* buffer = buffers[index];
+            auto* chunk = buffer->buffer && buffer->buffer->n_datas == 1 ?
+                buffer->buffer->datas[0].chunk : nullptr;
             buffer->size = 0;
-            if (buffer->buffer && buffer->buffer->n_datas == 1) {
-                if (auto* chunk = buffer->buffer->datas[0].chunk) {
-                    chunk->offset = 0;
-                    chunk->stride = sizeof(float);
-                    chunk->flags = SPA_CHUNK_FLAG_NONE;
-                    chunk->size = 0;
-                    // A link notification can close the gate while master
-                    // buffers are being returned. Check each cue extent
-                    // immediately before handing that buffer to PipeWire.
-                    // A master fault can arrive after rendering or during an earlier return.
-                    expired = expired || (durationValid && callbackExpired(position->clock, clock));
-                    if (valid[index] && !expired && (!renderedPlayback || self.ready()) &&
-                        (index < 2 || !cue || self.cueRouteOpen())) {
-                        chunk->size = frames * sizeof(float);
-                        buffer->size = frames;
-                    }
-                }
+            if (chunk) {
+                chunk->offset = 0;
+                chunk->stride = sizeof(float);
+                chunk->flags = SPA_CHUNK_FLAG_NONE;
+                chunk->size = 0;
             }
-            const bool sendsSamples = buffer->size != 0;
             if (pw_filter_queue_buffer(self.portData_[index], buffers[index]) < 0) {
                 if (index < 2) { ++self.invalidBuffers_; self.bufferFault_.store(true, std::memory_order_relaxed); }
                 else self.cueGate_.store(CueGate::BufferFault, std::memory_order_release);
-            } else {
-                publishedSamples |= sendsSamples;
+            } else if (valid[index]) {
+                queuedChunks[index] = chunk;
+            }
+        }
+        // With RT_PROCESS, PipeWire transfers queued IDs to port IO only
+        // after this callback returns. Keep the extents empty while queueing
+        // so a cycle change during a return cannot split the stereo block.
+        expired = expired || (durationValid && callbackExpired(position->clock, clock));
+        bool publishedSamples = false;
+        if (!expired && (!renderedPlayback || self.ready())) {
+            const bool publishCue = !cue || self.cueRouteOpen();
+            for (std::size_t index = 0; index < queuedChunks.size(); ++index) {
+                if (queuedChunks[index] && (index < 2 || publishCue)) {
+                    queuedChunks[index]->size = frames * sizeof(float);
+                    buffers[index]->size = frames;
+                    publishedSamples = true;
+                }
+            }
+            if (durationValid && callbackExpired(position->clock, clock)) {
+                expired = true;
+                for (std::size_t index = 0; index < queuedChunks.size(); ++index) {
+                    if (queuedChunks[index]) {
+                        queuedChunks[index]->size = 0;
+                        buffers[index]->size = 0;
+                    }
+                }
+                publishedSamples = false;
             }
         }
         // Replay is safe only if no channel received a nonempty chunk from
