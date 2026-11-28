@@ -151,7 +151,7 @@ QJsonObject controlSnapshot(const State& s)
 // host qualification and requires the same isolated daemon ownership checks.
 int livePlayback(QGuiApplication& app, int argc, char** argv)
 {
-    if (argc != 13) { std::cerr << "Usage: --live-stems|--live-stems-controls|--live-stems-controls-normal-redraw|--private-live-stems-controls|--private-live-stems-controls-normal-redraw|--live-stems-hour|--live-stems-background|--live-stems-hour-background|--live-stems-hidden|--live-stems-hidden-one-thread SOURCE PEER OUTPUT SECONDS STOP PYTHON EXPORTER WORKER SERVICE RUNTIME MODEL\n"; return 2; }
+    if (argc != 13) { std::cerr << "Usage: --live-stems|--live-stems-controls|--live-stems-controls-normal-redraw|--private-live-stems-controls|--private-live-stems-controls-normal-redraw|--live-stems-hour|--live-stems-hour-screen|--live-stems-background|--live-stems-hour-background|--live-stems-hour-screen-background|--live-stems-hidden|--live-stems-hidden-one-thread SOURCE PEER OUTPUT SECONDS STOP PYTHON EXPORTER WORKER SERVICE RUNTIME MODEL\n"; return 2; }
     const auto mode = QString::fromLocal8Bit(argv[1]);
     const bool privateControls = mode == "--private-live-stems-controls" ||
         mode == "--private-live-stems-controls-normal-redraw";
@@ -159,21 +159,26 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         mode == "--private-live-stems-controls-normal-redraw";
     const bool activeControls = privateControls || normalRedraw || mode == "--live-stems-controls";
     const bool hour = mode == "--live-stems-hour" || mode == "--live-stems-hour-background";
+    const bool hourScreen = mode == "--live-stems-hour-screen" || mode == "--live-stems-hour-screen-background";
+    const bool hourWorkload = hour || hourScreen;
     const bool oneThread = mode == "--live-stems-hidden-one-thread";
     const bool hidden = oneThread || mode == "--live-stems-hidden";
     const int runtimeThreads = oneThread ? 1 : 2;
-    const bool background = hidden || mode == "--live-stems-background" || mode == "--live-stems-hour-background";
+    const bool background = hidden || mode == "--live-stems-background" || mode == "--live-stems-hour-background" ||
+        mode == "--live-stems-hour-screen-background";
     using UiPolicy = conflux::experiments::PlaybackUiPolicy;
     UiPolicy uiPolicy(hidden ? UiPolicy::Mode::Hidden : background ? UiPolicy::Mode::Background : UiPolicy::Mode::Visible);
     const bool functional = qEnvironmentVariable("CONFLUX_PRIVATE_ROUTING_CHECK") == "1";
     // Private model diagnostics use the host control schedule but cannot enter
     // host qualification or extend the existing generated-fixture modes.
-    if (privateControls && !functional) return 2;
+    if ((privateControls && !functional) || (hourScreen && functional)) return 2;
     const bool shortFunctional = functional && !privateControls;
     const bool fixedTwoMinute = privateControls || (normalRedraw && !functional);
     bool valid = false;
     const int seconds = QString::fromLocal8Bit(argv[5]).toInt(&valid);
-    if (!valid || (hour ? seconds != 3600 : fixedTwoMinute ? seconds != 120 : shortFunctional ? seconds < 1 || seconds > 10 : seconds < 120 || seconds > 180) ||
+    const auto durationValid = hour ? seconds == 3600 : hourScreen ? seconds == 540 : fixedTwoMinute ? seconds == 120 :
+        shortFunctional ? 1 <= seconds && seconds <= 10 : 120 <= seconds && seconds <= 180;
+    if (!valid || !durationValid ||
         (!functional && qEnvironmentVariable("CONFLUX_ALLOW_HOST_SOAK") != "1")) return 2;
     const auto platform = QGuiApplication::platformName();
     if (functional ? (platform != "offscreen" && platform != "minimal") : (platform == "offscreen" || platform == "minimal")) return 2;
@@ -215,8 +220,8 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
     std::uint64_t acceptedEpoch = 0, completedEpoch = 0, converterGeneration = 0, converterEpoch = 0, validatedHops = 0;
     auto write = [&](QJsonObject value) {
         auto line = QJsonDocument(value).toJson(QJsonDocument::Compact); line.append('\n');
-        require(line.size() <= 4096 && retained < (hour ? 65536U : 16384U) &&
-            bytes + std::uint64_t(line.size()) <= (hour ? 64ULL : 32ULL) * 1024 * 1024,
+        require(line.size() <= 4096 && retained < (hourWorkload ? 65536U : 16384U) &&
+            bytes + std::uint64_t(line.size()) <= (hourWorkload ? 64ULL : 32ULL) * 1024 * 1024,
             "Live observation evidence capacity exhausted");
         require(trace.write(line) == line.size(), "Cannot write bounded live observation evidence");
         ++retained; bytes += std::uint64_t(line.size());
@@ -280,7 +285,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
     bool measurementIntervalsClosed = false;
     qint64 lastFrameNs = 0, maxFrameGapNs = 0, lastHeartbeatNs = 0, maxHeartbeatNs = 0, loadIssuedNs = 0, firstAdvanceNs = 0;
     QJsonArray samples, controls, peerControls, sceneErrors, intervals;
-    QJsonObject setup, result{{"schema", 2}, {"mode", hour ? "live-stems-hour" : "live-stems"}, {"functional_only", functional}, {"host_audio", !functional},
+    QJsonObject setup, result{{"schema", 2}, {"mode", hour ? "live-stems-hour" : hourScreen ? "live-stems-hour-screen" : "live-stems"}, {"functional_only", functional}, {"host_audio", !functional},
         {"pid", qint64(QCoreApplication::applicationPid())}, {"requested_seconds", seconds}, {"platform", platform}, {"qt", qVersion()},
         {"ui_mode", background ? "background" : "visible"},
         {"window_policy", hidden ? "hidden" : background ? "background" : "visible"},
@@ -290,6 +295,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
     if (background) result["scope"] = hour
         ? "Sustained actual controller/service background audio/stem diagnostic; no visible-UI or full-player qualification"
         : "Short actual controller/service background audio/stem diagnostic; no visible-UI, sustained p99 or full-player qualification";
+    if (hourScreen) result["scope"] = "Nine-minute fresh-replay diagnostic. Sustained qualification requires the full hour.";
     if (activeControls) {
         result["mode"] = "live-stems-controls";
         result["scope"] = "Short actual-player accessible UI controls under load; no pointer/touch, physical assistive-technology, hardware-cue or sustained qualification";
@@ -384,8 +390,8 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
     };
     auto appendMeasuredInterval = [&](const State& state, bool aborted = false) {
         auto value = interval(boundary, state, phase.toUtf8().constData());
-        if (hour) { value["a_recovery"] = recovering; value["b_recovery"] = peerRecovering; }
-        require(!hour || intervals.size() < 2048, "Hour interval capacity exhausted");
+        if (hourWorkload) { value["a_recovery"] = recovering; value["b_recovery"] = peerRecovering; }
+        require(!hourWorkload || intervals.size() < 2048, "Hour interval capacity exhausted");
         value["aborted"] = aborted; intervals.append(value); boundary = state;
     };
     auto closeMeasurement = [&](bool aborted) {
@@ -402,13 +408,13 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         controls.append(QJsonObject{{"kind", phase}, {"issued_ns", nowNs()}, {"target_frame", qint64(recoveryTarget)},
             {"output_begin", qint64(state.outputFrame)}, {"previous_generation", qint64(acceptedGeneration)},
             {"incomplete_when_last_drained", acceptedGeneration && acceptedGeneration != completedGeneration}});
-        require(!hour || controls.size() <= 512, "Hour A control capacity exhausted");
+        require(!hourWorkload || controls.size() <= 512, "Hour A control capacity exhausted");
         command([&] { controller.seekSeconds(0, target); });
     };
     try {
         phase = "validating"; pulse();
         const auto peer = inspectAudio(QString::fromLocal8Bit(argv[3]), 48000ULL * 600);
-        require(hour ? peer["frames"].toInteger() == 48000LL * 480 :
+        require(hourWorkload ? peer["frames"].toInteger() == 48000LL * 480 :
             peer["frames"].toInteger() >= 48000LL * (seconds + (shortFunctional ? 2 : 120)), "Finite peer has wrong duration for playback mode");
         result["peer"] = peer;
         if (hidden) engine.setInitialProperties({{"visible", false}});
@@ -472,10 +478,14 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
             {"runtime_sha256", sha(context.runtimeSha256)}, {"service_sha256", sha(context.serviceSha256)}};
         constexpr std::uint64_t legacyHourInputFrames = 1031940, legacyHourOutputFrames = 1123201;
         constexpr std::uint64_t freshHourInputFrames = 4127760, freshHourOutputFrames = 4492801;
-        if (hour) {
-            require((context.inputFrames44100 == legacyHourInputFrames && context.outputFrames48000 == legacyHourOutputFrames) ||
-                    (context.inputFrames44100 == freshHourInputFrames && context.outputFrames48000 == freshHourOutputFrames),
-                "Hour mode requires the measured 23.4-second playback or 93.6-second fresh-replay source geometry");
+        if (hourWorkload) {
+            const bool fresh = context.inputFrames44100 == freshHourInputFrames &&
+                context.outputFrames48000 == freshHourOutputFrames;
+            const bool legacy = context.inputFrames44100 == legacyHourInputFrames &&
+                context.outputFrames48000 == legacyHourOutputFrames;
+            require(fresh || (!hourScreen && legacy),
+                hourScreen ? "The hour screen requires the 93.6-second fresh-replay source geometry" :
+                    "Hour mode requires the measured 23.4-second playback or 93.6-second fresh-replay source geometry");
         } else {
             require(context.outputFrames48000 && context.outputFrames48000 <= 48000ULL * 30,
                 "Use a bounded short source for EOF/replay");
@@ -556,7 +566,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
             }
             // B has already played during preparation. Its real cursor owns the
             // rewind deadline, independently of A's live seek/replay recovery.
-            if (hour && !peerRecovering && state.sourceFrame[1] >= 420ULL * 48000) {
+            if (hourWorkload && !peerRecovering && state.sourceFrame[1] >= 420ULL * 48000) {
                 const auto before = controller.audioState(); appendMeasuredInterval(before); peerRecovering = true;
                 peerIssuedNs = nowNs(); peerAppliedTarget = controller.submittedCommands() + 1;
                 command([&] { controller.seekSeconds(1, 0); });
@@ -571,7 +581,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
             const auto remainingMs = seconds * 1000LL - measure.elapsed();
             if (eofAtOutput && state.outputFrame >= eofAtOutput + 1024 && !recovering && !controlPending &&
                 remainingMs > (shortFunctional ? 200 : 5000)) {
-                const auto startFrame = hour ? conflux::experiments::hourReplayStartFrame(state.sourceFrames[0], remainingMs) : 0;
+                const auto startFrame = hourWorkload ? conflux::experiments::hourReplayStartFrame(state.sourceFrames[0], remainingMs) : 0;
                 beginRecovery(double(startFrame) / 48000, "replay_recovery");
                 ++replayCount; replayPending = true; eofAtOutput = 0;
             } else if (replayPending && !eof) replayPending = false;
@@ -621,13 +631,13 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
                 }
             }
             if (measure.elapsed() >= nextSample) {
-                require(!hour || samples.size() < 362, "Hour snapshot capacity exhausted");
+                require(!hourWorkload || samples.size() < seconds / 10 + 2, "Hour workload snapshot capacity exhausted");
                 samples.append(QJsonObject{{"elapsed_ms", measure.elapsed()}, {"phase", phase}, {"frames_presented", qint64(presented)},
                     {"output_frame", qint64(state.outputFrame)}, {"source_a", qint64(state.sourceFrame[0])}, {"source_b", qint64(state.sourceFrame[1])},
                     {"starved_a", qint64(state.starvedFrames[0])}, {"starved_b", qint64(state.starvedFrames[1])}, {"snapshot_drops", qint64(state.snapshotDrops)},
                     {"buffering_a", state.buffering[0]}, {"graph_rate", qint64(state.graphRate)}, {"quantum_min", qint64(state.streamFramesMin)},
                     {"quantum_max", qint64(state.streamFramesMax)}, {"master_gain", state.masterGain}, {"deck_a_gain", state.deckGain[0]}, {"deck_b_gain", state.deckGain[1]}, {"master_peak", std::max(state.meters.master.peak[0], state.meters.master.peak[1])}});
-                if (hour) nextSample = measure.elapsed() + 10000;
+                if (hourWorkload) nextSample = measure.elapsed() + 10000;
                 else nextSample += 1000;
             }
             if (measure.elapsed() >= nextPulse) { pulse(); nextPulse += 2000; }
@@ -802,7 +812,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
     std::array<std::uint64_t, 2> steadyByDeck{};
     for (const auto& entry : intervals) {
         const auto value = entry.toObject();
-        if (hour) {
+        if (hourWorkload) {
             for (std::size_t deck = 0; deck < 2; ++deck) {
                 const auto count = std::uint64_t(value[deck ? "starved_b" : "starved_a"].toInteger());
                 if (value[deck ? "b_recovery" : "a_recovery"].toBool()) controlStarved += count;
@@ -811,14 +821,14 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         } else (value["kind"].toString() == "steady" ? steadyStarved : controlStarved) += std::uint64_t(value["starved_frames"].toInteger());
     }
     result["steady_starved_frames"] = qint64(steadyStarved); result["control_starved_frames"] = qint64(controlStarved);
-    if (hour) { result["steady_starved_a"] = qint64(steadyByDeck[0]); result["steady_starved_b"] = qint64(steadyByDeck[1]); }
+    if (hourWorkload) { result["steady_starved_a"] = qint64(steadyByDeck[0]); result["steady_starved_b"] = qint64(steadyByDeck[1]); }
     const auto totalStarved = controller.completedStarvedFrames(), measuredStarved = steadyStarved + controlStarved;
     result["starved_frames_outside_measured_intervals"] = totalStarved >= measuredStarved
         ? QJsonValue(qint64(totalStarved - measuredStarved)) : QJsonValue();
     if (failure.isEmpty() && measuredStarved > totalStarved) failure = "Measured starvation exceeds completed total";
     if (failure.isEmpty() && steadyStarved) failure = "Steady playback starved; control intervals retained separately";
     if (failure.isEmpty() && !functional && controller.completedDeadlineMisses()) failure = "Application callback deadline misses observed";
-    if (hour && failure.isEmpty()) {
+    if (hourWorkload && failure.isEmpty()) {
         const auto wall = double(measuredWallMs) / 1000;
         if (std::abs(double(measurementEndOutputFrame - measurementBeginOutputFrame) / 48000 - wall) > std::max(.25, wall * .002))
             failure = "Hour rendered/output duration differs from measured wall beyond 250ms/0.2 percent";
@@ -835,7 +845,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
     result["incomplete_generation_seek_scope"] = "Accepted generation without observed RawComplete; native inference-start is not observed";
     result["measured_wall_ms"] = measuredWallMs;
     result["measurement_begin_output_frame"] = qint64(measurementBeginOutputFrame);
-    if (hour) result["measurement_begin_peer_frame"] = qint64(measurementBeginPeerFrame);
+    if (hourWorkload) result["measurement_begin_peer_frame"] = qint64(measurementBeginPeerFrame);
     result["measurement_end_output_frame"] = qint64(measurementEndOutputFrame);
     result["measurement_intervals_closed"] = measurementIntervalsClosed;
     result["samples"] = samples; result["controls"] = controls; result["intervals"] = intervals; result["scene_errors"] = sceneErrors;
@@ -843,7 +853,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         result["manual_controls"] = manualControls; result["manual_controls_complete"] = nextControl == 16 && !controlPending;
         result["manual_controls_scope"] = "Actual Qt accessible value/press actions; ACK polling upper bounds. Mix controls remain steady starvation-gated; no pointer/touch or physical cue claim.";
     }
-    if (hour) result["peer_controls"] = peerControls;
+    if (hourWorkload) result["peer_controls"] = peerControls;
     result["frames_presented"] = qint64(presented); result["maximum_frame_presentation_gap_ns"] = maxFrameGapNs;
     result["maximum_gui_heartbeat_gap_ns"] = maxHeartbeatNs; result["timing"] = timing(controller);
     result["callbacks"] = qint64(controller.completedCallbacks()); result["invalid_buffers"] = qint64(controller.completedInvalidBuffers());
@@ -851,7 +861,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
     result["execution_deadline_misses"] = qint64(controller.completedDeadlineMisses());
     result["starved_frames_including_controls"] = qint64(totalStarved);
     result["cancelled"] = cancelled; result["error"] = failure; result["passed"] = failure.isEmpty() && !cancelled;
-    try { save(output + "/native-result.json", result, hour ? 1024 * 1024 : 0); } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
+    try { save(output + "/native-result.json", result, hourWorkload ? 1024 * 1024 : 0); } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
     return cancelled ? 2 : failure.isEmpty() ? 0 : 1;
 }
 
@@ -865,6 +875,8 @@ int main(int argc, char** argv)
         QString::fromLocal8Bit(argv[1]) == "--private-live-stems-controls" ||
         QString::fromLocal8Bit(argv[1]) == "--private-live-stems-controls-normal-redraw" ||
         QString::fromLocal8Bit(argv[1]) == "--live-stems-hour" ||
+        QString::fromLocal8Bit(argv[1]) == "--live-stems-hour-screen" ||
+        QString::fromLocal8Bit(argv[1]) == "--live-stems-hour-screen-background" ||
         QString::fromLocal8Bit(argv[1]) == "--live-stems-background" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hour-background" ||
         QString::fromLocal8Bit(argv[1]) == "--live-stems-hidden" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hidden-one-thread"))
         return livePlayback(app, argc, argv);
