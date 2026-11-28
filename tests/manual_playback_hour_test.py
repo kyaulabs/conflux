@@ -211,7 +211,8 @@ class HourPlaybackTest(unittest.TestCase):
             spawn.assert_not_called()
 
     def live_watchdog_run(self, readiness_seconds, child_ages, progress=False, completed_controls=None, hour=False,
-                          *, runtime_bytes=b"generated fixture", expected_runtime_sha256=None, expect_launch=True, screen=False):
+                          *, runtime_bytes=b"generated fixture", expected_runtime_sha256=None, expect_launch=True,
+                          screen=False, native_ui_root=None):
         # Run the actual launch/watchdog/cleanup path with generated files and a
         # fake child. No host commands, audio, native process or real wait runs.
         clock = [0.0]; launched = []; polls = []; ready_calls = []
@@ -229,6 +230,7 @@ class HourPlaybackTest(unittest.TestCase):
             for path in [wrapper, *assets.values(), *(root / name for name in ui)]:
                 path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"generated fixture")
             assets["runtime"].write_bytes(runtime_bytes)
+            reported_root = str(native_ui_root(root) if native_ui_root else root)
             seconds = 3600 if hour else soak.HOUR_SCREEN_SECONDS if screen else 120
             args = SimpleNamespace(**assets, output=root / "run", seconds=seconds, live_stems_hour=hour,
                 live_stems_hour_screen=screen, background=completed_controls is None, active_controls=completed_controls is not None,
@@ -256,13 +258,13 @@ class HourPlaybackTest(unittest.TestCase):
                         (proc / "101/stat").unlink()
                         (args.output / "observations.jsonl").write_text("")
                         native = {
-                            "functional_only": False, "host_audio": True, "source_root": str(root),
+                            "functional_only": False, "host_audio": True, "source_root": reported_root,
                             "ui_mode": "background", "ui_coverage": {"visible_ui_qualification_eligible": False},
                             "mode": "live-stems", "setup": {}, "passed": False, "shutdown_completed": True}
                         if completed_controls is not None:
                             native = copy.deepcopy(completed_controls[0])
                             digest = hashlib.sha256(b"generated fixture").hexdigest()
-                            native.update(source_root=str(root), setup={key: digest for key in
+                            native.update(source_root=reported_root, setup={key: digest for key in
                                 ("source_sha256", "model_sha256", "runtime_sha256", "service_sha256")})
                             native["setup"]["runtime_sha256"] = hashlib.sha256(runtime_bytes).hexdigest()
                         (args.output / "native-result.json").write_text(json.dumps(native))
@@ -385,6 +387,37 @@ class HourPlaybackTest(unittest.TestCase):
                 self.assertIsNone(stop)
                 self.assertNotIn("command", result)
                 self.assertEqual(result["error"], "Actual-model host check runtime does not match the expected SHA-256")
+
+    def test_packaged_ui_alias_reaches_host_timing_gate(self):
+        def compiled_alias(root):
+            alias = root.with_name("compiled-source")
+            alias.symlink_to(root, target_is_directory=True)
+            return alias
+
+        native, observations = self.controls_fixture()
+        observations["service_hops"]["nearest_rank_p99_ms"] = 4095
+        code, result, stop, _, _ = self.live_watchdog_run(
+            0, [.1], completed_controls=(native, observations), native_ui_root=compiled_alias)
+        self.assertEqual(code, 1)
+        self.assertIsNone(stop)
+        self.assertTrue(result.get("pins_unchanged"), result.get("error"))
+        self.assertEqual(result["native_exit"], 0)
+        self.assertEqual(result["error"], "Active controls: strict service p99/loss/thirteen-phase gate failed")
+
+    def test_unpinned_native_ui_root_fails_before_host_timing_gate(self):
+        def different_root(root):
+            other = root.with_name("other-source")
+            shutil.copytree(root, other)
+            return other
+
+        for path in (different_root, lambda root: Path(root.name)):
+            with self.subTest(path=path):
+                code, result, stop, _, _ = self.live_watchdog_run(
+                    0, [.1], completed_controls=self.controls_fixture(), native_ui_root=path)
+                self.assertEqual(code, 1)
+                self.assertIsNone(stop)
+                self.assertNotIn("observations", result)
+                self.assertEqual(result["error"], "Native UI source root differs from the pinned runner assets")
 
     def test_failed_service_target_retains_final_input_guard_and_power_evidence(self):
         native, observations = self.controls_fixture()
