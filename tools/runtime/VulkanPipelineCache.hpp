@@ -152,7 +152,8 @@ private:
     static bool matchesDevice(const std::vector<unsigned char>& data,
                               const VkPhysicalDeviceProperties& properties) noexcept
     {
-        if (data.size() < vulkanHeaderSize)
+        // A reusable cache needs payload bytes after its compatibility header.
+        if (data.size() <= vulkanHeaderSize)
             return false;
         const auto field = [&](std::size_t index) {
             return std::uint32_t(data[index]) | (std::uint32_t(data[index + 1]) << 8) |
@@ -219,7 +220,7 @@ private:
     {
         std::size_t size = 0;
         if (vkGetPipelineCacheData(device, cache_, &size, nullptr) != VK_SUCCESS ||
-            size < vulkanHeaderSize || size > payloadLimit)
+            size <= vulkanHeaderSize || size > payloadLimit)
             return;
         std::vector<unsigned char> data(size);
         if (vkGetPipelineCacheData(device, cache_, &size, data.data()) != VK_SUCCESS || size > data.size())
