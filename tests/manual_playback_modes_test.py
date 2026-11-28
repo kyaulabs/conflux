@@ -71,6 +71,12 @@ class NativeModeAdmissionTests(unittest.TestCase):
             with self.subTest(mode=mode):
                 self.invoke(mode, host=True)
 
+    def test_hour_screen_modes_reject_offscreen_and_private_requests(self):
+        for mode in ('--live-stems-hour-screen', '--live-stems-hour-screen-background'):
+            with self.subTest(mode=mode):
+                self.invoke(mode, '540', host=True)
+                self.invoke(mode, '540', private=True)
+
     def test_generated_public_modes_keep_the_ten_second_bound(self):
         for mode in ('--live-stems-controls', '--live-stems-controls-normal-redraw'):
             with self.subTest(mode=mode):

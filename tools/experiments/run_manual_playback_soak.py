@@ -224,6 +224,7 @@ def live_timing_passes(observations):
 
 HOUR_CACHED_SOURCE = (1031940, 1123201)
 HOUR_FRESH_SOURCE = (4127760, 4492801)
+HOUR_SCREEN_SECONDS = 540
 STEM_HOP_FRAMES = 257985
 
 
@@ -282,12 +283,15 @@ def hour_inference_coverage(native, observations, geometry):
             "fresh_nonopening_windows_by_complete_replay": counts}
 
 
-def validate_hour_result(native, observations, background=False):
-    """Check bounded native hour evidence before the wrapper's cleanup gate."""
+def validate_hour_result(native, observations, background=False, *, screen=False):
+    """Check the hour workload's health at the explicitly requested duration."""
+    expected_duration = HOUR_SCREEN_SECONDS if screen else 3600
+    expected_mode = "live-stems-hour-screen" if screen else "live-stems-hour"
+
     def check(condition, description):
         if not condition:
             raise RuntimeError("Hour qualification: " + description)
-    check(native.get("mode") == "live-stems-hour" and native.get("requested_seconds") == 3600
+    check(native.get("mode") == expected_mode and native.get("requested_seconds") == expected_duration
           and native.get("passed") is True and native.get("cancelled") is False
           and native.get("functional_only") is False and native.get("host_audio") is True
           and native.get("shutdown_completed") is True, "incomplete/non-host hour")
@@ -308,12 +312,13 @@ def validate_hour_result(native, observations, background=False):
         check(isinstance(coverage, dict) and coverage.get("visible_ui_qualification_eligible", True) is True,
               "background UI evidence cannot enter visible qualification")
     geometry = native["setup"]["input_frames"], native["setup"]["output_frames"]
-    check(geometry in (HOUR_CACHED_SOURCE, HOUR_FRESH_SOURCE) and native["peer"]["frames"] == 480 * 48000,
+    sources = (HOUR_FRESH_SOURCE,) if screen else (HOUR_CACHED_SOURCE, HOUR_FRESH_SOURCE)
+    check(geometry in sources and native["peer"]["frames"] == 480 * 48000,
           "changed source/peer geometry")
     check(native["measurement_intervals_closed"] and native["last_recovery_complete"], "open measurement/control")
     begin, end = native["measurement_begin_output_frame"], native["measurement_end_output_frame"]
     wall = native["measured_wall_ms"] / 1000
-    check(3600 <= wall <= 3602 and abs((end - begin) / 48000 - wall) <= max(.25, wall * .002),
+    check(expected_duration <= wall <= expected_duration + 2 and abs((end - begin) / 48000 - wall) <= max(.25, wall * .002),
           "wall/output duration agreement failed")
     check(native["callbacks"] > 0 and not native["scene_errors"]
           and 0 < native["maximum_gui_heartbeat_gap_ns"] < 2000000000, "audio/control loop not responsive")
@@ -327,13 +332,13 @@ def validate_hour_result(native, observations, background=False):
           and row["graph_quantum_min"] == row["graph_quantum_max"] == 256 for row in native["timing"]),
           "driver continuity/quantum failed")
     samples = native["samples"]
-    check(2 <= len(samples) <= 362 and samples[0]["elapsed_ms"] < 2000
-          and samples[-1]["elapsed_ms"] >= 3590000
+    check(2 <= len(samples) <= expected_duration // 10 + 2 and samples[0]["elapsed_ms"] < 2000
+          and samples[-1]["elapsed_ms"] >= (expected_duration - 10) * 1000
           and all(not row["snapshot_drops"] for row in samples)
           and all(10000 <= b["elapsed_ms"] - a["elapsed_ms"] < 12000 for a, b in zip(samples, samples[1:])),
           "bounded ten-second snapshots incomplete")
     controls, peers, intervals = native["controls"], native["peer_controls"], native["intervals"]
-    check(len(controls) <= 512 and len(peers) == 8 and 0 < len(intervals) <= 2048, "control/interval capacity")
+    check(len(controls) <= 512 and len(peers) == (1 if screen else 8) and 0 < len(intervals) <= 2048, "control/interval capacity")
     anchor, cursor = begin, native["measurement_begin_peer_frame"]
     check(0 <= cursor < 420 * 48000, "peer already due before measurement")
     for control in peers:
@@ -373,11 +378,13 @@ def validate_hour_result(native, observations, background=False):
     hops = observations["service_hops"]
     check(live_timing_passes(observations), "service hop p99/loss/thirteen-phase gate failed")
     coverage = hour_inference_coverage(native, observations, geometry)
+    scope = ("Nine-minute fresh-replay diagnostic" if screen else
+             "background audio/stem hour; visible UI not qualified" if background else "visible audio/UI hour")
     return {**coverage, "peer_rewinds": len(peers), "service_hops": hops["count"],
             "service_hops_at_or_above_target": hops["at_or_above_target"],
             "strict_service_p99_target_ms": 4095, "steady_starved_a": steady[0], "steady_starved_b": steady[1],
             "visible_ui_qualification_eligible": not background,
-            "scope": "background audio/stem hour; visible UI not qualified" if background else "visible audio/UI hour"}
+            "scope": scope}
 
 
 def validate_active_controls(native, observations=None, *, functional=False, normal_redraw=False):
@@ -475,7 +482,7 @@ def live_qualified(result, hour, background=False):
     return bool(hour and not background and result.get("passed") is True and result.get("cleanup_proven") is True
                 and result.get("mode") != "live-stems-controls-normal-redraw"
                 and result.get("ui_mode", "visible") == "visible" and isinstance(native, dict)
-                and native.get("mode") != "live-stems-controls-normal-redraw"
+                and native.get("mode") == "live-stems-hour"
                 and native.get("ui_mode", "visible") == "visible" and isinstance(gates, dict) and gates
                 and gates.get("visible_ui_qualification_eligible", True) is True
                 and gates.get("fresh_inference_sustained") is True)
@@ -484,8 +491,8 @@ def live_qualified(result, hour, background=False):
 def summarize_live_observations(path, native):
     # The writer has already bounded lines/bytes. Enforce the same bounds when
     # reopening evidence; this parser never reads a media or slot file.
-    hour = native.get("mode") == "live-stems-hour"
-    line_limit, byte_limit = live_evidence_limits(hour)
+    hour_workload = native.get("mode") in ("live-stems-hour", "live-stems-hour-screen")
+    line_limit, byte_limit = live_evidence_limits(hour_workload)
     if path.stat().st_size > byte_limit:
         raise RuntimeError("Observation file exceeds its bound")
     rows = []
@@ -590,7 +597,7 @@ def summarize_live_observations(path, native):
                     inferred_hops.append(row["hop_service_ms"])
             phase_row = {key: row[key] for key in (
                 "epoch", "generation", "request_id", "lease_sequence", "input_first", "input_frames")}
-            if hour:
+            if hour_workload:
                 phase_row["validated_ns"] = row["validated_ns"]
                 started = request_starts.get(row["request_id"])
                 # Count only a distinct native start bound to this replay and
@@ -694,7 +701,9 @@ def summarize_live_observations(path, native):
             "load_to_first_cursor_poll_upper_ms": (native["first_advance_observed_ns"] - native["load_issued_ns"]) / 1e6,
             "incomplete_generation_seek": {"submitted": seek is not None, "exercised": seek_observed,
                 "scope": "Retrospective accepted/RawComplete C++ stamps at seek issue; no native inference-start claim"},
-            "scope": ("Sustained repeated-generation actual-player observations; qualification remains gated by native health and wrapper cleanup; no physical/consumed timing qualification"
+            "scope": ("Nine-minute fresh-replay diagnostic; sustained qualification requires the full hour"
+                      if native.get("mode") == "live-stems-hour-screen" else
+                      "Sustained repeated-generation actual-player observations; qualification remains gated by native health and wrapper cleanup; no physical/consumed timing qualification"
                       if native.get("mode") == "live-stems-hour" else
                       "Short repeated-generation diagnostics; no sustained p99 or physical/consumed timing qualification"),
             "kind_counts": counts, "epochs": epochs, "service_hops": {**stats(hops), "strict_target_ms": 4095,
@@ -714,10 +723,12 @@ def summarize_live_observations(path, native):
 def run_live(args):
     import selectors
     hour = args.live_stems_hour
+    screen = getattr(args, "live_stems_hour_screen", False)
+    hour_workload = hour or screen
     background = args.background
     active_controls = getattr(args, "active_controls", False)
     normal_redraw = getattr(args, "normal_redraw", False)
-    if normal_redraw and (not active_controls or hour or background or args.seconds != 120):
+    if normal_redraw and (not active_controls or hour_workload or background or args.seconds != 120):
         raise RuntimeError("Normal redraw requires exactly 120 seconds of short visible active controls")
     binary = args.binary.resolve(strict=True)
     source, peer = args.track_a.resolve(strict=True), args.track_b.resolve(strict=True)
@@ -727,7 +738,8 @@ def run_live(args):
             raise RuntimeError("Live tools must be explicit regular executable/source/model paths")
     output = args.output.absolute(); output.mkdir(mode=0o700, parents=False, exist_ok=False)
     cache = output / "cache"; cache.mkdir(mode=0o700); stop = output / "stop"
-    result = {"schema": 2, "passed": False, "qualified": False, "mode": "live-stems-hour" if hour else "live-stems", "requested_seconds": args.seconds,
+    base_mode = "live-stems-hour" if hour else "live-stems-hour-screen" if screen else "live-stems"
+    result = {"schema": 2, "passed": False, "qualified": False, "mode": base_mode, "requested_seconds": args.seconds,
               "ui_mode": "background" if background else "visible", "visible_ui_required": not background,
               "started_at_utc": datetime.now(timezone.utc).isoformat(), "scope": "Explicit short native actual-model controller playback; no endurance, fallback or physical latency qualification"}
     if active_controls:
@@ -743,7 +755,9 @@ def run_live(args):
     if background:
         result["scope"] = "Background actual-player audio/stem diagnostics with observed UI coverage; no visible UI or full audio/UI qualification"
         result.pop("qualified_scope", None)
-    history_limit, command_byte_limit = live_process_history_limits(hour)
+    if screen:
+        result["scope"] = "Nine-minute fresh-replay diagnostic; sustained qualification requires the full hour"
+    history_limit, command_byte_limit = live_process_history_limits(hour_workload)
     result["process_history_limits"] = {"identities": history_limit, "command_bytes": command_byte_limit,
                                         "live_processes": 64, "argv_snapshots_per_identity": 8}
     child = None; root_identity = None; owned = {}; observed_groups = set(); known_graph = set(); requested_stop = None; stop_at = None
@@ -966,7 +980,7 @@ def run_live(args):
         if not result["power_before"]["ac_online"] or not result["power_before"]["lid_open"]:
             raise RuntimeError("Live host check requires AC power and open lid")
         sensors = sensor_paths(); result["host_before"] = observation(sensors)
-        result["required_free_bytes"] = live_required_free_bytes(args.seconds, hour)
+        result["required_free_bytes"] = live_required_free_bytes(args.seconds, hour_workload)
         if shutil.disk_usage(output).free < result["required_free_bytes"]:
             raise RuntimeError("Insufficient free space for bounded cache, recording and evidence")
         result["human_before_launch"] = live_readiness(args.readiness_decision, output.name, background)
@@ -975,7 +989,7 @@ def run_live(args):
         environment = os.environ.copy(); environment.update({"CONFLUX_ALLOW_HOST_SOAK": "1", "XDG_CACHE_HOME": str(cache)})
         for number in (signal.SIGINT, signal.SIGTERM):
             previous[number] = signal.signal(number, lambda signum, _frame: request_stop(f"runner signal {signum}"))
-        native_mode = "--live-stems-hour" if hour else "--live-stems"
+        native_mode = "--" + base_mode
         if active_controls:
             native_mode = "--live-stems-controls-normal-redraw" if normal_redraw else "--live-stems-controls"
         if background:
@@ -1057,8 +1071,9 @@ def run_live(args):
         result["power_after"] = power_state(); result["guard_after"] = live_guard()
         if active_controls:
             result["active_controls"] = validate_active_controls(native, result["observations"], normal_redraw=normal_redraw)
-        if hour:
-            result["hour_gates"] = validate_hour_result(native, result["observations"], background)
+        if hour or screen:
+            key = "hour_screen_checks" if screen else "hour_gates"
+            result[key] = validate_hour_result(native, result["observations"], background, screen=screen)
         result["passed"] = bool(child.poll() == 0 and native["passed"] and not requested_stop and complete_capture and result["pins_unchanged"]
             and result["guard_after"] == result["guard_before"] and result["power_after"]["ac_online"] and result["power_after"]["lid_open"] and known_graph)
     except Exception as error:
@@ -1171,6 +1186,7 @@ def main():
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--live-stems", action="store_true", help="short actual-model live controller diagnostic")
     modes.add_argument("--live-stems-hour", action="store_true", help="exactly one hour of sustained actual-model controller playback")
+    modes.add_argument("--live-stems-hour-screen", action="store_true", help="nine-minute diagnostic using the hour's fresh-replay workload")
     parser.add_argument("--background", action="store_true", help="live audio/stem diagnostics without visible UI qualification")
     parser.add_argument("--active-controls", action="store_true", help="short visible live mode with 16 actual accessible UI actions")
     parser.add_argument("--normal-redraw", action="store_true", help="explicit 50 ms forced-redraw diagnostic; requires exactly 120s visible active controls")
@@ -1181,29 +1197,32 @@ def main():
     parser.add_argument("--guard-script", type=Path, default=Path.home() / ".local/bin/thermal-guard")
     parser.add_argument("--guard-unit", type=Path, default=Path.home() / ".config/systemd/user/thermal-guard.service")
     args = parser.parse_args()
+    live_mode = args.live_stems or args.live_stems_hour or args.live_stems_hour_screen
     if args.expected_runtime_sha256 is not None:
-        if not (args.live_stems or args.live_stems_hour):
+        if not live_mode:
             parser.error("--expected-runtime-sha256 requires a live stem mode")
         digest = args.expected_runtime_sha256
         if len(digest) != 64 or any(char not in "0123456789abcdef" for char in digest):
             parser.error("--expected-runtime-sha256 requires 64 lowercase hexadecimal digits")
     if args.active_controls and (not args.live_stems or args.live_stems_hour or args.background):
         parser.error("--active-controls requires short visible --live-stems")
-    if args.background and not (args.live_stems or args.live_stems_hour):
-        parser.error("--background requires --live-stems or --live-stems-hour")
+    if args.background and not live_mode:
+        parser.error("--background requires a live stem mode")
+    fixed_seconds = 3600 if args.live_stems_hour else HOUR_SCREEN_SECONDS if args.live_stems_hour_screen else None
     if args.seconds is None:
-        args.seconds = 3600 if args.live_stems_hour else 120 if args.live_stems else 1800
+        args.seconds = fixed_seconds or (120 if args.live_stems else 1800)
     if args.normal_redraw and (not args.active_controls or not args.live_stems or args.live_stems_hour or args.background or args.seconds != 120):
         parser.error("--normal-redraw requires exactly 120 seconds of short visible --live-stems --active-controls")
     live_names = ("python", "exporter", "worker", "service", "runtime", "model", "readiness_decision")
-    if args.live_stems or args.live_stems_hour:
-        if (args.seconds != 3600 if args.live_stems_hour else not 120 <= args.seconds <= 180) or any(getattr(args, name) is None or not getattr(args, name).is_absolute() for name in live_names):
-            parser.error("Live mode requires120–180 seconds (hour: exactly3600) and explicit absolute tool/readiness paths")
+    if live_mode:
+        valid_duration = args.seconds == fixed_seconds if fixed_seconds else 120 <= args.seconds <= 180
+        if not valid_duration or any(getattr(args, name) is None or not getattr(args, name).is_absolute() for name in live_names):
+            parser.error("Live mode requires 120–180 seconds (hour: 3600, hour screen: 540) and explicit absolute tool/readiness paths")
         if os.environ.get("CONFLUX_PRIVATE_ROUTING_CHECK") or os.environ.get("QT_QPA_PLATFORM") in ("offscreen", "minimal"):
             parser.error("Live host launcher rejects private/offscreen qualification")
         return run_live(args)
     if any(getattr(args, name) is not None for name in live_names):
-        parser.error("Stem tool/readiness options require --live-stems or --live-stems-hour")
+        parser.error("Stem tool/readiness options require a live stem mode")
     if not 60 <= args.seconds <= 3600:
         parser.error("--seconds must be between 60 and 3600 seconds")
     if os.environ.get("CONFLUX_PRIVATE_ROUTING_CHECK") or os.environ.get("QT_QPA_PLATFORM") in ("offscreen", "minimal"):
