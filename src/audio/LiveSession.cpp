@@ -25,6 +25,7 @@
 #include <map>
 #include <mutex>
 #include <new>
+#include <optional>
 #include <stdexcept>
 #include <string_view>
 #include <utility>
@@ -1055,6 +1056,7 @@ public:
         if (position) {
             clock.id = std::atomic_ref<const std::uint32_t>(position->clock.id).load(std::memory_order_relaxed);
             clock.position = std::atomic_ref<const std::uint64_t>(position->clock.position).load(std::memory_order_relaxed);
+            clock.nsec = std::atomic_ref<const std::uint64_t>(position->clock.nsec).load(std::memory_order_relaxed);
             clock.duration = position->clock.duration; clock.rateNum = position->clock.rate.num;
             clock.rateDenom = position->clock.rate.denom; clock.flags = position->clock.flags;
 #ifdef SPA_IO_CLOCK_FLAG_XRUN_RECOVER
@@ -1071,6 +1073,12 @@ public:
             self.timing_.observe(static_cast<std::uint64_t>(elapsed), 0, &clock);
             return;
         }
+        // A second invocation for an already published graph cycle owns the
+        // same output. Keep its staged PCM and leave transport at its next frame.
+        const bool repeated = canRetain && clock.nsec && self.lastPublication_ &&
+            self.lastPublication_->clock == clock;
+        if (!repeated) self.lastPublication_.reset();
+
         self.tap_.beginBlock();
         if (position && clock.rateNum)
             self.graphRate_.store(clock.rateDenom / clock.rateNum, std::memory_order_relaxed);
@@ -1094,7 +1102,7 @@ public:
                 }
                 mapped[index] = static_cast<float*>(plane.data);
                 valid[index] = true;
-                std::fill_n(outputs[index], frames, 0.F);
+                if (!repeated) std::fill_n(outputs[index], frames, 0.F);
             }
         }
         // Missing buffers in a superseded callback cannot establish a route fault.
@@ -1141,17 +1149,17 @@ public:
         std::uint64_t rendered = 0;
         bool capturedCue = false;
         bool retainRenderedOutput = !replacementPending;
-        const bool resumed = canRetain && self.ready() && masterValid &&
+        const bool resumed = !repeated && canRetain && self.ready() && masterValid &&
             self.restoreOutput(clock, frames, outputs, cue, replacementPending);
         // A single master miss did not advance the renderer. Keep its previous
         // unpublished block only while the graph is still in the same sequence.
         const bool awaitingMaster = retryMaster && !replacementPending && self.retained_.valid &&
             self.retained_.matches(clock);
-        if (!expiredDuringAcquire && !resumed && !awaitingMaster) self.retained_.valid = false;
+        if (!repeated && !expiredDuringAcquire && !resumed && !awaitingMaster) self.retained_.valid = false;
         if (!durationValid || (!expiredDuringAcquire && self.ready() && !masterValid && !changingQuantum)) {
             ++self.invalidBuffers_;
             if (!retryMaster) self.bufferFault_.store(true, std::memory_order_relaxed);
-        } else if (!resumed && self.ready() && rateValid && masterValid) {
+        } else if (!repeated && !resumed && self.ready() && rateValid && masterValid) {
             self.consumeCommands(); self.meters_ = {};
             const auto tryContinuation = [&]() noexcept {
                 if (!replacementPending || replacementCompleted || replacement.kind != SourceHandoff::Kind::Continuation)
@@ -1261,9 +1269,11 @@ public:
         // A control-loop link notification may close the cue gate while this
         // block is rendered. Recheck before handing either cue buffer back.
         cue = cue && self.cueRouteOpen();
-        if (!cue)
+        if (!cue || (repeated && !self.lastPublication_->includesCue)) {
             for (std::size_t index = 2; index < 4; ++index)
                 if (valid[index]) std::fill_n(outputs[index], frames, 0.F);
+            if (repeated) self.lastPublication_->includesCue = false;
+        }
 
         bool expired = expiredDuringAcquire || (durationValid && callbackExpired(position->clock, clock));
         if (!expired) {
@@ -1273,7 +1283,7 @@ public:
             // once the mapped samples are ready and the clock is still current.
             expired = durationValid && callbackExpired(position->clock, clock);
         }
-        const bool renderedPlayback = resumed || rendered != 0;
+        const bool renderedPlayback = repeated || resumed || rendered != 0;
         std::array<spa_chunk*, 4> queuedChunks{};
         for (std::size_t index = 0; index < 4; ++index) {
             if (!buffers[index]) continue;
@@ -1299,7 +1309,7 @@ public:
         // so a cycle change during a return cannot split the stereo block.
         expired = expired || (durationValid && callbackExpired(position->clock, clock));
         bool publishedSamples = false;
-        if (!expired && (!renderedPlayback || self.ready())) {
+        if (!expired && (!renderedPlayback || (masterValid && self.ready()))) {
             const bool publishCue = !cue || self.cueRouteOpen();
             for (std::size_t index = 0; index < queuedChunks.size(); ++index) {
                 if (queuedChunks[index] && (index < 2 || publishCue)) {
@@ -1318,6 +1328,12 @@ public:
                 }
                 publishedSamples = false;
             }
+        }
+        if (!repeated && !expired && canRetain && clock.nsec && (resumed || rendered == frames) &&
+            publishedSamples && queuedChunks[0] && queuedChunks[0]->size && queuedChunks[1] && queuedChunks[1]->size) {
+            const bool includesCue = cue && queuedChunks[2] && queuedChunks[2]->size &&
+                queuedChunks[3] && queuedChunks[3]->size;
+            self.lastPublication_ = PublishedOutput{clock, includesCue};
         }
         // Replay is safe only if no channel received a nonempty chunk from
         // this block before the clock changed.
@@ -1530,6 +1546,11 @@ public:
     bool masterMissedBlock_ = false, cueMissedBlock_ = false; // Real-time callback owned.
     // Keep the previous mapped payload intact until the new PCM is ready.
     std::array<std::array<float, scratchFrames>, 4> publishScratch_{};
+    struct PublishedOutput {
+        CallbackTiming::DriverClock clock;
+        bool includesCue;
+    };
+    std::optional<PublishedOutput> lastPublication_;
     bool readersStopped_=false, detached_=false, startFailed_=false;
     TransportQueue commands_; StateQueue states_;
     pw_thread_loop* loop_=nullptr; pw_filter* filter_=nullptr; pw_core* core_=nullptr; pw_registry* registry_=nullptr;

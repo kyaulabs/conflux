@@ -34,6 +34,9 @@ public:
         std::uint32_t rateNum = 0;
         std::uint32_t rateDenom = 0;
         std::uint32_t flags = 0;
+        std::uint64_t nsec = 0;
+
+        bool operator==(const DriverClock&) const noexcept = default;
     };
 
     struct Counters {
