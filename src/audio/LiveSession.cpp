@@ -1317,7 +1317,9 @@ public:
         expired = expired || (durationValid && callbackExpired(position->clock, clock));
         bool publishedSamples = false;
         if (!expired && (!renderedPlayback || (masterValid && self.ready()))) {
-            const bool publishCue = !cue || self.cueRouteOpen();
+            // A recoverable buffer miss mutes the cue pair as a unit.
+            const bool publishCue = queuedChunks[2] && queuedChunks[3] &&
+                (!cue || self.cueRouteOpen());
             for (std::size_t index = 0; index < queuedChunks.size(); ++index) {
                 if (queuedChunks[index] && (index < 2 || publishCue)) {
                     queuedChunks[index]->size = frames * sizeof(float);
