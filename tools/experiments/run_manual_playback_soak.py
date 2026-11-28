@@ -1061,8 +1061,14 @@ def run_live(args):
             raise RuntimeError("Bounded native result missing")
         result["native"] = json.loads(native_path.read_text())
         native = result["native"]
-        if native.get("functional_only") is not False or native.get("host_audio") is not True or native.get("source_root") != str(source_root):
+        if native.get("functional_only") is not False or native.get("host_audio") is not True:
             raise RuntimeError("Synthetic/private result cannot qualify as host evidence")
+        reported_root = native.get("source_root")
+        if not isinstance(reported_root, str):
+            raise RuntimeError("Native UI source root is missing")
+        reported_root = Path(reported_root)
+        if not reported_root.is_absolute() or not reported_root.samefile(source_root):
+            raise RuntimeError("Native UI source root differs from the pinned runner assets")
         if native.get("ui_mode", "visible") != result["ui_mode"]:
             raise RuntimeError("Native UI mode differs from explicitly launched mode")
         if background and native.get("ui_coverage", {}).get("visible_ui_qualification_eligible") is not False:
