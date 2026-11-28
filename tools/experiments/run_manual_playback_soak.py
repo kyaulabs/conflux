@@ -664,7 +664,7 @@ def summarize_live_observations(path, native):
                     not epochs[row["epoch"]]["validated_contiguous"] or epochs[row["epoch"]]["validated_end"] != total_input):
                 raise RuntimeError("Converter completion endpoint/binding differs")
             epochs[row["epoch"]]["converter_complete"] = True
-            if hour:
+            if hour_workload:
                 epochs[row["epoch"]]["converter_complete_ns"] = row["observed_ns"]
         elif kind == "ServiceClosed":
             if (row["epoch"] != last_accepted_epoch or row["generation"] != last_generation or
