@@ -19,10 +19,12 @@ Item {
     readonly property var hostWindow: face.Window.window
     property bool physicalPress: false
     property int heldKey: 0
+    property int touchContactId: -1
     property int pressGeneration: 0
     property int pendingCancelGeneration: -1
     property bool available: true
     property bool round: false
+    property bool accessibleToggle: false
     property bool indicatorOn: false
     property color indicatorColor: "transparent"
     property int fontPixelSize: round ? 14 : 11
@@ -31,12 +33,21 @@ Item {
     signal released()
     signal canceled()
 
+    function activateAccessiblePress() {
+        if (!available || physicalPress)
+            return
+        beginPress()
+        finishPress(false)
+    }
+    function finishPendingCancel() {
+        if (physicalPress && pendingCancelGeneration === pressGeneration)
+            finishPress(true)
+    }
     function beginPress(key) {
         if (!available)
             return
-        if (physicalPress && pendingCancelGeneration === pressGeneration)
-            finishPress(true)
-        if (physicalPress)
+        finishPendingCancel()
+        if (!available || physicalPress)
             return
         pressGeneration += 1
         heldKey = key || 0
@@ -48,16 +59,17 @@ Item {
             return
         physicalPress = false
         heldKey = 0
+        touchContactId = -1
         pendingCancelGeneration = -1
         if (cancel)
             canceled()
         else
             released()
     }
-    function requestCancel() {
+    function requestCancel(afterBindings = false) {
         if (!physicalPress)
             return
-        if (!holdAction || !hostWindow || !hostWindow.active) {
+        if (!afterBindings && (!holdAction || !hostWindow || !hostWindow.active)) {
             finishPress(true)
             return
         }
@@ -65,8 +77,9 @@ Item {
         if (pendingCancelGeneration === generation)
             return
         pendingCancelGeneration = generation
-        // A Play press in this input event must reach the controller before
-        // same-window focus cleanup ends a held CUE preview.
+        // A held CUE release can publish a new deck snapshot. On disable,
+        // let the availability binding finish before dispatching that release.
+        // On focus changes, let a Play press in this event take precedence.
         Qt.callLater(function() {
             if (!control)
                 return
@@ -76,7 +89,7 @@ Item {
                 control.finishPress(true)
         })
     }
-    onAvailableChanged: { if (!available) finishPress(true) }
+    onAvailableChanged: { if (!available) requestCancel(holdAction) }
     onHostWindowChanged: { if (!hostWindow || !hostWindow.active) finishPress(true) }
     Component.onDestruction: finishPress(true)
     Connections {
@@ -89,7 +102,7 @@ Item {
     implicitWidth: round ? 56 : 64
     implicitHeight: round ? 56 : 44
 
-    Button {
+    CheckBox {
         id: face
         anchors.fill: parent
         objectName: control.buttonObjectName
@@ -97,46 +110,64 @@ Item {
         enabled: control.available
         hoverEnabled: true
         opacity: enabled ? 1 : 0.46
+        indicator: null
+        checkable: control.accessibleToggle
+        Accessible.checkable: control.accessibleToggle
+        checked: control.accessibleToggle && control.indicatorOn
+        // The engine acknowledges changes through indicatorOn.
+        nextCheckState: function() { return checkState }
         Accessible.name: control.accessibleName
         Accessible.description: control.actionDescription
+        // Override the built-in Press without advertising a second action.
+        function accessiblePressAction() {
+            if (!enabled || control.physicalPress)
+                return
+            control.activateAccessiblePress()
+            if (!control.accessibleToggle && !control.holdAction)
+                control.clicked()
+        }
+        // Route the built-in Toggle through the engine too.
+        function accessibleToggleAction() {
+            if (enabled && control.accessibleToggle)
+                control.activateAccessiblePress()
+        }
         onClicked: control.clicked()
-        onPressed: control.beginPress()
-        onReleased: control.finishPress(false)
-        onCanceled: control.requestCancel()
-        onEnabledChanged: { if (!enabled) control.finishPress(true) }
+        onPressed: { if (control.touchContactId < 0) control.beginPress() }
+        // The native button cannot release a keyboard or touch hold.
+        onReleased: {
+            if (control.touchContactId < 0 && control.heldKey === 0)
+                control.finishPress(false)
+        }
+        onCanceled: {
+            if (control.touchContactId < 0 && control.heldKey === 0)
+                control.requestCancel(control.holdAction && !control.available)
+        }
+        onEnabledChanged: {
+            if (!enabled) {
+                if (control.holdAction && !control.available)
+                    control.requestCancel(true)
+                else
+                    control.finishPress(true)
+            }
+        }
         onVisibleChanged: { if (!visible) control.finishPress(true) }
         onActiveFocusChanged: {
-            if (control.holdAction && !activeFocus)
-                control.requestCancel()
+            if (control.holdAction && !activeFocus && control.touchContactId < 0)
+                control.requestCancel(!control.available)
         }
-        // Space keeps the native Button press/release path. Enter/Return get
-        // matching hold semantics for CUE instead of an immediate activation.
+        // Hold keys keep their own release while the native button handles the pointer.
+        function isHoldKey(key) {
+            return control.holdAction && (key === Qt.Key_Space || key === Qt.Key_Return || key === Qt.Key_Enter)
+        }
         Keys.priority: Keys.BeforeItem
         Keys.onPressed: function(event) {
-            if (control.holdAction && event.key === Qt.Key_Space && event.isAutoRepeat) {
-                event.accepted = true
-                return
-            }
-            if (!control.holdAction || (event.key !== Qt.Key_Return && event.key !== Qt.Key_Enter)) {
-                event.accepted = false
-                return
-            }
-            event.accepted = true
-            if (!event.isAutoRepeat && !control.physicalPress) {
+            event.accepted = face.isHoldKey(event.key)
+            if (event.accepted && !event.isAutoRepeat && !control.physicalPress)
                 control.beginPress(event.key)
-            }
         }
         Keys.onReleased: function(event) {
-            if (control.holdAction && event.key === Qt.Key_Space && event.isAutoRepeat) {
-                event.accepted = true
-                return
-            }
-            if (!control.holdAction || (event.key !== Qt.Key_Return && event.key !== Qt.Key_Enter)) {
-                event.accepted = false
-                return
-            }
-            event.accepted = true
-            if (!event.isAutoRepeat && control.heldKey === event.key)
+            event.accepted = face.isHoldKey(event.key)
+            if (event.accepted && !event.isAutoRepeat && control.heldKey === event.key)
                 control.finishPress(false)
         }
 
@@ -186,6 +217,49 @@ Item {
                 font.letterSpacing: control.round ? 0 : 0.6
                 color: control.round && control.indicatorOn ? control.indicatorColor : Brand.ConfluxTheme.text
             }
+        }
+    }
+    // A held CUE touch belongs to its contact even when another control takes focus.
+    Loader {
+        anchors.fill: parent
+        active: control.holdAction
+        sourceComponent: MultiPointTouchArea {
+            enabled: control.available && face.visible
+            mouseEnabled: false
+            function heldContact(points) {
+                for (const point of points) {
+                    if (point.pointId === control.touchContactId)
+                        return point
+                }
+                return null
+            }
+            onPressed: points => {
+                if (!control.available || points.length === 0)
+                    return
+                control.finishPendingCancel()
+                if (!control.available || control.physicalPress)
+                    return
+                const pointId = points[0].pointId
+                control.touchContactId = pointId
+                control.beginPress()
+                if (control.touchContactId === pointId)
+                    face.forceActiveFocus(Qt.MouseFocusReason)
+            }
+            onUpdated: points => {
+                const point = heldContact(points)
+                if (point && !contains(Qt.point(point.x, point.y)))
+                    control.finishPress(true)
+            }
+            onReleased: points => { if (heldContact(points)) control.finishPress(false) }
+            onCanceled: points => {
+                if (heldContact(points)) {
+                    if (control.available)
+                        control.finishPress(true)
+                    else
+                        control.requestCancel(true)
+                }
+            }
+            onGestureStarted: gesture => gesture.grab()
         }
     }
     // Disabled controls remain honest, while their explanatory tooltip can

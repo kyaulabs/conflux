@@ -162,6 +162,14 @@ if MODE == 'local-variable':
     events = [{'frame': frame, 'downbeat': index == 0}
               for index, frame in enumerate((12000, 36000, 54000, 70000, 84400))]
     value.update(bpm=None, beat_count=len(events))
+if MODE.startswith('support-'):
+    value['schema'] = 3
+    events = [{'frame': frame, 'downbeat': index in (0, 4), 'unmeasured_before': 2 <= index <= 5}
+              for index, frame in enumerate((4800, 28800, 52800, 76800, 100800, 124800, 148800))]
+    value['beat_count'] = len(events)
+    if MODE == 'support-missing': del events[1]['unmeasured_before']
+    if MODE == 'support-numeric': events[2]['unmeasured_before'] = 1
+    if MODE == 'support-first': events[0]['unmeasured_before'] = True
 if MODE == 'event-bool-frame': events[0]['frame'] = False
 if MODE == 'event-negative': events[0]['frame'] = -1
 if MODE == 'event-fractional': events[0]['frame'] = .5
@@ -710,11 +718,13 @@ private slots:
              "event-exponent", "event-float-spelling", "event-over-line", "missing-event", "extra-event",
              "blank-row", "unterminated", "trailing-bytes"})
             QTest::newRow(mode) << QByteArray(mode);
+        for (const auto* mode : {"support-missing", "support-numeric", "support-first"})
+            QTest::newRow(mode) << QByteArray(mode);
     }
     void invalidWorkerResults()
     {
         QFETCH(QByteArray, mode);
-        Fixture fixture(mode);
+        Fixture fixture(mode, mode.startsWith("support-") ? 172800 : Fixture::frames);
         const auto result = library::analyzeBpm(*fixture.pcm, fixture.engine);
         QCOMPARE(result.status, QString("Failed"));
         QVERIFY(!result.bpm && !result.error.isEmpty());
@@ -889,6 +899,175 @@ private slots:
             QVERIFY(!library::localTempoAt(estimate, frame));
         QCOMPARE(*estimate.bpm, 120.); // Local lookup must not rewrite the summary.
     }
+    void localTempoUsesSteadyModelGridWithoutMovingBeats()
+    {
+        library::BpmEstimate estimate;
+        estimate.analysisFrames = 640000;
+        estimate.bpm = 143.;
+        for (std::uint32_t i = 0; i < 24; ++i) {
+            const auto frame = ((48000U + 20000U * i + 480U) / 960U) * 960U; // 144 BPM rounded to 50 Hz.
+            estimate.beats.push_back({frame, i % 4 == 0});
+        }
+        const auto timing = library::BpmTiming(estimate);
+        for (std::size_t i = 0; i + 1 < estimate.beats.size(); ++i) {
+            const auto first = estimate.beats[i].frame;
+            const auto end = estimate.beats[i + 1].frame;
+            const auto interval = timing.at(first);
+            QVERIFY(interval);
+            QCOMPARE(interval->firstFrame, first);
+            QCOMPARE(interval->endFrame, end);
+            QVERIFY(std::abs(interval->bpm - 144.) < .6);
+            const auto direct = library::localTempoAt(estimate, end - 1);
+            QVERIFY(direct);
+            QCOMPARE(direct->bpm, interval->bpm);
+        }
+        QCOMPARE(timing.estimate().bpm, estimate.bpm);
+        QVERIFY(!timing.at(estimate.beats.back().frame));
+    }
+
+    void localTempoReducesGridJitterOnlyWithSustainedSupport()
+    {
+        constexpr std::size_t center = 22;
+        constexpr double refinedBpm = 60. * 48000. / 23680.;
+        constexpr double measuredBpm = 120.;
+        for (const bool changedTempo : {false, true}) {
+            library::BpmEstimate estimate;
+            estimate.bpm = 123.;
+            constexpr std::array<std::uint32_t, 5> intervals{25, 25, 25, 24, 24};
+            std::uint32_t frame = 48000;
+            for (std::size_t i = 0; i < 50; ++i) {
+                estimate.beats.push_back({frame, i % 4 == 0});
+                frame += 960 * (changedTempo && i < 12 ? 27 : intervals[i % intervals.size()]);
+            }
+            estimate.analysisFrames = frame;
+            const auto first = estimate.beats[center].frame;
+            const auto end = estimate.beats[center + 1].frame;
+            const library::BpmTiming timing(estimate);
+            const auto interval = timing.at(first);
+            const auto direct = library::localTempoAt(estimate, end - 1);
+            QVERIFY(interval && direct);
+            QCOMPARE(interval->firstFrame, first);
+            QCOMPARE(interval->endFrame, end);
+            QCOMPARE(interval->bpm, changedTempo ? measuredBpm : refinedBpm);
+            QCOMPARE(direct->bpm, interval->bpm);
+            QCOMPARE(timing.estimate().bpm, estimate.bpm);
+
+            const auto edge = timing.at(estimate.beats[16].frame);
+            QVERIFY(edge);
+            QCOMPARE(edge->bpm, measuredBpm);
+
+            estimate.beats[8].unmeasuredBefore = true;
+            const library::BpmTiming withGap(std::move(estimate));
+            const auto afterGap = withGap.at(first);
+            QVERIFY(afterGap);
+            QCOMPARE(afterGap->bpm, measuredBpm);
+            QVERIFY(!withGap.at(withGap.estimate().beats[7].frame));
+        }
+    }
+
+    void localTempoKeepsMeasuredIntervalAtTempoChangeOrUnmeasuredGap()
+    {
+        library::BpmEstimate estimate;
+        estimate.analysisFrames = 900000;
+        std::uint32_t precise = 48000;
+        for (std::uint32_t i = 0; i < 32; ++i) {
+            estimate.beats.push_back({((precise + 480U) / 960U) * 960U, false});
+            precise += i < 16 ? 20000U : 24000U;
+        }
+        const auto measuredBpm = [&estimate](std::size_t index) {
+            return 60. * 48000. / (estimate.beats[index + 1].frame - estimate.beats[index].frame);
+        };
+        const auto before = library::localTempoAt(estimate, estimate.beats[15].frame);
+        const auto after = library::localTempoAt(estimate, estimate.beats[16].frame);
+        QVERIFY(before && after);
+        QCOMPARE(before->bpm, measuredBpm(15));
+        QCOMPARE(after->bpm, measuredBpm(16));
+
+        estimate.beats[7].unmeasuredBefore = true;
+        const auto timing = library::BpmTiming(estimate);
+        QVERIFY(!timing.at(estimate.beats[6].frame));
+        const auto next = timing.at(estimate.beats[7].frame);
+        QVERIFY(next);
+        QCOMPARE(next->bpm, measuredBpm(7));
+
+        estimate.beats.front().frame += 1;
+        const auto offGrid = library::localTempoAt(estimate, estimate.beats.front().frame);
+        QVERIFY(offGrid);
+        QCOMPARE(offGrid->bpm, measuredBpm(0));
+    }
+
+    void localTempoAveragesSteadyRunsOnEachSideOfAnUnmeasuredBreak()
+    {
+        library::BpmEstimate estimate;
+        estimate.analysisFrames = 800000;
+        estimate.bpm = 144.;
+        const auto addRun = [&estimate](std::uint32_t start, std::uint32_t period, bool interrupted) {
+            for (std::uint32_t index = 0; index < 12; ++index) {
+                const auto frame = ((start + index * period + 480U) / 960U) * 960U;
+                estimate.beats.push_back({frame, index % 4 == 0, interrupted && index == 0});
+            }
+        };
+        addRun(48000, 20000, false);  // 144 BPM observed on a 50 Hz grid.
+        addRun(394240, 21333, true);  // About 135 BPM after an unmeasured break.
+        const auto timing = library::BpmTiming(estimate);
+        for (std::size_t index = 0; index + 1 < estimate.beats.size(); ++index) {
+            const auto first = estimate.beats[index].frame;
+            const auto end = estimate.beats[index + 1].frame;
+            if (estimate.beats[index + 1].unmeasuredBefore) {
+                QVERIFY(!timing.at(first));
+                QVERIFY(!timing.at(end - 1));
+                continue;
+            }
+            const auto interval = timing.at(first);
+            QVERIFY(interval);
+            QCOMPARE(interval->firstFrame, first);
+            QCOMPARE(interval->endFrame, end);
+            const auto expected = index < 11 ? 144. : 135.;
+            QVERIFY2(std::abs(interval->bpm - expected) < .6,
+                     qPrintable(QString("Beat %1 reported %2 BPM, expected %3")
+                         .arg(index).arg(interval->bpm).arg(expected)));
+            const auto direct = library::localTempoAt(estimate, end - 1);
+            QVERIFY(direct);
+            QCOMPARE(direct->bpm, interval->bpm);
+        }
+        QCOMPARE(timing.estimate().bpm, estimate.bpm);
+
+        // A shorter audible run cannot borrow beats across either gap.
+        estimate.beats[5].unmeasuredBefore = true;
+        const auto first = estimate.beats[9].frame;
+        const auto next = estimate.beats[10].frame;
+        const auto shortRun = library::localTempoAt(estimate, first);
+        QVERIFY(shortRun);
+        QCOMPARE(shortRun->bpm, 60. * 48000. / double(next - first));
+        QVERIFY(!library::localTempoAt(estimate, estimate.beats[4].frame));
+    }
+
+    void localTempoReportsUnknownWhereTheWorkerWithholdsSupport()
+    {
+        Fixture fixture("support-good", 172800);
+        fixture.prepareCacheIdentity();
+        const auto cache = fixture.cacheRoot();
+        for (bool cached : {false, true}) {
+            const auto estimate = library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache);
+            QCOMPARE(estimate.status, QString("Estimated"));
+            QCOMPARE(estimate.cacheHit, cached);
+            QVERIFY(estimate.bpm);
+            QCOMPARE(*estimate.bpm, 120.);
+            QCOMPARE(estimate.beats.size(), std::size_t(7));
+            QVERIFY(estimate.beats[4].downbeat && estimate.beats[4].unmeasuredBefore);
+            const auto timing = library::BpmTiming(estimate);
+            for (const auto frame : {28800U, 76800U, 124799U}) {
+                QVERIFY(!library::localTempoAt(estimate, frame));
+                QVERIFY(!timing.at(frame));
+            }
+            for (const auto frame : {124800U, 4800U, 28799U}) {
+                QVERIFY(timing.at(frame));
+                QCOMPARE(timing.at(frame)->bpm, 120.);
+            }
+        }
+        QCOMPARE(fixture.invocations(), 1);
+    }
+
     void localTempoUnknownSummaryKeepsSupportedIntervals()
     {
         library::BpmEstimate estimate;
@@ -942,6 +1121,7 @@ private slots:
         // The queried first interval is valid in all late-corruption/cap cases.
         // Checking only neighbors would silently accept a malformed map.
         QVERIFY(!library::localTempoAt(estimate, 12000));
+        QVERIFY(!library::BpmTiming(std::move(estimate)).at(12000));
     }
     void cachedLocalTempoMatchesTheOriginalTimingMap()
     {

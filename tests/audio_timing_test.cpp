@@ -133,29 +133,34 @@ bool graphClockChangesAndFlags()
     bool passed = true;
     CallbackTiming timing({true, 2, 8});
     const auto observe = [&](Clock clock) { timing.observe(10, 256, &clock); };
-    observe({42, 1, 100, 48, 1, 48000, 0});
-    observe({42, 1, 148, 48, 1, 48000, 0});
+    observe({42, std::numeric_limits<std::uint32_t>::max(), 100, 48, 1, 48000, 0});
+    observe({42, 0, 148, 48, 1, 48000, 0});
     passed &= require(timing.counters().graphDiscontinuities == 0, "contiguous driver position counted a gap");
     observe({42, 1, 210, 48, 1, 48000, 0});
-    observe({42, 1, 258, 96, 1, 48000, 0});
     passed &= require(timing.counters().graphDiscontinuities == 1,
-                      "same-clock position gap or contiguous quantum change differs");
+                      "position jump in the next driver cycle was missed");
+    observe({42, 2, 258, 96, 1, 48000, 0});
+    passed &= require(timing.counters().graphDiscontinuities == 1,
+                      "a contiguous quantum change counted as a position gap");
+    observe({42, 4, 450, 96, 1, 48000, 0});
+    passed &= require(timing.counters().graphDiscontinuities == 2,
+                      "a skipped driver cycle hid missing graph frames");
     observe({43, 1, 9999, 256, 1, 48000, 0});
-    observe({43, 2, 700, 256, 1, 48000, 0});
-    observe({43, 2, 99999, 512, 1, 96000, 0});
-    passed &= require(timing.counters().graphDiscontinuities == 1,
-                      "driver identity, supported cycle or rate change did not establish a new baseline");
-    observe({43, 2, 100511, 512, 1, 96000, 2});
-    observe({43, 2, 101023, 256, 1, 96000, 8});
-    observe({43, 2, 101279, 256, 1, 96000, 8});
+    observe({43, 2, 10255, 256, 1, 48000, 0});
+    observe({43, 3, 99999, 512, 1, 96000, 0});
+    passed &= require(timing.counters().graphDiscontinuities == 2,
+                      "driver identity or rate change did not establish a new baseline");
+    observe({43, 4, 100511, 512, 1, 96000, 2});
+    observe({43, 5, 101023, 256, 1, 96000, 8});
+    observe({43, 6, 101279, 256, 1, 96000, 8});
     observe({44, 5, 5000, 128, 1, 48000, 2 | 8});
-    passed &= require(timing.counters().graphDiscontinuities == 3 && timing.counters().xrunRecoveryFlags == 3 &&
-                          timing.counters().callbacks == 11 && timing.counters().graphQuantumMin == 48 &&
+    passed &= require(timing.counters().graphDiscontinuities == 4 && timing.counters().xrunRecoveryFlags == 3 &&
+                          timing.counters().callbacks == 12 && timing.counters().graphQuantumMin == 48 &&
                           timing.counters().graphQuantumMax == 512 && timing.counters().graphPositionObserved,
                       "explicit position flags, repeated recovery flags or quantum extrema differ");
     timing.observe(10, 128);
-    observe({44, 5, 5256, 128, 1, 48000, 0});
-    passed &= require(timing.counters().graphDiscontinuities == 4 && timing.counters().xrunRecoveryFlags == 3,
+    observe({44, 7, 5256, 128, 1, 48000, 0});
+    passed &= require(timing.counters().graphDiscontinuities == 5 && timing.counters().xrunRecoveryFlags == 3,
                       "missing clock observation invented a baseline or hid the later observed position gap");
     return passed;
 }

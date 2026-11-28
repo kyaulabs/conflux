@@ -24,6 +24,7 @@
 #include <fcntl.h>
 #include <limits>
 #include <memory>
+#include <span>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -81,16 +82,42 @@ void writeAll(int descriptor, const char* data, std::size_t count, std::stop_tok
     }
 }
 
+static VocalActivityMap classifyVocalActivity(const std::vector<double>& windowPower)
+{
+    // Prepared vocal-stem RMS, calibrated at -37 dBFS with a ±2 dB uncertainty
+    // band. The median of three source windows suppresses isolated stem bleed.
+    const auto inactivePower = std::pow(10., -39. / 10.);
+    const auto activePower = std::pow(10., -35. / 10.);
+    VocalActivityMap map;
+    map.windows.reserve(windowPower.size());
+    for (std::size_t i = 0; i < windowPower.size(); ++i) {
+        std::array neighbors{windowPower[i == 0 ? i : i - 1], windowPower[i],
+            windowPower[std::min(i + 1, windowPower.size() - 1)]};
+        std::ranges::sort(neighbors);
+        auto state = VocalActivity::Unknown;
+        if (neighbors[1] < inactivePower) state = VocalActivity::Inactive;
+        if (neighbors[1] > activePower) state = VocalActivity::Active;
+        map.windows.push_back(state);
+    }
+    return map;
+}
+
 // Read exactly the captured size, never chase a growing source to EOF. All
 // callers own the descriptor throughout; pread does not consume decoder offset.
 static Scan scanFile(int descriptor, std::uint64_t bytes, std::stop_token stop,
-                     std::uint64_t frames, int copyTo, bool littleEndian, bool collectPeaks)
+                     std::uint64_t frames, int copyTo, bool littleEndian, bool collectPeaks,
+                     bool collectVocals = false)
 {
     QCryptographicHash hash(QCryptographicHash::Sha256);
     Scan result;
     if (frames && collectPeaks) result.peaks.assign(std::min<std::uint64_t>(512, frames), 0.F);
     std::array<float, 8192> buffer{};
     float maximum = 0;
+    constexpr std::size_t vocalWindowSamples = 2 * VocalActivityMap::windowFrames;
+    std::vector<double> vocalPower;
+    std::size_t windowSamples = 0;
+    double windowPower = 0;
+    if (collectVocals) vocalPower.reserve(frames / VocalActivityMap::windowFrames);
     for (std::uint64_t position = 0; position < bytes;) {
         const auto wanted = std::size_t(std::min<std::uint64_t>(sizeof(buffer), bytes - position));
         auto* data = reinterpret_cast<char*>(buffer.data());
@@ -125,6 +152,21 @@ static Scan scanFile(int descriptor, std::uint64_t bytes, std::stop_token stop,
                 }
             }
         }
+        if (collectVocals) {
+            const auto samples = wanted / sizeof(float);
+            for (std::size_t i = 0; i < samples;) {
+                const auto count = std::min(samples - i, vocalWindowSamples - windowSamples);
+                for (auto sample : std::span(buffer).subspan(i, count))
+                    windowPower += double(sample) * sample;
+                i += count;
+                windowSamples += count;
+                if (windowSamples == vocalWindowSamples) {
+                    vocalPower.push_back(windowPower / vocalWindowSamples);
+                    windowSamples = 0;
+                    windowPower = 0;
+                }
+            }
+        }
         hash.addData(QByteArrayView(data, qsizetype(wanted)));
         if (copyTo >= 0) writeAll(copyTo, data, wanted, stop);
         position += wanted;
@@ -132,6 +174,7 @@ static Scan scanFile(int descriptor, std::uint64_t bytes, std::stop_token stop,
     if (maximum > 0)
         for (auto& value : result.peaks) value /= maximum;
     result.sha256 = hash.result().toHex();
+    if (collectVocals) result.vocalActivity = classifyVocalActivity(vocalPower);
     checkStop(stop);
     return result;
 }
@@ -142,9 +185,20 @@ Scan scan(int descriptor, std::uint64_t bytes, std::stop_token stop,
     return scanFile(descriptor, bytes, stop, frames, copyTo, littleEndian, true);
 }
 
+Scan scanVocalStem(int descriptor, std::uint64_t frames, std::stop_token stop)
+{
+    return scanFile(descriptor, frames * frameBytes, stop, frames, -1, false, true, true);
+}
+
 QByteArray finitePcmDigest(int descriptor, std::uint64_t frames, std::stop_token stop)
 {
     return scanFile(descriptor, frames * frameBytes, stop, frames, -1, false, false).sha256;
+}
+
+void requireExpectedSource(const QByteArray& digest, const QString& expected)
+{
+    if (!expected.isEmpty() && QString::fromLatin1(digest) != expected)
+        throw PreparedSourceMismatch("Source changed; import this file again before loading its library entry.");
 }
 
 void verifySource(int descriptor, const struct stat& before, const QByteArray& digest, std::stop_token stop)

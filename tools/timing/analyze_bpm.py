@@ -9,12 +9,14 @@ and its LICENSE; no third-party code or weights are bundled here.
 
 The summary is a median of estimated adjacent beat intervals, not calibrated
 confidence, a constant-tempo assertion, or permission to synchronize decks.
-Timing rows retain the same beat/downbeat estimates; their source-frame
-validation does not establish musical accuracy.
+Timing rows retain source-aligned beat and downbeat estimates. Confirmed padding
+at the edges or a long break in the source does not supply evidence
+for a continuous beat grid. Source validation does not establish musical accuracy.
 The parent owns cancellation, process-group cleanup and the wall/output/address-space budget.
 """
 
 import argparse
+from bisect import bisect_left, bisect_right
 import hashlib
 import json
 import math
@@ -26,9 +28,25 @@ import sys
 import types
 
 RATE, CHANNELS, FPS = 48000, 2, 50
+MODEL_RATE, MODEL_FFT_SIZE = 22050, 1024
 MAX_FRAMES = 33554432
 MAX_EVENTS = 34953
 MAX_OUTPUT_BYTES = 4 * 1024**2
+SILENCE_MARGIN_FRAMES = 70 * RATE // 1000
+# The longest local tempo interval is 3 seconds (20 BPM). Leave a longer
+# hole after allowing the same margin as at the track edges.
+MIN_INTERIOR_SILENCE = 3 * RATE + 2 * SILENCE_MARGIN_FRAMES
+# Local intervals need audible support even when the detector continues to
+# predict a musical grid through a break. Leave shorter musical rests alone.
+MIN_LOCAL_SILENCE = 2 * RATE + 2 * SILENCE_MARGIN_FRAMES
+# Confirm dither-sized samples only next to clearly active music. At least
+# 5% of each required 250 ms side must exceed 256 steps of the digital floor.
+DITHER_FLOOR = 2 ** -15
+DITHER_CONTEXT_FRAMES = RATE // 4
+DITHER_CONTEXT_FLOOR = DITHER_FLOOR * 256
+DITHER_CORRELATION_FRAMES = RATE // 100
+MAX_DITHER_ABS_CORRELATION = .25
+MAX_DITHER_WINDOW_POWER_RATIO = 4
 RECIPE = "beat-this-final0-linear-mel-v1"
 MODEL_BYTES = 81058141
 MODEL_SHA256 = "8c328b45f59d8dd3dff219253ff6a8d6482be57d0133a29140e2febbf8eb8331"
@@ -86,16 +104,126 @@ def read_pcm(stream, frames):
 
 def source_mask(frames, resampled_lengths, logit_frames):
     validate_frames(frames)
-    numerator = frames * 22050
+    numerator = frames * MODEL_RATE
     permitted = {numerator // RATE, (numerator + RATE - 1) // RATE}
     if (type(resampled_lengths) not in (list, tuple) or len(resampled_lengths) != 2 or
             any(type(n) is not int or n <= 0 or n not in permitted for n in resampled_lengths) or
             resampled_lengths[0] != resampled_lengths[1] or type(logit_frames) is not int or
-            logit_frames != resampled_lengths[0] // 441 + 1):
+            logit_frames != resampled_lengths[0] // (MODEL_RATE // FPS) + 1):
         raise ValueError("unexpected resampled/centered frontend geometry")
     # Contiguous source prefix BEFORE peak pooling; exclude a centered EOF bin
     # without shifting eligible source timestamps or suppressing its neighbour.
     return tuple(k * RATE < frames * FPS for k in range(logit_frames))
+
+
+def first_nonzero_frame(stereo, noise_floor=0):
+    import numpy as np
+
+    # Find nonzero PCM in either channel without allocating a mask for the
+    # entire track. Signed zeros are silent in the default exact check.
+    block_frames = 1 << 16
+    for start in range(0, len(stereo), block_frames):
+        block = stereo[start:start + block_frames]
+        present = np.any(np.abs(block) > noise_floor if noise_floor else block, axis=1)
+        if present.any():
+            return start + int(present.argmax())
+    return None
+
+
+def interior_inactive_spans(stereo, first, last, noise_floor=0, minimum_frames=MIN_INTERIOR_SILENCE):
+    import numpy as np
+
+    # A qualifying gap cannot fit inside one block. Only the first and last
+    # active frames of each nonempty block are needed to find such a gap.
+    block_frames = 1 << 16
+    spans = []
+    previous_end = first + 1
+    for start in range(first, last + 1, block_frames):
+        left, right = stereo[start:min(start + block_frames, last + 1)].T
+        if noise_floor:
+            present = (np.abs(left) > noise_floor) | (np.abs(right) > noise_floor)
+        else:
+            present = np.logical_or(left, right)
+        if not present.any():
+            continue
+        active_start = start + int(present.argmax())
+        if active_start - previous_end >= minimum_frames:
+            spans.append((previous_end, active_start))
+        previous_end = start + len(present) - int(present[::-1].argmax())
+    return spans
+
+
+def has_signal_structure(stereo):
+    import numpy as np
+
+    width = DITHER_CORRELATION_FRAMES
+    first_power = (stereo[:width].astype(np.float64)**2).sum(axis=0)
+
+    def structured_windows(samples):
+        windows = samples.reshape(-1, width, CHANNELS).astype(np.float64)
+        power = (windows**2).sum(axis=1)
+        if np.any(np.maximum(power, first_power) >
+                  MAX_DITHER_WINDOW_POWER_RATIO * np.minimum(power, first_power)):
+            return True
+
+        before, after = windows[:, :-1], windows[:, 1:]
+        product = np.abs((before * after).sum(axis=1))
+        pair_energy = np.sqrt((before**2).sum(axis=1) * (after**2).sum(axis=1))
+        return bool(np.any(product > MAX_DITHER_ABS_CORRELATION * pair_energy))
+
+    # Evaluate the same windows in bounded batches. Include a full window
+    # ending at the core boundary when the final window is partial.
+    block = 64 * width
+    full_frames = len(stereo) // width * width
+    for start in range(0, full_frames, block):
+        if structured_windows(stereo[start:min(start + block, full_frames)]):
+            return True
+    return full_frames != len(stereo) and structured_windows(stereo[-width:])
+
+
+def has_dither_context(stereo):
+    import numpy as np
+
+    return np.count_nonzero(np.any(np.abs(stereo) >= DITHER_CONTEXT_FLOOR, axis=1)) >= DITHER_CONTEXT_FRAMES // 20
+
+
+def dither_edge_length(stereo):
+    # Use one adjoining passage at a file edge. Check the whole low-level
+    # core for structure so quiet fades and rhythmic effects stay eligible.
+    boundary = first_nonzero_frame(stereo, DITHER_FLOOR)
+    if boundary is None or boundary < MIN_INTERIOR_SILENCE:
+        return 0
+    if not has_dither_context(stereo[boundary:boundary + DITHER_CONTEXT_FRAMES]):
+        return 0
+    if has_signal_structure(stereo[:boundary - SILENCE_MARGIN_FRAMES]):
+        return 0
+    return boundary
+
+
+def interior_silence_cores(stereo, first, last, minimum_frames=MIN_INTERIOR_SILENCE):
+    """Return source ranges of prolonged exact silence or dither-like activity."""
+    if last - first <= minimum_frames:
+        return []
+    margin = SILENCE_MARGIN_FRAMES
+    spans = set(interior_inactive_spans(stereo, first, last, minimum_frames=minimum_frames))
+    context = DITHER_CONTEXT_FRAMES
+    for begin, end in interior_inactive_spans(stereo, first, last, DITHER_FLOOR, minimum_frames):
+        if (begin, end) in spans:
+            continue
+        sides = (stereo[max(first, begin - context):begin],
+                 stereo[end:min(last + 1, end + context)])
+        if all(map(has_dither_context, sides)) and not has_signal_structure(stereo[begin + margin:end - margin]):
+            spans.add((begin, end))
+
+    cores = []
+    for begin, end in sorted(spans):
+        begin += margin
+        end -= margin
+        if cores and begin <= cores[-1][1]:
+            cores[-1] = (cores[-1][0], max(cores[-1][1], end))
+        else:
+            cores.append((begin, end))
+    return cores
 
 
 def source_beat_frames(seconds, frames):
@@ -121,15 +249,122 @@ def source_beat_frames(seconds, frames):
     return result
 
 
-def summarize_beats(seconds, frames):
+def supported_logit_ranges(mask, first, last, gaps):
+    """Keep the original model frame indices when removing silent spans."""
+    tick = RATE // FPS
+    margin = SILENCE_MARGIN_FRAMES
+    start = max(0, (first - margin + tick - 1) // tick)
+    stop = min(sum(mask), (last + margin) // tick + 1)
+    for begin, end in gaps:
+        before = min(stop, (begin + tick - 1) // tick)
+        if start < before:
+            yield start, before
+        start = max(start, (end + tick - 1) // tick)
+        if start >= stop:
+            return
+    if start < stop:
+        yield start, stop
+
+
+def decode_source_events(postprocessor, beat, downbeat, mask, first, last, gaps):
+    beats, downbeats = [], []
+    for start, stop in supported_logit_ranges(mask, first, last, gaps):
+        # Peak pooling and nearest-beat matching must stay within the same
+        # supported source span. Passing interior holes as padding would
+        # squeeze the masked frames out of the upstream decoder's clock.
+        local_beats, local_downbeats = postprocessor(beat[start:stop], downbeat[start:stop])
+        if not len(local_beats):
+            continue  # The decoder may emit downbeat peaks without a beat anchor.
+        offset = start / FPS
+        beats.extend(float(time) + offset for time in local_beats)
+        downbeats.extend(float(time) + offset for time in local_downbeats)
+    return beats, downbeats
+
+
+def steady_tempo_period(periods, typical, measured):
+    """Estimate one period from long, consistent runs of measured beats."""
+    # The model places events on a 50 Hz grid. Averaging eight adjacent
+    # intervals reduces the effect of that timestamp quantization.
+    width = 8
+    agreement = max(RATE // FPS, typical * .05)
+    windows, block = [], []
+    for period in periods:
+        if period is None or abs(period - typical) > agreement:
+            block.clear()
+            continue
+        block.append(period)
+        if len(block) == width:
+            windows.append(statistics.mean(block))
+            block.clear()
+    # Require a well-supported steady clock before replacing the per-beat
+    # median, which remains useful for short or changing-tempo sources.
+    if len(windows) < 12 or len(windows) * width < .75 * measured:
+        return None
+    deciles = statistics.quantiles(windows, n=10, method="inclusive")
+    low, high = deciles[0], deciles[-1]
+    if high - low > .02 * statistics.median(windows):
+        return None
+    body = [period for period in windows if low <= period <= high]
+    return statistics.mean(body) if body else None
+
+
+def summarize_beats(seconds, frames, gap_starts=(), *, silent_cores=()):
     beat_frames = source_beat_frames(seconds, frames)
-    if len(beat_frames) < 2:
+    unmeasured = unmeasured_intervals(beat_frames, silent_cores)
+    periods = []
+    for index, (first, last) in enumerate(zip(beat_frames, beat_frames[1:]), 1):
+        period = last - first
+        # Use the same supported range as the deck's source-local tempo.
+        # Store an explicit gap so a window cannot bridge a silent break.
+        if (unmeasured[index] or not RATE * 15 // 100 <= period <= RATE * 3 or
+                (gap_starts and bisect_right(gap_starts, first) != bisect_right(gap_starts, last))):
+            periods.append(None)
+        else:
+            periods.append(period)
+    measured = [period for period in periods if period is not None]
+    if not measured:
         return None, len(beat_frames)
-    bpm = statistics.median(60 * RATE / (b - a) for a, b in zip(beat_frames, beat_frames[1:]))
-    return (round(bpm, 1) if 20 <= bpm <= 400 else None), len(beat_frames)
+    steady = steady_tempo_period(periods, statistics.median(measured), len(measured))
+    summary = 60 * RATE / steady if steady is not None else statistics.median(60 * RATE / period for period in measured)
+    return round(summary, 1), len(beat_frames)
 
 
-def encode_result(frames, pcm_sha256, bpm, beat_seconds, downbeat_seconds):
+def unmeasured_intervals(beat_frames, silent_cores):
+    """Identify adjacent predicted intervals without source-local tempo support."""
+    unmeasured = [False] * len(beat_frames)
+    for begin, end in silent_cores:
+        first = bisect_left(beat_frames, begin)
+        last = bisect_left(beat_frames, end)
+        # Intervals entirely inside confirmed silence have no audible
+        # support, even when one flank is too short to assess its clock.
+        for index in range(first + 1, last):
+            unmeasured[index] = True
+        left = beat_frames[max(0, first - 4):first]
+        right = beat_frames[last:last + 4]
+        if len(left) < 3 or len(right) < 3:
+            # A single interval spanning the whole break can be unsupported
+            # even if one audible passage has too few beats to fit a clock.
+            # Require at least two intervals on one side, one model tick of
+            # agreement across all available intervals, and two periods of silence.
+            if first == last and left and right and max(len(left), len(right)) >= 3:
+                periods = [b - a for side in (left, right) for a, b in zip(side, side[1:])]
+                shortest, longest = min(periods), max(periods)
+                if (7200 <= shortest <= longest <= 144000 and
+                        longest - shortest <= RATE // FPS and end - begin >= 2 * longest):
+                    unmeasured[first] = True
+            continue
+        periods = [statistics.median(b - a for a, b in zip(side, side[1:]))
+                   for side in (left, right)]
+        # Sparse material can have near-silence between actual beats. Require
+        # at least two periods at the slower side before withholding estimates.
+        if not all(7200 <= period <= 144000 for period in periods) or end - begin < 2 * max(periods):
+            continue
+        for index in range(first, min(last + 1, len(beat_frames))):
+            unmeasured[index] = True
+    return unmeasured
+
+
+def encode_result(frames, pcm_sha256, bpm, beat_seconds, downbeat_seconds, silent_cores=()):
     # Keep the existing source-time validation, including rejection of a
     # timestamp that rounds to EOF. Never sort, filter, or repair detector output.
     beat_frames = source_beat_frames(beat_seconds, frames)
@@ -142,14 +377,14 @@ def encode_result(frames, pcm_sha256, bpm, beat_seconds, downbeat_seconds):
             (bpm is not None and (type(bpm) not in (int, float) or not 20 <= bpm <= 400 or
                                  not math.isfinite(bpm) or beat_count < 2 or round(bpm, 1) != bpm))):
         raise ValueError("invalid BPM summary output")
-    value = {"schema": 2, "recipe": RECIPE, "frames": frames,
+    value = {"schema": 3, "recipe": RECIPE, "frames": frames,
              "pcm_sha256": pcm_sha256, "bpm": bpm, "beat_count": beat_count}
     raw = bytearray((json.dumps(value, allow_nan=False, separators=(",", ":")) + "\n").encode("ascii"))
     if len(raw) > MAX_OUTPUT_BYTES:
         raise ValueError("BPM timing output exceeds output limit")
     downbeats = set(downbeat_frames)
-    for frame in beat_frames:
-        event = {"frame": frame, "downbeat": frame in downbeats}
+    for frame, unsupported in zip(beat_frames, unmeasured_intervals(beat_frames, silent_cores), strict=True):
+        event = {"frame": frame, "downbeat": frame in downbeats, "unmeasured_before": unsupported}
         raw.extend((json.dumps(event, allow_nan=False, separators=(",", ":")) + "\n").encode("ascii"))
         if len(raw) > MAX_OUTPUT_BYTES:
             raise ValueError("BPM timing output exceeds output limit")
@@ -232,7 +467,19 @@ def run(source_dir, model_path, frames, stream):
             raise ValueError("pinned dependency version differs: " + name)
     pcm = read_pcm(stream, frames)
     pcm_sha256 = hashlib.sha256(pcm).hexdigest()
+    # Reflection padding needs more than half an FFT of resampled audio.
+    # The nearest-frame cutoff is half an FFT plus half a model frame. It
+    # falls between two source-frame counts at these pinned sample rates.
+    if 2 * frames * MODEL_RATE < (MODEL_FFT_SIZE + 1) * RATE:
+        return encode_result(frames, pcm_sha256, None, [], [])
     import numpy as np
+
+    stereo = np.frombuffer(pcm, dtype="<f4").reshape(frames, CHANNELS)
+    first = first_nonzero_frame(stereo)
+    if first is None:
+        return encode_result(frames, pcm_sha256, None, [], [])
+    last = frames - 1 - first_nonzero_frame(stereo[::-1])
+
     import soxr
     import torch
 
@@ -267,10 +514,9 @@ def run(source_dir, model_path, frames, stream):
     frontend = upstream.Audio2Frames(str(model_path), device="cpu", float16=False)
     if frontend.model.training or next(frontend.model.parameters()).dtype != torch.float32:
         raise ValueError("model must be CPU float32 evaluation mode")
-    stereo = np.frombuffer(pcm, dtype="<f4").reshape(frames, CHANNELS)
     linear, lengths = [], []
     for channel in range(CHANNELS):
-        signal = soxr.resample(stereo[:, channel], in_rate=RATE, out_rate=22050)
+        signal = soxr.resample(stereo[:, channel], in_rate=RATE, out_rate=MODEL_RATE)
         lengths.append(len(signal))
         linear.append(frontend.spect.spect_class(torch.tensor(signal, dtype=torch.float32, device="cpu")))
     if linear[0].shape != linear[1].shape:
@@ -284,10 +530,16 @@ def run(source_dir, model_path, frames, stream):
            x.device.type != "cpu" or not torch.isfinite(x).all().item() for x in (beat, downbeat)):
         raise ValueError("invalid finite source-aligned model logits")
     postprocessor = upstream.Postprocessor(type="minimal", fps=FPS)
-    beats, downbeats = postprocessor(beat, downbeat, padding_mask=torch.tensor(mask, dtype=torch.bool))
-    seconds, down_seconds = [float(x) for x in beats], [float(x) for x in downbeats]
-    bpm, _beat_count = summarize_beats(seconds, frames)
-    return encode_result(frames, pcm_sha256, bpm, seconds, down_seconds)
+    gaps = interior_silence_cores(stereo, first, last)
+    gap_starts = tuple(begin for begin, _ in gaps)
+    span = stereo[first:last + 1]
+    signal_first = first + dither_edge_length(span)
+    signal_last = last - dither_edge_length(span[::-1])
+    seconds, down_seconds = decode_source_events(postprocessor, beat, downbeat, mask,
+                                                signal_first, signal_last, gaps)
+    local_silence = interior_silence_cores(stereo, first, last, MIN_LOCAL_SILENCE)
+    bpm, _beat_count = summarize_beats(seconds, frames, gap_starts, silent_cores=local_silence)
+    return encode_result(frames, pcm_sha256, bpm, seconds, down_seconds, local_silence)
 
 
 def main():

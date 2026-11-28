@@ -33,13 +33,18 @@ public:
     enum class Kind : std::uint8_t {
         ServiceReady, RuntimeReady, RequestObserved, CommandQueued, CommandAccepted,
         ChunkValidated, PacketAccepted, PacketDiscarded,
-        RawComplete, ConverterComplete, ServiceClosed
+        RawComplete, ConverterComplete, ServiceClosed, WorkerRequestStarted
+    };
+
+    struct NativeShutdown {
+        int exitStatus = 0; // POSIX exit code, or negative signal number.
+        bool killRequested = false;
     };
 
     struct Record {
         Kind kind = Kind::ServiceReady;
         bool hopServicePresent = false, fullObserved = false, final = false;
-        bool serviceTelemetryDroppedPresent = false;
+        bool serviceTelemetryDroppedPresent = false, inferenceReused = false;
         std::uint64_t ordinal = 0, observedNs = 0;
         std::uint64_t providerEpoch = 0, workerGeneration = 0;
         std::uint64_t commandId = 0, requestId = 0, leaseSequence = 0;
@@ -50,6 +55,9 @@ public:
         // PacketAccepted only. Full timestamp is valid only if fullObserved.
         std::uint64_t packetReadyNs = 0, firstFullNs = 0;
         std::uint64_t publishBeginNs = 0, publishEndNs = 0;
+        // WorkerRequestStarted only: Python monotonic seconds before transport submission.
+        double workerStartedSeconds = 0;
+        bool workerPreroll = false;
         // ChunkValidated only: retain wire precision/units, without clock mapping.
         double workerReadySeconds = 0, servicePublishedSeconds = 0, hopServiceMs = 0;
         // Nested durations from the same completed chunk, in original ms. A
@@ -62,6 +70,8 @@ public:
         std::optional<double> nativePostprocessMs, nativeGraphRebuildMs;
         // RawComplete/ServiceClosed only when the corresponding present flag is true.
         std::uint64_t serviceTelemetryDropped = 0;
+        // ServiceClosed only, absent for legacy helpers or before native start.
+        std::optional<NativeShutdown> nativeShutdown;
     };
 
     struct Counters {

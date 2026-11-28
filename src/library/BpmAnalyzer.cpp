@@ -25,6 +25,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <sys/file.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
@@ -108,7 +109,7 @@ Producer producer(const BpmEngine& engine, std::uint64_t frames, const QByteArra
         } else detail::ioError("Cannot inspect BPM interpreter configuration");
     }
     result.identity = {{"schema", 1}, {"recipe", QString::fromLatin1(bpmAnalysisRecipe)},
-        {"wire_schema", 2}, {"frames", double(frames)}, {"pcm_sha256", QString::fromLatin1(digest)},
+        {"wire_schema", 3}, {"frames", double(frames)}, {"pcm_sha256", QString::fromLatin1(digest)},
         {"format", QStringLiteral("stereo-f32le-48000")}, {"source_directory", source},
         {"files", rows}, {"absent_venv", missing}};
     if (QJsonDocument(result.identity).toJson(QJsonDocument::Compact).size() + 256 > maximumManifest)
@@ -355,7 +356,7 @@ BpmEstimate timingResult(const QByteArray& bytes, std::uint64_t frames, const QB
                          Clock::time_point end, std::stop_token stop)
 {
     // Keep actual JSONL boundaries. No implicit final LF, blank records or
-    // newline-flattening repair is permitted by schema 2.
+    // newline-flattening repair is permitted by either supported schema.
     const auto newline = bytes.indexOf('\n');
     if (newline < 0 || newline + 1 > maximumHeader)
         throw std::runtime_error("BPM timing header exceeds its line budget or lacks LF");
@@ -372,7 +373,9 @@ BpmEstimate timingResult(const QByteArray& bytes, std::uint64_t frames, const QB
         return *parsed.object;
     };
     const auto result = next();
-    if (result.size() != 6 || result.value("schema") != QJsonValue(2) ||
+    const auto schema = result.value("schema");
+    const bool hasIntervalSupport = schema == QJsonValue(3);
+    if (result.size() != 6 || (!hasIntervalSupport && schema != QJsonValue(2)) ||
         result.value("recipe") != QJsonValue(QString::fromLatin1(bpmAnalysisRecipe)) ||
         !result.value("frames").isDouble() || result.value("frames").toDouble() != double(frames) ||
         result.value("pcm_sha256").toString().toLatin1() != digest ||
@@ -400,13 +403,16 @@ BpmEstimate timingResult(const QByteArray& bytes, std::uint64_t frames, const QB
     for (std::size_t index = 0; index < std::size_t(count); ++index) {
         const auto event = next();
         const auto frameValue = event.value("frame");
-        if (event.size() != 2 || !frameValue.isDouble() || !event.value("downbeat").isBool())
+        const auto unmeasured = event.value("unmeasured_before");
+        if (event.size() != (hasIntervalSupport ? 3 : 2) || !frameValue.isDouble() ||
+            !event.value("downbeat").isBool() ||
+            (hasIntervalSupport && (!unmeasured.isBool() || (!index && unmeasured.toBool()))))
             throw std::runtime_error("BPM timing record schema differs");
         const double frame = frameValue.toDouble();
         if (!std::isfinite(frame) || frame < 0 || frame >= double(frames) || std::floor(frame) != frame ||
             (!estimate.beats.empty() && frame <= double(estimate.beats.back().frame)))
             throw std::runtime_error("BPM timing frames must be distinct, increasing and inside the source");
-        estimate.beats.push_back({std::uint32_t(frame), event.value("downbeat").toBool()});
+        estimate.beats.push_back({std::uint32_t(frame), event.value("downbeat").toBool(), unmeasured.toBool()});
     }
     if (offset != bytes.size())
         throw std::runtime_error("BPM timing stream has extra records or bytes");
@@ -550,26 +556,141 @@ BpmEstimate analyzeBpm(const audio::PreparedAudio& audio, const BpmEngine& engin
     }
 }
 
-std::optional<BpmTempoInterval> localTempoAt(const BpmEstimate& estimate, std::uint64_t sourceFrame) noexcept
+namespace {
+bool validTimingGeometry(const BpmEstimate& estimate) noexcept
 {
     const auto frames = estimate.analysisFrames;
-    if (!frames || frames > audio::PreparedAudio::defaultMaxPreparedBytes / 8U || sourceFrame >= frames ||
-        estimate.beats.size() < 2 || estimate.beats.size() > std::min(maximumEvents, frames * 50U / 48000U + 1U))
-        return {};
-    auto previous = estimate.beats.front().frame;
-    if (previous >= frames) return {};
-    std::optional<BpmTempoInterval> selected;
-    for (std::size_t index = 1; index < estimate.beats.size(); ++index) {
-        const auto current = estimate.beats[index].frame;
-        if (current >= frames || current <= previous) return {};
-        if (sourceFrame >= previous && sourceFrame < current) {
-            const double bpm = 60. * 48000. / (current - previous);
-            if (std::isfinite(bpm) && bpm >= 20 && bpm <= 400)
-                selected = BpmTempoInterval{previous, current, bpm};
-        }
-        previous = current;
+    const auto& beats = estimate.beats;
+    if (!frames || frames > audio::PreparedAudio::defaultMaxPreparedBytes / 8U ||
+        beats.size() < 2 || beats.size() > std::min(maximumEvents, frames * 50U / 48000U + 1U) ||
+        beats.front().unmeasuredBefore || beats.back().frame >= frames)
+        return false;
+    return std::adjacent_find(beats.begin(), beats.end(), [](const BpmBeat& left, const BpmBeat& right) {
+        return left.frame >= right.frame;
+    }) == beats.end();
+}
+
+constexpr double framesPerMinute = 60. * 48000.;
+constexpr std::uint32_t minimumTempoPeriod = 7200;
+constexpr std::uint32_t maximumTempoPeriod = 144000;
+
+double steadyLocalPeriod(const std::vector<BpmBeat>& beats, std::size_t interval, double adjacent) noexcept
+{
+    constexpr std::size_t intervals = 10, before = 4;
+    constexpr std::uint32_t modelTick = 48000U / 50U;
+    if (beats.size() <= intervals) return adjacent;
+
+    // Shift the usual window away from confirmed breaks while keeping the
+    // queried interval and the full ten intervals of supporting evidence.
+    const auto leftLimit = interval >= intervals - 1 ? interval - (intervals - 1) : 0;
+    const auto rightLimit = std::min(beats.size() - 1, interval + intervals);
+    auto left = interval;
+    auto right = interval + 1;
+    while (left > leftLimit && !beats[left].unmeasuredBefore) --left;
+    while (right < rightLimit && !beats[right + 1].unmeasuredBefore) ++right;
+    if (right - left < intervals) return adjacent;
+
+    const auto preferred = interval > before ? interval - before : 0;
+    const auto start = std::clamp(preferred, left, right - intervals);
+    const auto* first = beats.data() + start;
+    for (std::size_t i = 1; i <= intervals; ++i) {
+        const auto period = first[i].frame - first[i - 1].frame;
+        if (period < minimumTempoPeriod || period > maximumTempoPeriod ||
+            (first[i].frame - first[0].frame) % modelTick != 0)
+            return adjacent;
     }
-    return selected;
+
+    // Two rounded beat positions can disagree with their exact span by one
+    // model tick. Only use a common period if every pair supports it.
+    double low = minimumTempoPeriod, high = maximumTempoPeriod;
+    for (std::size_t separation = 1; separation <= intervals; ++separation) {
+        auto shortest = first[separation].frame - first[0].frame;
+        auto longest = shortest;
+        for (std::size_t i = 1; i + separation <= intervals; ++i) {
+            const auto span = first[i + separation].frame - first[i].frame;
+            shortest = std::min(shortest, span);
+            longest = std::max(longest, span);
+        }
+        low = std::max(low, (double(longest) - modelTick) / separation);
+        high = std::min(high, (double(shortest) + modelTick) / separation);
+        if (high <= low) return adjacent;
+    }
+    const auto middle = (low + high) / 2.;
+    return high - low <= .01 * middle ? middle : adjacent;
+}
+
+// When the long steady fit falls back to one interval, reduce model-grid
+// jitter only where measured timing is stationary across both sides.
+double centeredLocalPeriod(const std::vector<BpmBeat>& beats, std::size_t interval,
+                           std::uint32_t adjacent) noexcept
+{
+    constexpr std::size_t blocks = 7, width = 5, side = blocks * width / 2;
+    constexpr std::uint32_t tick = 48000U / 50U;
+    if (interval < side || interval + side + 1 >= beats.size()) return adjacent;
+    const auto* first = beats.data() + interval - side;
+    for (std::size_t i = 0; i < blocks * width; ++i) {
+        const auto period = first[i + 1].frame - first[i].frame;
+        if (first[i + 1].unmeasuredBefore || period % tick ||
+            period < minimumTempoPeriod || period > maximumTempoPeriod)
+            return adjacent;
+    }
+    std::array<std::uint32_t, blocks> spans{};
+    for (std::size_t block = 0; block < blocks; ++block) {
+        const auto begin = block * width;
+        spans[block] = first[begin + width].frame - first[begin].frame;
+    }
+    const auto middleSpan = spans[blocks / 2];
+    const auto [shortest, longest] = std::minmax_element(spans.begin(), spans.end());
+    if (50 * (*longest - *shortest) > middleSpan) return adjacent;
+
+    const auto* middle = first + (blocks / 2) * width;
+    std::array<std::uint32_t, width> periods{};
+    for (std::size_t i = 0; i < width; ++i) {
+        periods[i] = middle[i + 1].frame - middle[i].frame;
+        if (8 * std::abs(double(periods[i]) - adjacent) > adjacent) return adjacent;
+    }
+    const bool stableSides = periods[0] == periods[1] && periods[3] == periods[4];
+    if (stableSides && std::abs(double(periods[1]) - periods[3]) >= 2 * tick) return adjacent;
+
+    const double tight = (middle[4].frame - middle[1].frame) / 3.;
+    const double wide = double(middleSpan) / width;
+    if (std::abs(tight - wide) > tick / 2.) return adjacent;
+    std::array estimates{double(adjacent), tight, wide};
+    std::sort(estimates.begin(), estimates.end());
+    return std::abs(estimates[1] - adjacent) <= tick ? estimates[1] : adjacent;
+}
+
+std::optional<BpmTempoInterval> findTimingInterval(const BpmEstimate& estimate, std::uint64_t frame) noexcept
+{
+    const auto& beats = estimate.beats;
+    const auto next = std::upper_bound(beats.begin(), beats.end(), frame,
+        [](std::uint64_t value, const BpmBeat& beat) { return value < beat.frame; });
+    if (next == beats.begin() || next == beats.end() || next->unmeasuredBefore) return {};
+    const auto first = next - 1;
+    const auto adjacent = next->frame - first->frame;
+    if (adjacent < minimumTempoPeriod || adjacent > maximumTempoPeriod) return {};
+    const auto interval = std::size_t(first - beats.begin());
+    auto period = steadyLocalPeriod(beats, interval, adjacent);
+    if (period == adjacent) period = centeredLocalPeriod(beats, interval, adjacent);
+    return BpmTempoInterval{first->frame, next->frame, framesPerMinute / period};
+}
+} // namespace
+
+std::optional<BpmTempoInterval> localTempoAt(const BpmEstimate& estimate, std::uint64_t sourceFrame) noexcept
+{
+    if (sourceFrame >= estimate.analysisFrames || !validTimingGeometry(estimate)) return {};
+    return findTimingInterval(estimate, sourceFrame);
+}
+
+BpmTiming::BpmTiming(BpmEstimate estimate) noexcept
+    : estimate_(std::move(estimate)), valid_(validTimingGeometry(estimate_))
+{
+}
+
+std::optional<BpmTempoInterval> BpmTiming::at(std::uint64_t sourceFrame) const noexcept
+{
+    if (!valid_ || sourceFrame >= estimate_.analysisFrames) return {};
+    return findTimingInterval(estimate_, sourceFrame);
 }
 
 std::optional<double> tempoPercentForBpm(double reference, double target) noexcept

@@ -16,6 +16,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -83,6 +84,52 @@ void checkStop(std::stop_token stop)
         throw std::runtime_error("Audio preparation cancelled");
 }
 
+// Some MP3s contain a small zero-filled gap outside the declared ID3 tag.
+// libsndfile's filename fallback accepts these, but sf_open_fd has no suffix.
+// Keep the pinned source FD and let the same decoder validate the MPEG stream;
+// never scan through nonzero junk or skip a damaged frame within the stream.
+std::optional<off_t> paddedId3MpegOffset(int descriptor, off_t size, std::stop_token stop)
+{
+    constexpr std::size_t maximumPadding = 4096;
+    if (size < 10) return std::nullopt;
+    std::array<unsigned char, 10> tag{};
+    checkStop(stop);
+    if (pread(descriptor, tag.data(), tag.size(), 0) != static_cast<ssize_t>(tag.size()) ||
+        tag[0] != 'I' || tag[1] != 'D' || tag[2] != '3' || tag[3] < 2 || tag[3] > 4 ||
+        tag[4] == 255 || (tag[5] & (tag[3] == 2 ? 0x3f : tag[3] == 3 ? 0x1f : 0x0f)) ||
+        std::ranges::any_of(std::span(tag).subspan(6), [](auto value) { return value & 0x80; }))
+        return std::nullopt;
+    std::uint64_t extent = 0;
+    for (std::size_t index = 6; index < tag.size(); ++index)
+        extent = (extent << 7) | tag[index];
+    extent += tag.size();
+    if (tag[3] == 4 && (tag[5] & 0x10)) {
+        std::array<unsigned char, 10> footer{};
+        if (extent + footer.size() > static_cast<std::uint64_t>(size) ||
+            pread(descriptor, footer.data(), footer.size(), static_cast<off_t>(extent)) !=
+                static_cast<ssize_t>(footer.size()) || footer[0] != '3' || footer[1] != 'D' ||
+            footer[2] != 'I' || !std::equal(tag.begin() + 3, tag.end(), footer.begin() + 3))
+            return std::nullopt;
+        extent += footer.size();
+    }
+    if (extent + 4 > static_cast<std::uint64_t>(size))
+        return std::nullopt;
+    std::array<unsigned char, maximumPadding + 4> bytes{};
+    const auto wanted = std::min<std::uint64_t>(bytes.size(), static_cast<std::uint64_t>(size) - extent);
+    checkStop(stop);
+    const auto count = pread(descriptor, bytes.data(), wanted, static_cast<off_t>(extent));
+    if (count < 4)
+        return std::nullopt;
+    const auto end = bytes.begin() + count;
+    const auto first = std::find_if(bytes.begin(), end, [](auto value) { return value != 0; });
+    const auto padding = static_cast<std::size_t>(first - bytes.begin());
+    if (!padding || padding > maximumPadding || end - first < 4 || first[0] != 0xff ||
+        (first[1] & 0xe0) != 0xe0 || (first[1] & 0x18) == 0x08 || !(first[1] & 0x06) ||
+        (first[2] & 0xf0) == 0xf0 || (first[2] & 0x0c) == 0x0c)
+        return std::nullopt;
+    return static_cast<off_t>(extent + padding);
+}
+
 // Both in-memory probe input and disk-backed deck input use this conversion.
 // Every codec/converter/sink call runs on the preparing owner, never in render.
 template<class Sink>
@@ -108,6 +155,15 @@ std::uint64_t convertFile(int sourceDescriptor, std::size_t maximumBytes,
     // conversion has exclusive worker ownership and explicitly rewinds above.
     std::unique_ptr<SNDFILE, decltype(&sf_close)> file(
         sf_open_fd(decoderDescriptor.get(), SFM_READ, &info, SF_FALSE), sf_close);
+    if (!file && !rawMetadata && sf_error(nullptr) == SF_ERR_UNRECOGNISED_FORMAT) {
+        if (const auto offset = paddedId3MpegOffset(decoderDescriptor.get(), status.st_size, stop)) {
+            checkStop(stop);
+            if (lseek(decoderDescriptor.get(), *offset, SEEK_SET) != *offset)
+                throw std::runtime_error("Cannot position the tagged MPEG source descriptor");
+            info = {};
+            file.reset(sf_open_fd(decoderDescriptor.get(), SFM_READ, &info, SF_FALSE));
+        }
+    }
     if (!file)
         throw std::runtime_error(std::string("Cannot open audio file: ") + sf_strerror(nullptr));
     if (rawMetadata && (info.frames != rawMetadata->frames || info.samplerate != rawMetadata->samplerate ||

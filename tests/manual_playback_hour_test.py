@@ -91,6 +91,18 @@ class HourPlaybackTest(unittest.TestCase):
                       ("--live-stems-hour", "--active-controls"), ("--active-controls",)):
             with self.subTest(extra=extra), self.assertRaises(SystemExit): self.cli(*extra)
 
+    def test_expected_runtime_sha256_cli_admission(self):
+        digest = "a1" * 32
+        _, hour = self.cli("--live-stems-hour", "--expected-runtime-sha256", digest)
+        self.assertEqual(hour.expected_runtime_sha256, digest)
+        _, legacy = self.cli("--live-stems-hour")
+        self.assertIsNone(legacy.expected_runtime_sha256)
+        for malformed in ("", "a" * 63, "A" * 64, "g" * 64, "a" * 65):
+            with self.subTest(malformed=malformed), self.assertRaises(SystemExit):
+                self.cli("--live-stems-hour", "--expected-runtime-sha256", malformed)
+        with self.assertRaises(SystemExit):
+            self.cli("--expected-runtime-sha256", digest, live_paths=False)
+
     def test_normal_redraw_requires_explicit_short_visible_controls(self):
         _, args = self.cli("--live-stems", "--active-controls", "--normal-redraw")
         self.assertTrue(args.normal_redraw)
@@ -198,7 +210,9 @@ class HourPlaybackTest(unittest.TestCase):
                 routing.main()
             spawn.assert_not_called()
 
-    def live_watchdog_run(self, readiness_seconds, child_ages, progress=False, completed_controls=None, hour=False):
+    def live_watchdog_run(self, readiness_seconds, child_ages, progress=False, completed_controls=None, hour=False,
+                          *, runtime_bytes=b"generated fixture", expected_runtime_sha256=None, expect_launch=True,
+                          screen=False, native_ui_root=None):
         # Run the actual launch/watchdog/cleanup path with generated files and a
         # fake child. No host commands, audio, native process or real wait runs.
         clock = [0.0]; launched = []; polls = []; ready_calls = []
@@ -215,8 +229,12 @@ class HourPlaybackTest(unittest.TestCase):
             assets = {name: root / name for name in names}
             for path in [wrapper, *assets.values(), *(root / name for name in ui)]:
                 path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"generated fixture")
-            args = SimpleNamespace(**assets, output=root / "run", seconds=3600 if hour else 120, live_stems_hour=hour,
-                background=completed_controls is None, active_controls=completed_controls is not None)
+            assets["runtime"].write_bytes(runtime_bytes)
+            reported_root = str(native_ui_root(root) if native_ui_root else root)
+            seconds = 3600 if hour else soak.HOUR_SCREEN_SECONDS if screen else 120
+            args = SimpleNamespace(**assets, output=root / "run", seconds=seconds, live_stems_hour=hour,
+                live_stems_hour_screen=screen, background=completed_controls is None, active_controls=completed_controls is not None,
+                expected_runtime_sha256=expected_runtime_sha256)
             proc = root / "proc"; task = proc / "101/task/101"; task.mkdir(parents=True)
             fields = ["S", "1", "101", "101"] + ["0"] * 15 + ["1001"]
             (proc / "101/stat").write_text("101 (fixture) " + " ".join(fields))
@@ -240,14 +258,15 @@ class HourPlaybackTest(unittest.TestCase):
                         (proc / "101/stat").unlink()
                         (args.output / "observations.jsonl").write_text("")
                         native = {
-                            "functional_only": False, "host_audio": True, "source_root": str(root),
+                            "functional_only": False, "host_audio": True, "source_root": reported_root,
                             "ui_mode": "background", "ui_coverage": {"visible_ui_qualification_eligible": False},
                             "mode": "live-stems", "setup": {}, "passed": False, "shutdown_completed": True}
                         if completed_controls is not None:
                             native = copy.deepcopy(completed_controls[0])
                             digest = hashlib.sha256(b"generated fixture").hexdigest()
-                            native.update(source_root=str(root), setup={key: digest for key in
+                            native.update(source_root=reported_root, setup={key: digest for key in
                                 ("source_sha256", "model_sha256", "runtime_sha256", "service_sha256")})
+                            native["setup"]["runtime_sha256"] = hashlib.sha256(runtime_bytes).hexdigest()
                         (args.output / "native-result.json").write_text(json.dumps(native))
                     return self.returncode
                 def wait(self, timeout): return self.poll()
@@ -298,10 +317,107 @@ class HourPlaybackTest(unittest.TestCase):
                 code = soak.run_live(args)
             result = json.loads((args.output / "result.json").read_text())
             stop = (args.output / "stop").read_text().strip() if (args.output / "stop").exists() else None
-            self.assertEqual(popen.call_count, 1); self.assertEqual(len(ready_calls), 2)
-            self.assertTrue(popen.call_args.kwargs["start_new_session"])
+            if expect_launch:
+                popen.assert_called_once()
+                self.assertTrue(popen.call_args.kwargs["start_new_session"])
+                self.assertEqual(len(ready_calls), 2)
+            else:
+                popen.assert_not_called()
+                self.assertEqual(len(ready_calls), 1)
             self.assertFalse(result["passed"]); self.assertFalse(result["qualified"])
-            return code, result, stop, launched[0], polls
+            return code, result, stop, launched[0] if launched else None, polls
+
+    def test_explicit_system_guard_checks_the_active_unit_and_process(self):
+        with tempfile.TemporaryDirectory() as area:
+            root = Path(area)
+            unit = root / "configured-thermal-policy.service"
+            script = root / "controller.py"
+            unit.write_text("generated unit")
+            script.write_text("generated controller")
+            active = "ActiveState=active\nMainPID=42\nInvocationID=fixture\n"
+            identity = {"pid": 42, "start_ticks": 100, "command": [str(script)]}
+
+            with (
+                patch.object(soak, "read_command", return_value=active + f"FragmentPath={unit}") as read,
+                patch.object(soak, "process_identity", return_value=identity) as process,
+            ):
+                policy = soak.guard_identity(script, unit, "system")
+                self.assertEqual(read.call_args.args[0][1:4], ["--system", "show", unit.name])
+                process.assert_called_once_with(42, 0)
+                self.assertEqual(policy["unit"]["path"], str(unit))
+                self.assertEqual(policy["process"], identity)
+
+                read.return_value = active + f"FragmentPath={root / 'different.service'}"
+                with self.assertRaisesRegex(RuntimeError, "does not match the pinned unit"):
+                    soak.guard_identity(script, unit, "system")
+                self.assertEqual(process.call_count, 1)
+
+                read.return_value = active
+                fallback = soak.guard_identity(script, unit)
+                self.assertEqual(read.call_args.args[0][1:4], ["--user", "show", "thermal-guard.service"])
+                process.assert_called_with(42, None)
+                self.assertEqual(fallback["process"], identity)
+
+    def test_actual_runner_dispatches_the_screen_workload(self):
+        _, result, _, _, _ = self.live_watchdog_run(0, [.1], screen=True)
+        self.assertEqual(result["command"][1], "--live-stems-hour-screen-background")
+        self.assertEqual(result["command"][5], "540")
+        self.assertEqual(result["process_history_limits"]["identities"], 4096)
+        self.assertEqual(result["wall_budget_seconds"], 720)
+
+    def test_host_runtime_pin_allows_exact_alternate_and_rejects_unbound_runtimes(self):
+        runtime = b"new stock runtime fixture"
+        expected = hashlib.sha256(runtime).hexdigest()
+        native, observations = self.controls_fixture()
+        observations["service_hops"]["nearest_rank_p99_ms"] = 4095
+        code, result, stop, _, _ = self.live_watchdog_run(0, [.1],
+            completed_controls=(native, observations), runtime_bytes=runtime, expected_runtime_sha256=expected)
+        self.assertEqual(code, 1)
+        self.assertIsNone(stop)
+        self.assertEqual(result["expected_runtime_sha256"], expected)
+        self.assertEqual(result["native"]["setup"]["runtime_sha256"], expected)
+        self.assertEqual(result["pins_before"], result["pins_after"])
+        self.assertEqual(result["error"], "Active controls: strict service p99/loss/thirteen-phase gate failed")
+
+        for supplied in (None, "0" * 64):
+            with self.subTest(supplied=supplied):
+                code, result, stop, _, _ = self.live_watchdog_run(0, [], runtime_bytes=runtime,
+                    expected_runtime_sha256=supplied, expect_launch=False)
+                self.assertEqual(code, 1)
+                self.assertIsNone(stop)
+                self.assertNotIn("command", result)
+                self.assertEqual(result["error"], "Actual-model host check runtime does not match the expected SHA-256")
+
+    def test_packaged_ui_alias_reaches_host_timing_gate(self):
+        def compiled_alias(root):
+            alias = root.with_name("compiled-source")
+            alias.symlink_to(root, target_is_directory=True)
+            return alias
+
+        native, observations = self.controls_fixture()
+        observations["service_hops"]["nearest_rank_p99_ms"] = 4095
+        code, result, stop, _, _ = self.live_watchdog_run(
+            0, [.1], completed_controls=(native, observations), native_ui_root=compiled_alias)
+        self.assertEqual(code, 1)
+        self.assertIsNone(stop)
+        self.assertTrue(result.get("pins_unchanged"), result.get("error"))
+        self.assertEqual(result["native_exit"], 0)
+        self.assertEqual(result["error"], "Active controls: strict service p99/loss/thirteen-phase gate failed")
+
+    def test_unpinned_native_ui_root_fails_before_host_timing_gate(self):
+        def different_root(root):
+            other = root.with_name("other-source")
+            shutil.copytree(root, other)
+            return other
+
+        for path in (different_root, lambda root: Path(root.name)):
+            with self.subTest(path=path):
+                code, result, stop, _, _ = self.live_watchdog_run(
+                    0, [.1], completed_controls=self.controls_fixture(), native_ui_root=path)
+                self.assertEqual(code, 1)
+                self.assertIsNone(stop)
+                self.assertNotIn("observations", result)
+                self.assertEqual(result["error"], "Native UI source root differs from the pinned runner assets")
 
     def test_failed_service_target_retains_final_input_guard_and_power_evidence(self):
         native, observations = self.controls_fixture()
@@ -620,6 +736,19 @@ class HourPlaybackTest(unittest.TestCase):
         with self.assertRaises(SystemExit):
             self.cli("--background", live_paths=False)
 
+    def test_hour_screen_has_its_own_exact_duration_and_modes(self):
+        mode = "--live-stems-hour-screen"
+        for extra in ((), ("--background",), ("--expected-runtime-sha256", "a" * 64)):
+            with self.subTest(extra=extra):
+                result, args = self.cli(mode, *extra)
+                self.assertEqual((result, args.seconds), (0, 540))
+                self.assertTrue(args.live_stems_hour_screen)
+                self.assertFalse(args.live_stems_hour)
+        for extra in (("--seconds", "539"), ("--seconds", "541"), ("--seconds", "3600"),
+                      ("--live-stems",), ("--live-stems-hour",), ("--active-controls",), ("--normal-redraw",)):
+            with self.subTest(extra=extra), self.assertRaises(SystemExit):
+                self.cli(mode, *extra)
+
     def readiness_record(self):
         return {"schema": 1, "decision": "ready", "ready_for_run": "fixture-run",
                 "recorded_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -660,11 +789,18 @@ class HourPlaybackTest(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             self.readiness(record)
 
-    def fixture(self, preparation_seconds=75, overlap=False):
+    def fixture(self, preparation_seconds=75, overlap=False, fresh=False, screen=False):
         rate = 48000
+        seconds_requested = soak.HOUR_SCREEN_SECONDS if screen else 3600
         begin = 123456
-        finish = begin + 3600 * rate
+        finish = begin + seconds_requested * rate
         a_controls = [{"output_begin": begin + 10 * rate, "output_end": begin + 14 * rate}]
+        if fresh:
+            for generation, seconds in enumerate(range(94, seconds_requested, 94), 5):
+                issue = begin + seconds * rate
+                a_controls.append({"kind": "replay_recovery", "previous_generation": generation,
+                                   "output_begin": issue, "output_end": issue + rate,
+                                   "issued_ns": issue * 1000000000 // rate})
         peers = []
         cursor = preparation_seconds * rate
         anchor = begin
@@ -692,15 +828,16 @@ class HourPlaybackTest(unittest.TestCase):
                               "starved_a": 0, "starved_b": 0, "starved_frames": 0,
                               "source_b_begin": source, "source_b_end": source + last - first,
                               "aborted": False, "read_failure_observed": False})
-        native = {"mode": "live-stems-hour", "requested_seconds": 3600, "passed": True, "cancelled": False,
+        mode = "live-stems-hour-screen" if screen else "live-stems-hour"
+        native = {"mode": mode, "requested_seconds": seconds_requested, "passed": True, "cancelled": False,
                   "host_audio": True, "functional_only": False, "shutdown_completed": True,
                   "setup": {"input_frames": 1031940, "output_frames": 1123201}, "peer": {"frames": 480 * rate},
                   "measurement_begin_output_frame": begin, "measurement_end_output_frame": finish,
-                  "measurement_begin_peer_frame": preparation_seconds * rate, "measured_wall_ms": 3600000,
+                  "measurement_begin_peer_frame": preparation_seconds * rate, "measured_wall_ms": seconds_requested * 1000,
                   "measurement_intervals_closed": True, "last_recovery_complete": True,
                   "controls": a_controls, "peer_controls": peers, "intervals": intervals,
                   "steady_starved_a": 0, "steady_starved_b": 0, "steady_starved_frames": 0,
-                  "control_starved_frames": 0, "samples": [{"elapsed_ms": i * 10000, "snapshot_drops": 0} for i in range(360)],
+                  "control_starved_frames": 0, "samples": [{"elapsed_ms": i * 10000, "snapshot_drops": 0} for i in range(seconds_requested // 10)],
                   "scene_errors": [], "frames_presented": 100000, "maximum_frame_presentation_gap_ns": 17000000,
                   "maximum_gui_heartbeat_gap_ns": 11000000, "callbacks": 675000,
                   "invalid_buffers": 0, "source_read_failures": 0, "rejected_commands": 0, "execution_deadline_misses": 0,
@@ -709,6 +846,30 @@ class HourPlaybackTest(unittest.TestCase):
         observations = {"kind_counts": {"ChunkValidated": 200}, "service_metrics_complete": True,
                         "service_hops": {**soak.duration_stats([3000] * 199 + [5000]), "complete": True, "at_or_above_target": 1},
                         "chunk_phases": {"fields": {name: {"count": 200, "present_for_all_chunks": True} for name in soak.LIVE_PHASE_NAMES}}}
+        if fresh:
+            native["setup"] = {"input_frames": 4127760, "output_frames": 4492801}
+            epochs = {}
+            hops = []
+            for control in a_controls[1:]:
+                generation = control["previous_generation"] + 1
+                issued = control["issued_ns"]
+                epochs[generation] = {"generation": generation, "target": 0, "final": True,
+                                      "command_ns": issued + 1000000,
+                                      "converter_complete_ns": issued + 90000000000}
+                for window in range(1, 16):
+                    started = issued + window * 5700000000
+                    hops.append({"generation": generation, "input_first": window * 257985,
+                                 "input_frames": 257985, "matching_worker_start_ns": started,
+                                 "validated_ns": started + 3000000000})
+            for request, row in enumerate(hops, 1):
+                row["request_id"] = request
+            count = len(hops)
+            observations.update(kind_counts={"ChunkValidated": count},
+                                service_hops={**soak.duration_stats([3000] * count), "complete": True,
+                                              "at_or_above_target": 0},
+                                inferred_service_hops=soak.duration_stats([3000] * count), epochs=epochs,
+                                chunk_phases={"hops": hops, "fields": {key: {"count": count}
+                                                                      for key in soak.LIVE_PHASE_NAMES}})
         return native, observations
 
     def background_fixture(self):
@@ -778,8 +939,52 @@ class HourPlaybackTest(unittest.TestCase):
             with self.subTest(label=label), self.assertRaises(RuntimeError):
                 soak.validate_hour_result(native, invalid, background=True)
 
-    def test_public_qualification_gate_never_promotes_background_or_missing_cleanup(self):
+    def test_only_fresh_inference_throughout_the_hour_qualifies(self):
         native, observations = self.fixture()
+        gates = soak.validate_hour_result(native, observations)
+        self.assertEqual(gates["source_profile"], "short_replay")
+        self.assertFalse(soak.live_qualified({"passed": True, "cleanup_proven": True,
+                                              "native": native, "hour_gates": gates}, True))
+        native, observations = self.fixture(fresh=True)
+        gates = soak.validate_hour_result(native, observations)
+        self.assertTrue(gates["fresh_inference_sustained"])
+        self.assertGreater(gates["completed_replays"], 30)
+        self.assertEqual(gates["minimum_fresh_nonopening_windows"], 15)
+        for case in ("one_generation", "no_matching_start", "started_before_replay", "validated_after_replay"):
+            invalid = copy.deepcopy(observations)
+            for row in invalid["chunk_phases"]["hops"]:
+                if case == "one_generation":
+                    row["generation"] = 6
+                elif case == "no_matching_start":
+                    row.pop("matching_worker_start_ns")
+                elif case == "started_before_replay":
+                    row["matching_worker_start_ns"] = 1
+                else:
+                    row["validated_ns"] += 100000000000
+            with self.subTest(case=case), self.assertRaisesRegex(RuntimeError, "lacks sustained fresh inference"):
+                soak.validate_hour_result(native, invalid)
+        observations["epochs"][6]["final"] = False
+        with self.assertRaisesRegex(RuntimeError, "exact command/EOF binding"):
+            soak.validate_hour_result(native, observations)
+
+    def test_hour_screen_reuses_fresh_replay_and_timing_checks_without_qualification(self):
+        native, observations = self.fixture(fresh=True, screen=True)
+        evidence = soak.validate_hour_result(native, observations, screen=True)
+        self.assertTrue(evidence["fresh_inference_sustained"])
+        self.assertEqual((evidence["completed_replays"], evidence["peer_rewinds"]), (4, 1))
+        self.assertFalse(soak.live_qualified({"passed": True, "cleanup_proven": True,
+                                             "native": native, "hour_gates": evidence}, True))
+        with self.assertRaisesRegex(RuntimeError, "incomplete/non-host hour"):
+            soak.validate_hour_result(native, observations)
+        legacy, legacy_observations = self.fixture(screen=True)
+        with self.assertRaisesRegex(RuntimeError, "changed source/peer geometry"):
+            soak.validate_hour_result(legacy, legacy_observations, screen=True)
+        observations["inferred_service_hops"]["nearest_rank_p99_ms"] = 4095
+        with self.assertRaisesRegex(RuntimeError, "p99"):
+            soak.validate_hour_result(native, observations, screen=True)
+
+    def test_public_qualification_gate_never_promotes_background_or_missing_cleanup(self):
+        native, observations = self.fixture(fresh=True)
         gates = soak.validate_hour_result(native, observations)
         result = {"passed": True, "cleanup_proven": True, "ui_mode": "visible",
                   "native": native, "hour_gates": gates}
@@ -854,6 +1059,19 @@ class HourPlaybackTest(unittest.TestCase):
             with self.subTest(key=key), self.assertRaises(RuntimeError):
                 soak.validate_hour_result(native, invalid)
         observations["service_metrics_complete"] = False
+        with self.assertRaises(RuntimeError):
+            soak.validate_hour_result(native, observations)
+
+    def test_cached_hops_cannot_hide_a_failed_fresh_inference_tail(self):
+        native, observations = self.fixture()
+        observations["service_hops"].update(soak.duration_stats([1] * 195 + [3000] * 5))
+        observations["inferred_service_hops"] = soak.duration_stats([3000] * 5)
+        for key in soak.LIVE_PHASE_NAMES:
+            if key != "overlap_ms":
+                observations["chunk_phases"]["fields"][key].update(count=5, present_for_all_chunks=False)
+        soak.validate_hour_result(native, observations)
+        observations["service_hops"].update(soak.duration_stats([1] * 195 + [3000] * 4 + [4095]))
+        observations["inferred_service_hops"] = soak.duration_stats([3000] * 4 + [4095])
         with self.assertRaises(RuntimeError):
             soak.validate_hour_result(native, observations)
 

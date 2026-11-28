@@ -3,8 +3,24 @@
 
 #include "audio/LiveSession.hpp"
 #include <algorithm>
+#include <cstdint>
 
 namespace conflux::experiments {
+inline constexpr int liveDiagnosticTailSeconds = 60;
+
+// Keep the terminal replay playable through the measured boundary, with
+// ten seconds of margin for recovery and idle-close in the finite drain.
+constexpr std::uint64_t hourReplayStartFrame(std::uint64_t sourceFrames, std::uint64_t remainingMs) noexcept
+{
+    constexpr std::uint64_t framesPerMs = 48;
+    constexpr std::uint64_t nominalTailFrames = (liveDiagnosticTailSeconds - 10) * 1000 * framesPerMs;
+    if (sourceFrames <= nominalTailFrames)
+        return 0;
+    const auto afterTailReserve = sourceFrames - nominalTailFrames;
+    return afterTailReserve / framesPerMs < remainingMs ? 0 :
+        afterTailReserve - remainingMs * framesPerMs;
+}
+
 // The fixed soak uses unit tempo. Starved output frames do not consume source.
 inline bool playbackControlClockMatches(const audio::LiveSession::State& before,
                                        const audio::LiveSession::State& after)

@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <array>
 #include <bit>
-#include <cerrno>
 #include <chrono>
 #include <cmath>
 #include <csignal>
@@ -18,7 +17,6 @@
 #include <stdexcept>
 #include <string>
 #include <sys/resource.h>
-#include <sys/wait.h>
 #include <thread>
 #include <unistd.h>
 #include <vector>
@@ -175,6 +173,39 @@ bool orderWrapAndDrain(const std::filesystem::path& directory)
     return passed;
 }
 
+bool liveHeaderCheckpoints(const std::filesystem::path& directory)
+{
+    const auto path = directory / "live-header.wav";
+    StereoRecorder recorder(path);
+    constexpr std::size_t blockFrames = 4000;
+    static_assert(StereoRecorder::sampleRate % blockFrames == 0);
+    std::vector<float> expected;
+    std::vector<float> block(blockFrames * StereoRecorder::channels);
+    auto pushBlock = [&](float value) {
+        for (std::size_t sample = 0; sample < block.size(); sample += StereoRecorder::channels) {
+            block[sample] = value;
+            block[sample + 1] = -value;
+        }
+        expected.insert(expected.end(), block.begin(), block.end());
+        return require(recorder.push(block) && waitWritten(recorder, expected.size() / StereoRecorder::channels) &&
+                           recorder.running(),
+                       "Recording did not make bounded progress while checking the WAV header");
+    };
+    if (!pushBlock(0.125F) ||
+        !require(exactSamples(readWave(path), expected), "First written audio has no readable WAV header"))
+        return false;
+    for (std::size_t frame = 0; frame < StereoRecorder::sampleRate; frame += blockFrames) {
+        if (!pushBlock(0.25F))
+            return false;
+    }
+    if (!require(exactSamples(readWave(path), expected), "Live WAV header did not advance as audio was written") ||
+        !pushBlock(0.375F))
+        return false;
+    recorder.stop();
+    return require(!recorder.failed() && exactSamples(readWave(path), expected),
+                   "Final WAV header did not include audio after the last checkpoint");
+}
+
 bool terminalInputAndOverflow(const std::filesystem::path& directory)
 {
     bool passed = true;
@@ -239,40 +270,61 @@ bool targetErrors(const std::filesystem::path& directory)
 
 bool actualWriteFailure(const std::filesystem::path& directory)
 {
-    // Limit only this isolated child, including its writer thread. No host
-    // filesystem quota, audio server or process-wide parent setting is changed.
-    const auto child = fork();
-    if (child < 0)
-        throw std::runtime_error("Cannot fork recording write-failure test");
-    if (!child) {
-        try {
-            std::signal(SIGXFSZ, SIG_IGN);
-            struct rlimit limit{};
-            if (getrlimit(RLIMIT_FSIZE, &limit) || limit.rlim_max < 2048)
-                _exit(2);
-            limit.rlim_cur = 2048;
-            if (setrlimit(RLIMIT_FSIZE, &limit))
-                _exit(3);
-            StereoRecorder recorder(directory / "write-failure.wav", 1024);
-            const std::vector<float> block(2048, .0001F);
-            const bool accepted = recorder.push(block);
-            recorder.stop();
-            const bool passed = accepted && recorder.failed() && !recorder.running() && !recorder.error().empty() &&
-                recorder.acceptedFrames() == 1024 && recorder.writtenFrames() < recorder.acceptedFrames() &&
-                recorder.overflowCount() == 0 && !recorder.push(std::array<float, 2>{});
-            if (!passed)
-                std::cerr << "Actual writer failure was not reported: " << recorder.error() << '\n';
-            _exit(passed ? 0 : 4);
-        } catch (const std::exception& error) {
-            std::cerr << error.what() << '\n';
-            _exit(5);
-        }
+    // This test executable owns its process limit. Restore it after joining
+    // the writer so later recordings and coverage output can write normally.
+    const auto path = directory / "write-failure.wav";
+    const std::vector<float> block(2048, .0001F);
+    struct rlimit original{};
+    if (getrlimit(RLIMIT_FSIZE, &original) || original.rlim_cur < 16 * 1024)
+        return require(false, "Recording failure test needs room for the retry WAV");
+    const auto previousSignal = std::signal(SIGXFSZ, SIG_IGN);
+    if (previousSignal == SIG_ERR)
+        return require(false, "Cannot handle the recording file-size signal");
+    auto limited = original;
+    limited.rlim_cur = 2048;
+    if (setrlimit(RLIMIT_FSIZE, &limited)) {
+        std::signal(SIGXFSZ, previousSignal);
+        return require(false, "Cannot set the recording file-size limit");
     }
-    int status = 0;
-    pid_t result;
-    do { result = waitpid(child, &status, 0); } while (result < 0 && errno == EINTR);
-    return require(result == child && WIFEXITED(status) && WEXITSTATUS(status) == 0,
-                   "Isolated RLIMIT_FSIZE disk-write-failure test failed");
+    const auto restore = [&] {
+        const bool limitRestored = setrlimit(RLIMIT_FSIZE, &original) == 0;
+        const bool signalRestored = std::signal(SIGXFSZ, previousSignal) != SIG_ERR;
+        return require(limitRestored && signalRestored, "Cannot restore the recording test process settings");
+    };
+
+    std::uint64_t written = 0;
+    bool passed;
+    try {
+        StereoRecorder recorder(path, 1024);
+        const bool accepted = recorder.push(block);
+        recorder.stop();
+        written = recorder.writtenFrames();
+        const auto error = recorder.error();
+        passed = accepted && recorder.failed() && !recorder.running() &&
+            error.starts_with("Cannot write recording") && recorder.acceptedFrames() == 1024 &&
+            written > 0 && written < recorder.acceptedFrames() && recorder.overflowCount() == 0 &&
+            !recorder.push(std::array<float, 2>{});
+        if (!passed)
+            std::cerr << "Actual writer failure was not reported: " << error << '\n';
+    } catch (...) {
+        restore();
+        throw;
+    }
+    if (!restore() || !passed)
+        return false;
+
+    const auto prefixEnd = block.begin() + written * StereoRecorder::channels;
+    passed &= require(exactSamples(readWave(path), std::vector<float>(block.begin(), prefixEnd)),
+                      "Recording write failure damaged the reported WAV prefix");
+
+    const auto retryPath = directory / "write-retry.wav";
+    StereoRecorder retry(retryPath, 1024);
+    const bool retried = retry.push(block);
+    retry.stop();
+    passed &= require(retried && !retry.failed() && retry.error().empty() && retry.writtenFrames() == 1024 &&
+                          exactSamples(readWave(retryPath), block),
+                      "Recording did not recover after the file-size failure");
+    return passed;
 }
 } // namespace
 
@@ -281,10 +333,11 @@ int main()
     try {
         TemporaryDirectory directory;
         const bool order = orderWrapAndDrain(directory.path);
+        const bool checkpoints = liveHeaderCheckpoints(directory.path);
         const bool terminal = terminalInputAndOverflow(directory.path);
         const bool targets = targetErrors(directory.path);
         const bool writeFailure = actualWriteFailure(directory.path);
-        return order && terminal && targets && writeFailure ? 0 : 1;
+        return order && checkpoints && terminal && targets && writeFailure ? 0 : 1;
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

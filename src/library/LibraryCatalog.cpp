@@ -80,6 +80,11 @@ void validateLevels(const std::optional<audio::SignalLevels>& levels, std::uint6
         throw std::invalid_argument("Invalid library signal levels for the frame count");
 }
 
+bool validManualBpm(double bpm)
+{
+    return std::isfinite(bpm) && bpm >= 20. && bpm <= 400.;
+}
+
 void validateTrack(const LibraryTrack& track)
 {
     if (track.sourcePath.size() > qsizetype(LibraryCatalog::maxBytes) || track.name.size() > qsizetype(LibraryCatalog::maxBytes))
@@ -92,6 +97,8 @@ void validateTrack(const LibraryTrack& track)
     validateLevels(track.levels, track.frames);
     if (track.savedCueFrame && *track.savedCueFrame >= track.frames)
         throw std::invalid_argument("Invalid saved library cue frame");
+    if (track.manualBpm && !validManualBpm(*track.manualBpm))
+        throw std::invalid_argument("Invalid manual library BPM");
 }
 
 struct stat statusOf(int descriptor)
@@ -125,11 +132,14 @@ QByteArray encode(const std::vector<LibraryTrack>& tracks)
         const auto levels = track.levels ? QJsonValue(QJsonObject{{"recipe", levelsRecipe},
             {"rms", track.levels->rms}, {"sample_peak", track.levels->samplePeak}}) : QJsonValue(QJsonValue::Null);
         const auto savedCue = track.savedCueFrame ? QJsonValue(double(*track.savedCueFrame)) : QJsonValue(QJsonValue::Null);
-        rows.append(QJsonObject{{"source_sha256", track.sourceSha256}, {"source_path", track.sourcePath},
+        QJsonObject row{{"source_sha256", track.sourceSha256}, {"source_path", track.sourcePath},
             {"name", track.name}, {"artifact_key", track.artifactKey}, {"frames", double(track.frames)},
-            {"cues", cues}, {"levels", levels}, {"saved_cue_frame", savedCue}});
+            {"cues", cues}, {"levels", levels}, {"saved_cue_frame", savedCue}};
+        if (track.manualBpm)
+            row.insert("manual_bpm", *track.manualBpm);
+        rows.append(row);
     }
-    const auto bytes = QJsonDocument(QJsonObject{{"version", 4}, {"tracks", rows}}).toJson(QJsonDocument::Compact);
+    const auto bytes = QJsonDocument(QJsonObject{{"version", 5}, {"tracks", rows}}).toJson(QJsonDocument::Compact);
     if (std::size_t(bytes.size()) > LibraryCatalog::maxBytes)
         throw std::length_error("Library catalog byte budget exceeded");
     return bytes;
@@ -203,7 +213,8 @@ std::vector<LibraryTrack> LibraryCatalog::read() const
     const auto document = QJsonDocument::fromJson(bytes);
     if (!document.isObject()) throw std::runtime_error("Malformed library catalog document");
     const auto root = document.object();
-    const bool withSavedCue = root.value("version") == QJsonValue(4);
+    const bool withManualBpm = root.value("version") == QJsonValue(5);
+    const bool withSavedCue = withManualBpm || root.value("version") == QJsonValue(4);
     const bool withLevels = withSavedCue || root.value("version") == QJsonValue(3);
     const bool withCues = withLevels || root.value("version") == QJsonValue(2);
     if (root.size() != 2 || (!withCues && root.value("version") != QJsonValue(1)) || !root.value("tracks").isArray())
@@ -216,7 +227,9 @@ std::vector<LibraryTrack> LibraryCatalog::read() const
     for (const auto row : rows) {
         if (!row.isObject()) throw std::runtime_error("Malformed library catalog track");
         const auto object = row.toObject();
-        if (object.size() != (withSavedCue ? 8 : withLevels ? 7 : withCues ? 6 : 5) || !object.value("source_sha256").isString() || !object.value("source_path").isString() ||
+        const bool hasManualBpm = withManualBpm && object.contains("manual_bpm");
+        const auto expectedFields = (withSavedCue ? 8 : withLevels ? 7 : withCues ? 6 : 5) + int(hasManualBpm);
+        if (object.size() != expectedFields || !object.value("source_sha256").isString() || !object.value("source_path").isString() ||
             !object.value("name").isString() || !object.value("artifact_key").isString() || !object.value("frames").isDouble())
             throw std::runtime_error("Malformed library catalog track fields");
         const auto frames = object.value("frames").toDouble();
@@ -254,6 +267,12 @@ std::vector<LibraryTrack> LibraryCatalog::read() const
                 throw std::runtime_error("Malformed library catalog saved cue frame");
             track.savedCueFrame = std::uint64_t(frame);
         }
+        if (hasManualBpm) {
+            const auto bpm = object.value("manual_bpm");
+            if (!bpm.isDouble() || !validManualBpm(bpm.toDouble()))
+                throw std::runtime_error("Malformed library catalog manual BPM");
+            track.manualBpm = bpm.toDouble();
+        }
         try { validateTrack(track); }
         catch (const std::invalid_argument& error) {
             throw std::runtime_error(std::string("Malformed library catalog track: ") + error.what());
@@ -271,8 +290,9 @@ std::vector<LibraryTrack> LibraryCatalog::read() const
 std::vector<LibraryTrack> LibraryCatalog::upsert(const LibraryTrack& track)
 {
     auto replacement = track;
-    replacement.cues.clear(); // Only dedicated updates install source-bound cues.
+    replacement.cues.clear(); // Only dedicated updates install user metadata.
     replacement.savedCueFrame.reset();
+    replacement.manualBpm.reset();
     validateTrack(replacement);
     const auto lock = lockCatalog(filePath_);
     const auto existing = read();
@@ -288,6 +308,7 @@ std::vector<LibraryTrack> LibraryCatalog::upsert(const LibraryTrack& track)
                 if (value.savedCueFrame && value.frames != replacement.frames)
                     throw std::runtime_error("Saved cue source frame count changed; the saved source clock cannot be reused");
                 replacement.savedCueFrame = value.savedCueFrame;
+                replacement.manualBpm = value.manualBpm;
                 // Legacy callers cannot erase a known measurement of this
                 // exact prepared recipe/geometry; new preparations recompute.
                 if (!replacement.levels && value.artifactKey == replacement.artifactKey && value.frames == replacement.frames)
@@ -335,6 +356,24 @@ std::vector<LibraryTrack> LibraryCatalog::updateSavedCue(const QString& sourceId
     found->savedCueFrame = frame;
     save(filePath_, tracks);
     refreshAvailability(tracks);
+    return tracks;
+}
+
+std::vector<LibraryTrack> LibraryCatalog::updateManualBpm(const QString& sourceId, std::uint64_t expectedFrames,
+                                                         std::optional<double> bpm)
+{
+    if (!digest(sourceId) || !expectedFrames || expectedFrames > maximumFrames || (bpm && !validManualBpm(*bpm)))
+        throw std::invalid_argument("Invalid manual BPM or library source identity");
+    const auto lock = lockCatalog(filePath_);
+    auto tracks = read();
+    const auto found = std::ranges::find_if(tracks, [&](const auto& track) { return track.sourceSha256 == sourceId; });
+    if (found == tracks.end() || found->frames != expectedFrames)
+        throw std::runtime_error("BPM source changed; select its current library entry again");
+    if (found->manualBpm != bpm) {
+        found->manualBpm = bpm;
+        save(filePath_, tracks);
+        refreshAvailability(tracks);
+    }
     return tracks;
 }
 

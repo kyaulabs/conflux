@@ -39,6 +39,12 @@ struct AudioResidentHoldRange {
     // eight seconds bounds extra four-role raw payload at12,288,000bytes.
     static constexpr std::uint64_t minimumFrames = 2048, maximumFrames = 8 * 48000;
     static constexpr std::uint64_t bytesPerFrame = 4 * 2 * sizeof(float);
+    // Bounded geometry has already been checked by the caller. The slowest
+    // supported tempo is 94% of nominal, so its output period is the largest.
+    static constexpr std::uint64_t maximumProcessedFrames(std::uint64_t frames) noexcept
+    { return (frames * 100U + 93U) / 94U; }
+    static constexpr std::uint64_t retainedBytes(std::uint64_t frames) noexcept
+    { return (frames + maximumProcessedFrames(frames)) * bytesPerFrame; }
     // These tags identify a DJ-approved or separately validated range record;
     // the engine validates geometry, not musical suitability from a label.
     std::uint64_t id = 0, inFrame = 0, outFrame = 0, admittedBytes = 0;

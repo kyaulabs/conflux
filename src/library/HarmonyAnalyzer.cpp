@@ -13,6 +13,7 @@
 #include <exception>
 #include <fcntl.h>
 #include <sys/resource.h>
+#include <utility>
 
 namespace conflux::library {
 namespace {
@@ -206,15 +207,42 @@ HarmonyEstimate analyzeHarmony(const audio::PreparedAudio& audio, const HarmonyE
         return {"Failed", QString::fromUtf8(error.what()).left(2048), 0, {}, {}};
     }
 }
-const HarmonyWindow* localHarmonyAt(const HarmonyEstimate& estimate, std::uint64_t frame) noexcept
+namespace {
+bool validHarmonyGeometry(const HarmonyEstimate& estimate) noexcept
 {
     const auto frames = estimate.analysisFrames;
-    if (estimate.status != "Estimated" || !frames || frames > maximumFrames || frame >= frames || !digest(estimate.pcmSha256) ||
-        estimate.windows.size() != (frames + harmonyWindowFrames - 1) / harmonyWindowFrames) return nullptr;
+    if (estimate.status != "Estimated" || !frames || frames > maximumFrames || !digest(estimate.pcmSha256) ||
+        estimate.windows.size() != (frames + harmonyWindowFrames - 1) / harmonyWindowFrames) return false;
     for (std::size_t index = 0; index < estimate.windows.size(); ++index) {
         const auto& value = estimate.windows[index];
-        if (value.firstFrame != index * harmonyWindowFrames || value.endFrame != std::min(frames, value.firstFrame + harmonyWindowFrames) || !validWindow(value)) return nullptr;
+        if (value.firstFrame != index * harmonyWindowFrames ||
+            value.endFrame != std::min(frames, value.firstFrame + harmonyWindowFrames) || !validWindow(value))
+            return false;
     }
-    return &estimate.windows[std::size_t(frame / harmonyWindowFrames)];
+    return true;
+}
+
+const HarmonyWindow* findHarmonyWindow(const HarmonyEstimate& estimate, std::uint64_t frame) noexcept
+{
+    const auto index = std::size_t(frame / harmonyWindowFrames);
+    return index < estimate.windows.size() ? &estimate.windows[index] : nullptr;
+}
+} // namespace
+
+const HarmonyWindow* localHarmonyAt(const HarmonyEstimate& estimate, std::uint64_t frame) noexcept
+{
+    if (frame >= estimate.analysisFrames || !validHarmonyGeometry(estimate)) return nullptr;
+    return findHarmonyWindow(estimate, frame);
+}
+
+HarmonyTiming::HarmonyTiming(HarmonyEstimate estimate) noexcept
+    : estimate_(std::move(estimate)), valid_(validHarmonyGeometry(estimate_))
+{
+}
+
+const HarmonyWindow* HarmonyTiming::at(std::uint64_t sourceFrame) const noexcept
+{
+    if (!valid_ || sourceFrame >= estimate_.analysisFrames) return nullptr;
+    return findHarmonyWindow(estimate_, sourceFrame);
 }
 } // namespace conflux::library

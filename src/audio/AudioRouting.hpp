@@ -21,6 +21,8 @@ struct PortIdentity {
     std::uint64_t serial = 0, nodeSerial = 0;
     std::string nodeName, portName, channel;
     bool input = false, monitor = false, audioSink = false, monoDsp = false;
+    std::string nodeDescription{};
+    bool unavailable = false;
 };
 
 struct RoutePair { PortIdentity left, right; };

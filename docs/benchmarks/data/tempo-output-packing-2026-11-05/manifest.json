@@ -1,0 +1,628 @@
+{
+  "schema": 1,
+  "scope": "Original instrumented queue diagnosis plus generated CPU correctness checks. No candidate hardware, latency, physical audio, musical or release qualification.",
+  "source_base": "e5a5d550e3f5fbc0b60dee12d22ef902c6b66ba6",
+  "source_files": {
+    "src/audio/PreparedTempoSource.cpp": "42f36092881f11760fb29d5369144b484182993f77a69a95d39df7a0a2656b80",
+    "tests/audio_stream_tempo_test.cpp": "6999c71b5749b91d8762b139b06cc55f817faf41718de5fea1a2cfe562aa65e2"
+  },
+  "files": [
+    {
+      "file": "cpu-verification.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/verification.json",
+      "bytes": 2691,
+      "sha256": "897ca401a51e39992c9d866d62d1089e2977d1d323925b590bbf4da880230273",
+      "compressed_bytes": 880,
+      "compressed_sha256": "d07486e769c3ada606bbf11437e92ef064ebb9d5cbf1cdf7f8e390ece8188039"
+    },
+    {
+      "file": "cpu-source-review.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/source-review.json",
+      "bytes": 1338,
+      "sha256": "3792d1cd4ba2aa794758dd37f1899d97e345fb0c34315466ef1f25e08523e117",
+      "compressed_bytes": 786,
+      "compressed_sha256": "745661cc18b0799e8bcfe1dc41dc72084d77d0f8f23fd6314d63e1771ae73ae1"
+    },
+    {
+      "file": "cpu-native-comparison-verification.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/native-comparison-verification.json",
+      "bytes": 3467,
+      "sha256": "bbba23bc0a82e667c6e0e3c5f840835ccf5231b9626e3f7c583a77952c08c43e",
+      "compressed_bytes": 1281,
+      "compressed_sha256": "d97ecac38f883563b26995b6c38999255c3c5d8d20a2debd1f81a8e8e183a2f3"
+    },
+    {
+      "file": "cpu-native-comparison-plan.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/native-comparison-plan.json",
+      "bytes": 1689,
+      "sha256": "80f4cd85d1ed4a959f83d7ba27a944835cb0a55834ac698100df1298bca59aa2",
+      "compressed_bytes": 777,
+      "compressed_sha256": "25831150c63a381f0e291355cfd7971f1327aa33b8db39c82d91f1a0de31343f"
+    },
+    {
+      "file": "cpu-queue-correlation.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/queue-correlation.json",
+      "bytes": 2406,
+      "sha256": "f14aa948d5b34b96590a76c91b9a0876ab28b737268f7108c52320b61f1542a3",
+      "compressed_bytes": 999,
+      "compressed_sha256": "4d99eef711a7fae462d9d2b8c63dc9bb35b97c83fd48723c5c405e38e6613136"
+    },
+    {
+      "file": "cpu-pcm-comparison.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/pcm-comparison.json",
+      "bytes": 14947,
+      "sha256": "2f903c9fc5204641d39171c4e6748de3c470cb7147972ae53391d8cdb9e70bf3",
+      "compressed_bytes": 1994,
+      "compressed_sha256": "ff8cafa714f0e9b3c1b775e08be06f1806a1dff60d0d3aedd564ed88b10322ae"
+    },
+    {
+      "file": "cpu-pcm-cleanup.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/pcm-cleanup.json",
+      "bytes": 120,
+      "sha256": "babd4e1623b6433424d5895c72500247504491d6cd639ae799a5d1f1d2b5ed97",
+      "compressed_bytes": 122,
+      "compressed_sha256": "057d9ba5e2964c747decda16c037cd3150f516d711108f4b244f72b26647f083"
+    },
+    {
+      "file": "cpu-pcm_oracle.cpp.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/pcm_oracle.cpp",
+      "bytes": 3168,
+      "sha256": "b141b540ed37f9d4e582652ebeb4a7a316a759ac018a5612eff5d8c1d57efa2d",
+      "compressed_bytes": 1296,
+      "compressed_sha256": "af39c66baa2741cd3c1f074af648943bdafc5c6d8d790a0a7e20023e169944b3"
+    },
+    {
+      "file": "cpu-initial-reserve-check.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/initial-reserve-check.log",
+      "bytes": 219,
+      "sha256": "b99f7d6c997557c49e5be9963f074ee8e60faacc80f9bc771b972984c97cab2f",
+      "compressed_bytes": 166,
+      "compressed_sha256": "90324b3fd4202ba386b119f2d04767ec13f3c94a808f5c5cd24cd083d2101b68"
+    },
+    {
+      "file": "cpu-red-02.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/red-02.log",
+      "bytes": 392,
+      "sha256": "eb009a40614df56937de4ffacc45fd85fc25577d1f9fd526cba5125ab6d036b8",
+      "compressed_bytes": 267,
+      "compressed_sha256": "50f11fd1f79e253a0c854a2b7dfa4523e3ce9b0337213732442454b49bef4c10"
+    },
+    {
+      "file": "cpu-green.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/green.log",
+      "bytes": 219,
+      "sha256": "3780d092c8207dd9e0f53dc49aa4c87067d4afb51f12c7f14ba828852c56e9fd",
+      "compressed_bytes": 164,
+      "compressed_sha256": "56527ce997b6156321858603fc6cf9366da96ede77e85a96299b29fb139a97c5"
+    },
+    {
+      "file": "cpu-full-test.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/full-test.log",
+      "bytes": 6524,
+      "sha256": "3c5966e461a1284bf4fbbf5e54259d78710fa783b8086882120dd8610373ce11",
+      "compressed_bytes": 1360,
+      "compressed_sha256": "335a243a7f0fff106f52185951464a2023441e448241dbfc0cacd867854175f6"
+    },
+    {
+      "file": "cpu-asan-test.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/asan-test.log",
+      "bytes": 831,
+      "sha256": "84987c6653589ea73b425db301812141b5980c9f87d38b7a4052a8e2e95df388",
+      "compressed_bytes": 298,
+      "compressed_sha256": "9fff6b0a75c6cdda64f95e98b62de725f5de7755254eaa88176304de2c930653"
+    },
+    {
+      "file": "cpu-stream-tail-test.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/stream-tail-test.log",
+      "bytes": 219,
+      "sha256": "4aeaae8a987f49fcd98406cb740966ecbd4b8c81ec5cd14e15a748f52ca63d2f",
+      "compressed_bytes": 164,
+      "compressed_sha256": "6d28049cf73d5c5ccb7678dbac7c186735ae199eb2d98d442a55015eb1695cd9"
+    },
+    {
+      "file": "cpu-stream-tail-asan-test.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/stream-tail-asan-test.log",
+      "bytes": 218,
+      "sha256": "efafe9c3b4ac389ba1e76f0a8a4a2791415604d6775851ff83fbca62a11784f8",
+      "compressed_bytes": 163,
+      "compressed_sha256": "3d94ea45abb2c0ecf27d9d623459fffb1fdb8548d3192baf11227eb6251f8b2f"
+    },
+    {
+      "file": "cpu-apollo-collection.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-collection.json",
+      "bytes": 7460,
+      "sha256": "b3e815290934e62e3b52a4fe21c3cf8bc3fcb229e32463c60b95eb904c7ece93",
+      "compressed_bytes": 1711,
+      "compressed_sha256": "714dc0f00e36436d28d8793bd0c533dd75a0e487bfc2e26f45d523137c0c19d2"
+    },
+    {
+      "file": "cpu-apollo_cpu_owner-04.py.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo_cpu_owner-04.py",
+      "bytes": 4962,
+      "sha256": "152915842208e26e6bff0534cd026f4cedfa669636b70f5cfe43d36a2ad7dd05",
+      "compressed_bytes": 2107,
+      "compressed_sha256": "1036375c49c7742b805b23a4407dfc655b319e8e60d0e813d672a3fa1564561f"
+    },
+    {
+      "file": "cpu-apollo_cpu_owner-05.py.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo_cpu_owner-05.py",
+      "bytes": 4765,
+      "sha256": "64def5d43b1fe5f317872d22ba1888b684b2674c91ca8871c11055abf566279d",
+      "compressed_bytes": 2002,
+      "compressed_sha256": "2a4e19ef8df6626cae085910f86895954a3caa3d116a7c2e323829af5d7cda88"
+    },
+    {
+      "file": "cpu-apollo_cpu_owner-06.py.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo_cpu_owner-06.py",
+      "bytes": 5548,
+      "sha256": "cb6170a52a223b5a5efbfae6bbc00b17ab966fcc0e04cc9a5bd1dac05de779b4",
+      "compressed_bytes": 2230,
+      "compressed_sha256": "637dc2bf23bdbd961cda5ebed24d9c329c36510124f72a812ab25fa022981e53"
+    },
+    {
+      "file": "cpu-pnpm-install.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/pnpm-install.log",
+      "bytes": 1014,
+      "sha256": "ed7534ca981c9e0ac6d98462341eab9495f9c41ee2dd4103f170dda793a66c6c",
+      "compressed_bytes": 475,
+      "compressed_sha256": "deeb28edc39971bc12e57895a71a4c080ab32a501ef712bd4de9292eb6c58e2f"
+    },
+    {
+      "file": "cpu-laptop-controller-result.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/controller-strict/result.json",
+      "bytes": 5934,
+      "sha256": "05ad27d86e1978fac057dab5a51341b21f4013885dfb65e09d097d6b74b68c46",
+      "compressed_bytes": 2270,
+      "compressed_sha256": "b6d5e686d3eda11a5a08f5c007cb186d291d38b6bdaf7167b3ff8b6e10579e2b"
+    },
+    {
+      "file": "cpu-apollo-01--container.stderr.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/01--container.stderr.log.gz",
+      "bytes": 739,
+      "sha256": "2a6d16d7d97b1a1a99cd46faea513f756f7c6ba38fb9d13e0fb95b610d665f88",
+      "compressed_bytes": 394,
+      "compressed_sha256": "f2b252c761e6d02feee879cf9a2a28da70039172fd892fd42b394e7bdb1fa264"
+    },
+    {
+      "file": "cpu-apollo-01--result.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/01--result.json.gz",
+      "bytes": 211,
+      "sha256": "c37f099c229887866b2319796b951d5d94855fcf92f5ea66a5cec3f52567757c",
+      "compressed_bytes": 168,
+      "compressed_sha256": "c1dc4a036547a2657573a24440da36bf638df833b0fabaf38f5d734c8c92cc54"
+    },
+    {
+      "file": "cpu-apollo-02--container.stderr.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/02--container.stderr.log.gz",
+      "bytes": 997,
+      "sha256": "05ae43356dba2b7a4e54f5a9988412335e49d72153cd3a33d642acbbd234f0fb",
+      "compressed_bytes": 361,
+      "compressed_sha256": "ef3146a36634ce72e6fd909eb9318b1b37f4b1429f2640f8aa504cbc0e525a28"
+    },
+    {
+      "file": "cpu-apollo-02--result.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/02--result.json.gz",
+      "bytes": 211,
+      "sha256": "105e80852fb461fc35c3e530d80b0a11d4d61dc3d7b416d30b7011d4d88ee8bb",
+      "compressed_bytes": 166,
+      "compressed_sha256": "da25d274b6de5375a8c74cb016f1ed8eb566157830a054ca2bdc91b06fe3b64b"
+    },
+    {
+      "file": "cpu-apollo-03--container.stderr.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/03--container.stderr.log.gz",
+      "bytes": 1023,
+      "sha256": "2fa3f9a11091307329299c43b8964733d4cb88e9908309beef53a500ec0253ed",
+      "compressed_bytes": 378,
+      "compressed_sha256": "83706d800a7ee3df7aff7135409a30b162f0d7c61e2d43948a91c93d4695cba2"
+    },
+    {
+      "file": "cpu-apollo-03--result.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/03--result.json.gz",
+      "bytes": 211,
+      "sha256": "8398470628027845868fa59384f52dce130827d166313cea41174005994e74c9",
+      "compressed_bytes": 167,
+      "compressed_sha256": "9fb2c91b8ac2d478caf465f81b4dcec38dcfdfe67d6a1b77d4fbe80ce9ccd640"
+    },
+    {
+      "file": "cpu-apollo-03--test.stdout.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/03--test.stdout.log.gz",
+      "bytes": 6250,
+      "sha256": "4d690c71dcd1af1811060af29fd8158ef0eb79fa8bec0deabf8b99c3d9ce3275",
+      "compressed_bytes": 1271,
+      "compressed_sha256": "30e66df60d4ef148990f75ee4112049e2ccb66f8e1ed9db08b48fac3c8674ea0"
+    },
+    {
+      "file": "cpu-apollo-04--asan-test.stderr.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/04--asan-test.stderr.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_bytes": 20,
+      "compressed_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "cpu-apollo-04--asan-test.stdout.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/04--asan-test.stdout.log.gz",
+      "bytes": 805,
+      "sha256": "90fece4be640851d2f92f833bb81818823bae3dcba4beb7d2c6acde01a076459",
+      "compressed_bytes": 282,
+      "compressed_sha256": "7b8197223356254f9a4b9fe65d2fc448274fb871d25adfbe5fd4932f5d8f3b66"
+    },
+    {
+      "file": "cpu-apollo-04--inside-result.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/04--inside-result.json.gz",
+      "bytes": 225,
+      "sha256": "3500535f08ea8dd112b7f05ddd7acf762b1a8ebee119fab876cd33623d2370f3",
+      "compressed_bytes": 164,
+      "compressed_sha256": "f5268a51be00536dd2e3e21a6f25b3b309daa936ef9de92335389753c198e709"
+    },
+    {
+      "file": "cpu-apollo-04--remaining-normal-tests.stdout.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/04--remaining-normal-tests.stdout.log.gz",
+      "bytes": 290,
+      "sha256": "61fe9576db4a1e9261b79bbe3d70e461890eb12b1f00664880bfef8e641c4f6c",
+      "compressed_bytes": 178,
+      "compressed_sha256": "41e89484f96d55de769c5bf51a3060782efd116fdbc84b5a4855e7b34325eb4d"
+    },
+    {
+      "file": "cpu-apollo-04--result.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/04--result.json.gz",
+      "bytes": 471,
+      "sha256": "f03807b2f1782edad037a24f864594063b2f537f9f72ac832cad03bbbd1851cc",
+      "compressed_bytes": 257,
+      "compressed_sha256": "593255159c33747415961d45f56eecfe50e40027a7e52f2f867c9748e60cd21b"
+    },
+    {
+      "file": "cpu-apollo-04--resume-receipt.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/04--resume-receipt.json.gz",
+      "bytes": 918,
+      "sha256": "4dda2b0533f71105c5360bea67d76da0b2b4b12ea25916126a6fb8912fab0a7b",
+      "compressed_bytes": 454,
+      "compressed_sha256": "519a7ec87329e061f3bf55239ca7bf1e1eca13ee59be9bfac002c069c98229d7"
+    },
+    {
+      "file": "cpu-apollo-05--controller-strict--check.stdout.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/05--controller-strict--check.stdout.json.gz",
+      "bytes": 5886,
+      "sha256": "fbf68575dd7d18ef4b6dca0ab151d5598fe72a5bcb15b7957287fac2356629d0",
+      "compressed_bytes": 2096,
+      "compressed_sha256": "5e35721cf30407b331f51bfb61d369af362019aa1b60edca83884e0c3bb337ef"
+    },
+    {
+      "file": "cpu-apollo-05--controller-strict--cleanup-pw-dump.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/05--controller-strict--cleanup-pw-dump.json.gz",
+      "bytes": 12278,
+      "sha256": "63d1883720256ced27ece039b957f10ba7d9590dc3f2db8731a37441d178909d",
+      "compressed_bytes": 2079,
+      "compressed_sha256": "4af44ea94b529a25cbaf8b8fcd95f252680db077bd56b7d59daebac5907d5759"
+    },
+    {
+      "file": "cpu-apollo-05--controller-strict--result.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/05--controller-strict--result.json.gz",
+      "bytes": 5935,
+      "sha256": "bc33f98fa4262585d123f9103ae210bc393fa88a20be1233d137688eacbf4257",
+      "compressed_bytes": 2269,
+      "compressed_sha256": "5bc16e58d8119fc555cc7bad8a3aeeeb9463e955799be395b2a4f4bf9d51fa83"
+    },
+    {
+      "file": "cpu-apollo-05--inside-result.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/05--inside-result.json.gz",
+      "bytes": 242,
+      "sha256": "3e028f0d123e95b6f3e3770ef00e5a96d5b850924d78838aaf3621ff674584f5",
+      "compressed_bytes": 177,
+      "compressed_sha256": "b2422b3ddb5d1f7566109e8b3f1e0f7d59301646db2c5ccee3b55a1ef13bbc18"
+    },
+    {
+      "file": "cpu-apollo-05--native-build.stdout.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/05--native-build.stdout.log.gz",
+      "bytes": 499,
+      "sha256": "c11d58b1a4e0537bc278aa90c87ad7f4f922b540cd3a4068d156aa72e949bb10",
+      "compressed_bytes": 196,
+      "compressed_sha256": "62444ac11128519397f3ce0818c5a0eea2bf7f37f6492155056e06fb599bcc69"
+    },
+    {
+      "file": "cpu-apollo-05--native-configure.stdout.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/05--native-configure.stdout.log.gz",
+      "bytes": 1126,
+      "sha256": "fc2396c440b1fb623dee3b75059809c229571e1e6631979effc3c75696afec03",
+      "compressed_bytes": 478,
+      "compressed_sha256": "459c1688a563d221f1c638f3d57beeac4c7fdf6ea94cb6c93f702fc648636f7c"
+    },
+    {
+      "file": "cpu-apollo-05--pause-receipt.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/05--pause-receipt.json.gz",
+      "bytes": 1126,
+      "sha256": "268649a20dc769aca47357cf066ff0ddf6aa4e1d90ccecf4c9069757bc763d69",
+      "compressed_bytes": 465,
+      "compressed_sha256": "52a01d5064a10f5d640d7bea22982485e2dc1f224623e872ab547a1c47633dfe"
+    },
+    {
+      "file": "cpu-apollo-05--result.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/05--result.json.gz",
+      "bytes": 488,
+      "sha256": "f1d8d932d21ab6802a9b49f59a218dee4b52858fd47c75f8dd0c1953e8b79a8e",
+      "compressed_bytes": 270,
+      "compressed_sha256": "0d8c87d13d3bb8a395ca1292488b86dcd17aefee3f1e0204df976a47e171ea5f"
+    },
+    {
+      "file": "cpu-apollo-06--asan-test.stderr.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/06--asan-test.stderr.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_bytes": 20,
+      "compressed_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "cpu-apollo-06--asan-test.stdout.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/06--asan-test.stdout.log.gz",
+      "bytes": 82,
+      "sha256": "c754e01e61da0c2c53d035e8a8969c29943e3a01a11aa007f8a2b0020da46947",
+      "compressed_bytes": 93,
+      "compressed_sha256": "86ab745e3d062838f68ae11a0ff184ae098de893f5e7f3bdad44c87b56455b3d"
+    },
+    {
+      "file": "cpu-apollo-06--container.stderr.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/06--container.stderr.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_bytes": 20,
+      "compressed_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "cpu-apollo-06--inside-result.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/06--inside-result.json.gz",
+      "bytes": 584,
+      "sha256": "eb304da191ded416bdb8fbfa63459aaa6b7b73baadf4926715cecd2c78ad2c03",
+      "compressed_bytes": 354,
+      "compressed_sha256": "43b7c71a664515983789a4c269c6db0d5d52b1cf1337d5402ffc9999d0b437d3"
+    },
+    {
+      "file": "cpu-apollo-06--normal-test.stderr.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/06--normal-test.stderr.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_bytes": 20,
+      "compressed_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "cpu-apollo-06--normal-test.stdout.log.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/06--normal-test.stdout.log.gz",
+      "bytes": 82,
+      "sha256": "c754e01e61da0c2c53d035e8a8969c29943e3a01a11aa007f8a2b0020da46947",
+      "compressed_bytes": 93,
+      "compressed_sha256": "86ab745e3d062838f68ae11a0ff184ae098de893f5e7f3bdad44c87b56455b3d"
+    },
+    {
+      "file": "cpu-apollo-06--result.json.gz",
+      "source": "/srv/conflux-tests/laptop/p1105/apollo-evidence/06--result.json.gz",
+      "bytes": 838,
+      "sha256": "327d2f7e13b05e735910b233341000130fa3a97bc5243f3a4ef981d1047dcf35",
+      "compressed_bytes": 443,
+      "compressed_sha256": "d7d3f97173e667e2ba9f7c8aa95b170e274b20cf7ea93dd25f5dcc2d2dcf9206"
+    },
+    {
+      "file": "queue-laptop-paired-result-summary.json.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/paired-result-summary.json",
+      "bytes": 2519,
+      "sha256": "bad136def50212479fc58b62c5dc42902e89f4cccd6ae9e1c1ca8b0671ef9147",
+      "compressed_bytes": 830,
+      "compressed_sha256": "3a1903eb35a3fdc0c5d45e4e66865ee0fe74e7e281cae4c6dcc84d8a09b0a2a3"
+    },
+    {
+      "file": "queue-laptop-closed-receipt.json.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/closed-receipt.json",
+      "bytes": 482,
+      "sha256": "fed4c378d779f1cdddc62d0e3eb89a1098612c45fffb14ca66272876537cfe7b",
+      "compressed_bytes": 282,
+      "compressed_sha256": "d93659e77fe0f5ac3c9997acafa36b5ae5995288fbd099d3ab9d2a43bd1a2948"
+    },
+    {
+      "file": "queue-laptop-config.json.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/config.json",
+      "bytes": 24549,
+      "sha256": "4b011bfa2f2765b9810e6d438db6d57124203dea9b488eba4b0ef25f60e91dce",
+      "compressed_bytes": 7559,
+      "compressed_sha256": "41d2705b32bdcf875d291982425f288912cb4bcb4293ab0ed3c0632826612097"
+    },
+    {
+      "file": "queue-laptop-client-config.json.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/client-config.json",
+      "bytes": 1442,
+      "sha256": "217c838c0c81894cbe024eb40b20080ce45c786e32cb9be94abfb4713ab90a79",
+      "compressed_bytes": 568,
+      "compressed_sha256": "b623d14034c3a4011f7a6a1575bb399cecc11f1f8c5cbf40af6a3d6b83bf4fa0"
+    },
+    {
+      "file": "queue-laptop-packet-pins.json.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/packet-pins.json",
+      "bytes": 2662,
+      "sha256": "4886c40d0bab2110349b08d2719957bf27f8e6b27ee5ef82cb42ba0910e5b16a",
+      "compressed_bytes": 1170,
+      "compressed_sha256": "d6f6c9087f617571bb33648f06273e5b8fd1319cbb520fbc80b2ef998a0d3fa5"
+    },
+    {
+      "file": "queue-laptop-run_probe.py.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/run_probe.py",
+      "bytes": 8428,
+      "sha256": "8a863592bb2d3806173e2d7b93ba33a44256f6b6fab0896c301c832aed456c2e",
+      "compressed_bytes": 3438,
+      "compressed_sha256": "2d2d717e84ee15a0ac37cd7dda64a7e433699026286a13a681c37e28c20f1466"
+    },
+    {
+      "file": "queue-laptop-private_routing.py.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/private_routing.py",
+      "bytes": 12792,
+      "sha256": "5cfd4d87dc31925dcbce32cbd83bf647bbc998d0d4e30ede33454be3adb7bd4e",
+      "compressed_bytes": 3801,
+      "compressed_sha256": "346d83de890f34866818d841c183f34145b6fee5e3265280fe81639f66c653a2"
+    },
+    {
+      "file": "queue-laptop-player_check.py.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/player_check.py",
+      "bytes": 8622,
+      "sha256": "539196d1669f37ee1bdc081994a701d7655f5b8f09d2de210fef4c95386b1d0f",
+      "compressed_bytes": 3247,
+      "compressed_sha256": "ab0130e7622a5103a0427c2781fd3741850f0358f93f4976a827a784add629c8"
+    },
+    {
+      "file": "queue-laptop-artifact-cleanup.json.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/artifact-cleanup.json",
+      "bytes": 33277,
+      "sha256": "481d55a846ad9dd17ff8abe6053b985fdd59ae0257d3afd681548a4fd19858b9",
+      "compressed_bytes": 11993,
+      "compressed_sha256": "48226fa2eb84cfbc250c92b8dddd9977992cdaba584a07ab8a4ca97086aa2d93"
+    },
+    {
+      "file": "queue-laptop-assessment.json.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/case/private-player/recordings/actual-player/assessment.json",
+      "bytes": 163031,
+      "sha256": "029937009dafce68da6c1bac2b250c37422ca0ce54972633317370f1051cd434",
+      "compressed_bytes": 12075,
+      "compressed_sha256": "5547fd3255db6792d363cf4e9aaa4b423e6805ac3054ad6846e81d3894fb4155"
+    },
+    {
+      "file": "queue-laptop-native-result.json.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/case/private-player/recordings/actual-player/native-result.json",
+      "bytes": 301902,
+      "sha256": "5351f3d92b23e4339c713cc07c05fbbad55cf6739d15d8210be91cb246d96aca",
+      "compressed_bytes": 18156,
+      "compressed_sha256": "6b758b94ccbdb6573702d2c9b117996bf941b161b231f9a2b873737baa59f84e"
+    },
+    {
+      "file": "queue-laptop-observations.jsonl.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/case/private-player/recordings/actual-player/observations.jsonl",
+      "bytes": 647455,
+      "sha256": "c51f29836ae3453cd0caae42086f0eaccc7067f7180c2e060fe8f12a70277f9c",
+      "compressed_bytes": 49770,
+      "compressed_sha256": "410f4a980f16a0a1c17dcb680a398f602d08f8f424e5cd31b45a42c765c8eb7b"
+    },
+    {
+      "file": "queue-laptop-observation-summary.json.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/case/private-player/recordings/actual-player/observation-summary.json",
+      "bytes": 21137,
+      "sha256": "d5f54a9e446554b009cdad3f94ac43709145afe5e78405f8de2c9e332859b4dc",
+      "compressed_bytes": 4331,
+      "compressed_sha256": "7e70ce7e1f0ee2ed1a689ba436704bd287ac9e4f99ce2084023b6faec7e64e19"
+    },
+    {
+      "file": "queue-laptop-tempo-short-reads.json.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/case/private-player/recordings/actual-player/tempo-short-reads.json",
+      "bytes": 15936,
+      "sha256": "47b78a40fae848e2dd8b870c72feb28792ee3df5919ac1357471183c1496f29a",
+      "compressed_bytes": 1472,
+      "compressed_sha256": "110f37a4548d8e534c87b82d1f9e9639af1a7d0b7cf0df1dbaf4d53bad935d2a"
+    },
+    {
+      "file": "queue-laptop-host-samples.jsonl.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/case/host-samples.jsonl",
+      "bytes": 3224,
+      "sha256": "cd02f857a341732c230b7c3a2e7caee2ddf449da8cc62885d96cb20c3160988f",
+      "compressed_bytes": 716,
+      "compressed_sha256": "78291e0dc2fcb616d7527784a5ee62df987dbcd3201fb30d4b44f501b9c543cd"
+    },
+    {
+      "file": "queue-laptop-settling.jsonl.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/case/settling.jsonl",
+      "bytes": 5962,
+      "sha256": "e180e2a9fb8eaa634c8e65ec448c5150e46d9d3739db6850b1fcd794985ba929",
+      "compressed_bytes": 1498,
+      "compressed_sha256": "de1d20d5fe2c8dc14f76db952d2e8e08d3b636bc11397961b7f0133251447341"
+    },
+    {
+      "file": "queue-apollo-result.json.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/apollo-evidence/result.json.gz",
+      "bytes": 799,
+      "sha256": "eac126e5cae20368415cd00e54936781d9f8494dab04e0fb480dce3fa0c16d18",
+      "compressed_bytes": 426,
+      "compressed_sha256": "708fe41a2082667bc98a073294c7429036540361834333af6f5337d7001145bb"
+    },
+    {
+      "file": "queue-apollo-readiness.json.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/apollo-evidence/readiness.json.gz",
+      "bytes": 943,
+      "sha256": "03bdfae6e679ec0bd02f3236fef43f76636c9e7ea023e1cd5dd9106f7cabca7b",
+      "compressed_bytes": 597,
+      "compressed_sha256": "72653a7db3d189cf1a1981dac64d227e0a4fcb0d28606c4c63b5ce657bb9c458"
+    },
+    {
+      "file": "queue-apollo-reservation.json.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/apollo-evidence/reservation.json.gz",
+      "bytes": 123,
+      "sha256": "d879313e54847bea204b5258517e2a2b6bbf197a019dae9843cdd759b7daeabe",
+      "compressed_bytes": 126,
+      "compressed_sha256": "d7ad3812b9d9f6346f940423b42c301e4d2623cde9d15076ea3bc6eb931a7513"
+    },
+    {
+      "file": "queue-apollo-config.json.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/apollo-evidence/config.json.gz",
+      "bytes": 84893,
+      "sha256": "7d29058b519af4a8f0e9c20d5409044e3e4fe7367018aea9482bddecfa669d37",
+      "compressed_bytes": 19446,
+      "compressed_sha256": "ff9d654c2c91e24fe61c764a171a0304e7be24b4b54eb14ee60a5bef9f404d0c"
+    },
+    {
+      "file": "queue-apollo-client-config.json.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/apollo-evidence/client-config.json.gz",
+      "bytes": 836,
+      "sha256": "5cb01456ad070eba21466d61bea3a16afd2192d46ca1d9c8ee6b85c3ab4de33b",
+      "compressed_bytes": 437,
+      "compressed_sha256": "524f2301a61d72ac20a807a6c21310a8522427ab3cd9414fc8ea7b44d990e500"
+    },
+    {
+      "file": "queue-apollo-case--private-player--result.json.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/apollo-evidence/case/private-player/result.json.gz",
+      "bytes": 158094,
+      "sha256": "ba3fe8ed86271e1cfac3a219525ab55308460120fedbd3403c09371c9ba338f7",
+      "compressed_bytes": 11561,
+      "compressed_sha256": "a422a4f701e779875b2e406547865415b79f596727551e0d2d37134c92c1d084"
+    },
+    {
+      "file": "queue-apollo-case--private-player--recordings--actual-player--assessment.json.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/apollo-evidence/case/private-player/recordings/actual-player/assessment.json.gz",
+      "bytes": 144731,
+      "sha256": "3fbeacce66eaec443eabc3b64e588e0857b49cd9542560b3d7dc1dc33b7335e8",
+      "compressed_bytes": 11110,
+      "compressed_sha256": "fe2fc5cce84fab358e53b1dab13a5faee4dbbfd5ab2b96d1d36ae60c8e77f704"
+    },
+    {
+      "file": "queue-apollo-case--private-player--recordings--actual-player--native-result.json.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/apollo-evidence/case/private-player/recordings/actual-player/native-result.json.gz",
+      "bytes": 302874,
+      "sha256": "f35ce5baf40f256fbe7c14fc2154c00e1b70277b8670a7b0ae05ab0ca1a35621",
+      "compressed_bytes": 17657,
+      "compressed_sha256": "1a3bfb550de740dd3987e2aae9c5ffe8c33cc3ce991e273ceb9af8d590617b71"
+    },
+    {
+      "file": "queue-apollo-case--private-player--recordings--actual-player--observations.jsonl.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/apollo-evidence/case/private-player/recordings/actual-player/observations.jsonl.gz",
+      "bytes": 821253,
+      "sha256": "bbc61196a3f939a229078bb685f5bd2106016f943d1300feee09009d25fbe438",
+      "compressed_bytes": 62133,
+      "compressed_sha256": "fc7635d048dbaf0a2e58475dff2563dce0d698e0c9cabb93c7945a593e3b3f15"
+    },
+    {
+      "file": "queue-apollo-case--private-player--recordings--actual-player--observation-summary.json.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/apollo-evidence/case/private-player/recordings/actual-player/observation-summary.json.gz",
+      "bytes": 26414,
+      "sha256": "56f57617a77762d1f632b660f45d8d8a551e62776e990478cd10da848bbfab84",
+      "compressed_bytes": 4969,
+      "compressed_sha256": "7c0079f8ffac7ecebc7496a56e4f1bd13770dc085be82358874d7746939b34db"
+    },
+    {
+      "file": "queue-apollo-case--private-player--recordings--actual-player--tempo-short-reads.json.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/apollo-evidence/case/private-player/recordings/actual-player/tempo-short-reads.json.gz",
+      "bytes": 146,
+      "sha256": "8f54205a964f53254787cc71a8f363dfe78f774b03c0c0e3840142f381bb7178",
+      "compressed_bytes": 138,
+      "compressed_sha256": "5aa9d07c59e905046bcb34dfa10da0a03082cc502d2f066fb72ec9408969ee60"
+    },
+    {
+      "file": "queue-apollo-case--private-player--recordings--actual-player--player.stderr.log.gz",
+      "source": "/srv/conflux-tests/laptop/q1105/apollo-evidence/case/private-player/recordings/actual-player/player.stderr.log.gz",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_bytes": 20,
+      "compressed_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    }
+  ],
+  "large_audio_not_committed": true
+}

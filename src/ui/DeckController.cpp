@@ -77,6 +77,7 @@ QString preparationPhaseText(const QString& phase)
 {
     if (phase == "decode-cache") return "Decoding / validating audio cache";
     if (phase == "stems") return "Preparing requested stems";
+    if (phase == "stem-export") return "Separating the track into stems";
     if (phase == "bpm-prepare") return "Preparing original mix for BPM analysis";
     if (phase == "bpm") return "Analyzing original-mix BPM";
     if (phase == "prime") return "Priming playback";
@@ -111,7 +112,8 @@ DeckController::PreparedPcm::PreparedPcm(audio::PreparedAudio audio)
     audioLeaves.push_back(std::move(audio));
 }
 
-DeckController::PreparedPcm::PreparedPcm(std::array<audio::PreparedAudio, 4> stems)
+DeckController::PreparedPcm::PreparedPcm(std::array<audio::PreparedAudio, 4> stems, library::VocalActivityMap vocals)
+    : vocalActivity(std::move(vocals))
 {
     const auto commonFrames = stems.front().frames();
     if (!commonFrames || commonFrames > audio::PreparedAudio::defaultMaxPreparedBytes / 8)
@@ -140,7 +142,7 @@ DeckController::PreparedPcm::PreparedPcm(std::uint64_t frames, std::vector<float
             range.inFrame >= range.outFrame || range.outFrame > liveFrames ||
             range.outFrame - range.inFrame < audio::AudioResidentHoldRange::minimumFrames ||
             range.outFrame - range.inFrame > audio::AudioResidentHoldRange::maximumFrames ||
-            range.admittedBytes < (range.outFrame - range.inFrame) * audio::AudioResidentHoldRange::bytesPerFrame)
+            range.admittedBytes < audio::AudioResidentHoldRange::retainedBytes(range.outFrame - range.inFrame))
             throw std::invalid_argument("Invalid retained live recovery range metadata");
     }
 }
@@ -152,8 +154,8 @@ std::uint64_t DeckController::PreparedPcm::bytes() const noexcept
     // A terminal producer can clean its disk job while this resident payload
     // still belongs to a pending/active/retiring playback. Keep that owner
     // charged here too; active reservation + metadata conservatively overcount.
-    return live() ? (residentHold ? (residentHold->outFrame - residentHold->inFrame) *
-        audio::AudioResidentHoldRange::bytesPerFrame : 0) : frames() * 8 * audioLeaves.size();
+    return live() ? (residentHold ? audio::AudioResidentHoldRange::retainedBytes(
+        residentHold->outFrame - residentHold->inFrame) : 0) : frames() * 8 * audioLeaves.size();
 }
 
 std::unique_ptr<audio::PreparedPlayback> DeckController::PreparedPcm::makePlayback() const
@@ -309,43 +311,35 @@ QVariantList DeckController::decks() const
     QVariantList result;
     for (std::size_t deck = 0; deck < clips_.size(); ++deck) {
         const bool loading = preparationActive() && !pendingImport_ && int(deck) == pendingDeck_;
+        const auto& bpm = bpmTiming_[deck].estimate();
+        const auto& manual = bpmOverrides_[deck];
+        const auto position = clips_[deck] && !replacing_[deck] ? state_.sourcePosition[deck] : -1.;
+        const auto& hold = state_.residentHold[deck];
+        const auto recoveryRange = clips_[deck] && clips_[deck]->live() ? clips_[deck]->residentHold :
+            std::optional<audio::AudioResidentHoldRange>{};
         result.append(QVariantMap{
             {"name", names_[deck]}, {"loaded", bool(clips_[deck])},
             {"sourceId", sourceIds_[deck]},
             {"title", presentations_[deck].title}, {"artist", presentations_[deck].artist},
             {"album", presentations_[deck].album}, {"artworkDataUrl", presentations_[deck].artworkDataUrl},
             {"bpm", QVariantMap{
-                {"estimated", bpmEstimates_[deck].bpm.value_or(0.)},
-                {"reference", bpmOverrides_[deck].value_or(bpmEstimates_[deck].bpm.value_or(0.))},
-                {"manual", bpmOverrides_[deck].has_value()},
-                {"status", bpmEstimates_[deck].status}, {"error", bpmEstimates_[deck].error}}},
-            {"localTiming", ui::localTimingForDisplay(
-                bpmEstimates_[deck], clips_[deck] && !replacing_[deck] ? state_.sourcePosition[deck] : -1.,
-                state_.residentHold[deck],
-                clips_[deck] && clips_[deck]->live() ? clips_[deck]->residentHold :
-                    std::optional<audio::AudioResidentHoldRange>{})},
+                {"estimated", bpm.bpm.value_or(0.)},
+                {"reference", manual.value_or(bpm.bpm.value_or(0.))},
+                {"manual", manual.has_value()},
+                {"status", bpm.status}, {"error", bpm.error}}},
+            {"localTiming", ui::localTimingForDisplay(bpmTiming_[deck], position, hold, recoveryRange)},
             {"harmony", [&]() -> QVariantMap {
-                const auto& estimate = harmonyEstimates_[deck];
+                const auto& timing = harmonyTiming_[deck];
+                const auto& estimate = timing.estimate();
                 QVariantMap value{{"status", "Unknown"}, {"analysisStatus", estimate.status},
                     {"error", estimate.error}, {"confidence", "Unknown"}, {"sourceFrame", qulonglong(0)},
                     {"firstFrame", qulonglong(0)}, {"endFrame", qulonglong(0)}, {"candidates", QVariantList{}},
                     {"clock", "Original source48k"}};
-                if (!clips_[deck] || replacing_[deck]) return value;
-                const auto position = state_.sourcePosition[deck];
-                if (!std::isfinite(position) || position < 0 || position > double(audio::PreparedAudio::defaultMaxPreparedBytes / 8U)) return value;
-                auto frame = std::uint64_t(position);
-                const auto& hold = state_.residentHold[deck];
-                if (hold.active) {
-                    const auto range = clips_[deck]->live() ? clips_[deck]->residentHold : std::optional<audio::AudioResidentHoldRange>{};
-                    if (!range || !range->id || !hold.supported || !hold.ready || hold.rangeId != range->id ||
-                        hold.provenance != range->provenance || hold.inFrame != range->inFrame || hold.outFrame != range->outFrame ||
-                        position != double(hold.linearFrame) || hold.audibleFrame < hold.inFrame || hold.audibleFrame >= hold.outFrame)
-                        return value;
-                    frame = hold.audibleFrame;
-                }
-                if (const auto* window = library::localHarmonyAt(estimate, frame)) {
+                const auto frame = ui::analysisSourceFrame(position, hold, recoveryRange);
+                if (!frame) return value;
+                if (const auto* window = timing.at(*frame)) {
                     value["status"] = window->status; value["reason"] = window->reason;
-                    value["sourceFrame"] = QVariant::fromValue<qulonglong>(frame);
+                    value["sourceFrame"] = QVariant::fromValue<qulonglong>(*frame);
                     value["firstFrame"] = QVariant::fromValue<qulonglong>(window->firstFrame);
                     value["endFrame"] = QVariant::fromValue<qulonglong>(window->endFrame);
                     QVariantList candidates;
@@ -397,6 +391,7 @@ QVariantList DeckController::decks() const
                 {"pending", continuation_ && continuation_->deck == deck},
                 {"attempts", QVariant::fromValue<qulonglong>(continuationEpisodes_[deck].attempts)},
                 {"sourceFrame", QVariant::fromValue<qulonglong>(continuationEpisodes_[deck].frame)},
+                {"sourcePosition", continuationEpisodes_[deck].position},
                 {"sourceGeneration", QVariant::fromValue<qulonglong>(continuationEpisodes_[deck].sourceGeneration)},
                 {"residentHoldRangeId", QString::number(continuationEpisodes_[deck].residentHoldRangeId)},
                 {"generation", QVariant::fromValue<qulonglong>(continuationEpisodes_[deck].generation)}}},
@@ -479,18 +474,32 @@ QVariantMap DeckController::meters() const
 QVariantMap DeckController::audioRouting() const
 {
     QVariantList ports;
+    QString defaultSink = QString::fromStdString(routingSnapshot_.defaultSinkName);
     for (const auto& port : routingSnapshot_.playbackPorts) {
         if (!audio::isPlaybackPort(port)) continue;
-        ports.append(QVariantMap{{"key", portKey(port)},
-            {"label", QString::fromStdString(port.nodeName + " · " + port.portName + " [" + port.channel + "]")}});
+        const auto name = QString::fromStdString(port.nodeDescription.empty() ? port.nodeName : port.nodeDescription);
+        if (port.nodeName == routingSnapshot_.defaultSinkName) defaultSink = name;
+        if (port.unavailable) continue;
+        auto channel = QString::fromStdString(port.portName);
+        if (port.channel == "FL") channel = tr("Left");
+        else if (port.channel == "FR") channel = tr("Right");
+        else if (!port.channel.empty()) channel += " [" + QString::fromStdString(port.channel) + "]";
+        const auto sinkKey = QString::number(port.nodeId) + ":" + QString::number(port.nodeSerial);
+        ports.append(QVariantMap{{"key", portKey(port)}, {"label", channel + " · " + name}, {"sinkKey", sinkKey},
+            {"nodeName", QString::fromStdString(port.nodeName)}, {"portName", QString::fromStdString(port.portName)},
+            {"channel", QString::fromStdString(port.channel)}});
     }
-    return {{"ports", ports}, {"masterReady", ready_ && routingSnapshot_.masterReady},
-        {"cueReady", ready_ && state_.cueReady},
+    QVariantList defaultMasterPorts;
+    if (const auto& pair = routingSnapshot_.defaultMaster)
+        defaultMasterPorts = {portKey(pair->left), portKey(pair->right)};
+    return {{"ports", ports}, {"defaultMasterPorts", defaultMasterPorts},
+        {"masterReady", ready_ && routingSnapshot_.masterReady},
+        {"cueReady", ready_ && state_.cueReady && routingSnapshot_.cueReady},
         {"masterLeft", routingConfig_.master ? portKey(routingConfig_.master->left) : QString{}},
         {"masterRight", routingConfig_.master ? portKey(routingConfig_.master->right) : QString{}},
         {"cueLeft", routingConfig_.cue ? portKey(routingConfig_.cue->left) : QString{}},
         {"cueRight", routingConfig_.cue ? portKey(routingConfig_.cue->right) : QString{}},
-        {"defaultSink", QString::fromStdString(routingSnapshot_.defaultSinkName)},
+        {"defaultSink", defaultSink},
         {"masterError", QString::fromStdString(routingSnapshot_.masterError)},
         {"cueError", QString::fromStdString(routingSnapshot_.cueError)}};
 }
@@ -523,6 +532,15 @@ std::shared_ptr<library::LiveStemObservations> DeckController::liveStemObservati
     if (deck < 0 || std::size_t(deck) >= clips_.size() || !clips_[std::size_t(deck)])
         return {};
     return clips_[std::size_t(deck)]->observations;
+}
+
+QString DeckController::vocalActivityAt(int deck, qulonglong sourceFrame) const
+{
+    if (deck < 0 || std::size_t(deck) >= clips_.size() || !clips_[std::size_t(deck)]) return "Unknown";
+    const auto state = clips_[std::size_t(deck)]->vocalActivity.at(sourceFrame);
+    if (state == library::VocalActivity::Active) return "Active";
+    if (state == library::VocalActivity::Inactive) return "Inactive";
+    return "Unknown";
 }
 
 std::uint64_t DeckController::retainedPcmBytes() const
@@ -627,7 +645,20 @@ void DeckController::catalogFinished()
     auto result = catalogJob_.result();
     libraryError_ = result.error;
     if (result.error.isEmpty()) {
+        decltype(bpmOverrides_) previousSavedBpm{};
+        for (std::size_t deck = 0; deck < sourceIds_.size(); ++deck) {
+            if (const auto* track = cataloguedDeck(deck))
+                previousSavedBpm[deck] = track->manualBpm;
+        }
         libraryEntries_ = std::move(result.tracks);
+        for (std::size_t deck = 0; deck < sourceIds_.size(); ++deck) {
+            const auto* track = cataloguedDeck(deck);
+            // Keep a temporary deck reference until the saved value changes
+            // or this controller explicitly saves or clears the reference.
+            if (track && (track->manualBpm != previousSavedBpm[deck] ||
+                          track->sourceSha256 == result.editedBpmSource || !bpmOverrides_[deck]))
+                bpmOverrides_[deck] = track->manualBpm;
+        }
         libraryTracks_.clear();
         libraryTracks_.reserve(qsizetype(libraryEntries_.size()));
         for (const auto& track : libraryEntries_) {
@@ -868,7 +899,7 @@ void DeckController::loadLibraryStemTrackWithRecoveryRange(int deck, const QStri
         range.outFrame - range.inFrame > audio::AudioResidentHoldRange::maximumFrames) {
         fail("Choose a recovery section between 0.042667 and 8 seconds."); return;
     }
-    range.admittedBytes = (range.outFrame - range.inFrame) * audio::AudioResidentHoldRange::bytesPerFrame;
+    range.admittedBytes = audio::AudioResidentHoldRange::retainedBytes(range.outFrame - range.inFrame);
     range.provenance = audio::AudioResidentHoldRange::Provenance::DjRange;
     try { range.id = nextLiveSourceToken(); }
     catch (const std::exception& error) { fail(QString::fromUtf8(error.what())); return; }
@@ -912,6 +943,13 @@ void DeckController::loadDeck(int deck, const QUrl& url)
 void DeckController::loadStemDeck(int deck, const QUrl& url)
 { beginPreparation(deck, url, false, {}, true); }
 
+int DeckController::trackPreparationStageCount(bool importOnly, bool stems) const
+{
+    if (importOnly) return 3;
+    return 3 + int(stems && preparationOptions_.stemServicePath.isEmpty()) +
+        int(preparationOptions_.bpmEngine.has_value()) + int(preparationOptions_.harmonyEngine.has_value());
+}
+
 void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly,
                                       const QString& expectedSource, bool stems,
                                       std::optional<library::LiveStemResidentHold> residentHold)
@@ -947,7 +985,7 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
             fail("A recovery range must belong to this selected library stem source and have valid bounds.");
             return;
         }
-        const auto bytes = (range.outFrame - range.inFrame) * audio::AudioResidentHoldRange::bytesPerFrame;
+        const auto bytes = audio::AudioResidentHoldRange::retainedBytes(range.outFrame - range.inFrame);
         if (bytes > preparationOptions_.limits.maxPreparedBytes || range.admittedBytes < bytes) {
             fail("The selected recovery range exceeds the admitted PCM byte budget.");
             return;
@@ -993,9 +1031,9 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
     pendingPresentation_ = {};
     pendingWaveform_.clear();
     const auto serial = ++preparationSerial_;
-    preparationPhase_ = stems ? "stems" : "decode-cache";
+    preparationPhase_ = stems && !service.isEmpty() ? "stems" : "decode-cache";
     preparationCompletedStages_ = 0;
-    preparationTotalStages_ = importOnly ? 3 : 3 + int(bpmEngine.has_value()) + int(harmonyEngine.has_value());
+    preparationTotalStages_ = trackPreparationStageCount(importOnly, stems);
     const auto report = [this, serial](QString phase, int completedStages,
         std::optional<library::TrackPresentation> presentation = {}, QVariantList waveform = {}) {
         QMetaObject::invokeMethod(this, [this, serial, phase = std::move(phase), completedStages,
@@ -1012,27 +1050,39 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
             library::PreparedTrackStore store(cache, limits);
             auto prepared = std::make_shared<PreparedLoad>();
             int completedStages = 0;
+            const auto waveformFromPeaks = [](std::span<const float> peaks) {
+                QVariantList waveform;
+                waveform.reserve(qsizetype(peaks.size()));
+                for (const auto peak : peaks) waveform.append(peak);
+                return waveform;
+            };
             const auto preview = [&](const library::TrackPresentation& presentation, std::span<const float> peaks) {
-                prepared->waveform.reserve(qsizetype(peaks.size()));
-                for (const auto peak : peaks) prepared->waveform.append(peak);
+                prepared->waveform = waveformFromPeaks(peaks);
                 report(stems ? "stems" : "decode-cache", ++completedStages, presentation, prepared->waveform);
             };
             QString sourceId;
             if (stems) {
-                auto bank = service.isEmpty() ?
-                    std::optional<library::PreparedStemTrack>(store.prepareStemBank(path, *engine, stop)) :
-                    store.findPreparedStemBank(path, *engine, stop);
+                const bool fullBank = service.isEmpty();
+                const auto reportInput = [&](const library::TrackPresentation& presentation, std::span<const float> peaks) {
+                    report("stem-export", 1, presentation, waveformFromPeaks(peaks));
+                };
+                auto bank = fullBank ?
+                    std::optional<library::PreparedStemTrack>(store.prepareStemBank(path, *engine, stop, expectedSource, reportInput)) :
+                    store.findPreparedStemBank(path, *engine, stop, {}, expectedSource);
+                // A saved bank completes the input stage without an exporter.
+                completedStages += int(fullBank);
                 if (bank) {
                     sourceId = bank->sourceSha256;
                     prepared->cacheHit = bank->cacheHit;
                     prepared->presentation = std::move(bank->presentation);
-                    auto pcm = std::make_shared<PreparedPcm>(std::move(bank->stems));
+                    auto pcm = std::make_shared<PreparedPcm>(std::move(bank->stems), std::move(bank->vocalActivity));
                     pcm->sourcePath = path; pcm->artifactKey = bank->artifactKey;
                     prepared->audio = std::move(pcm);
                 } else {
                     // Only a genuine lookup miss reaches the service. A valid
                     // bank never inspects this otherwise unused sixth asset.
-                    auto track = store.prepareLiveStem(path, *engine, service, nextLiveSourceToken(), stop, residentHold);
+                    auto track = store.prepareLiveStem(path, *engine, service, nextLiveSourceToken(), stop,
+                                                       residentHold, expectedSource);
                     sourceId = track.sourceSha256;
                     prepared->presentation = std::move(track.presentation);
                     prepared->audio = std::make_shared<const PreparedPcm>(track.outputFrames,
@@ -1041,14 +1091,13 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                     prepared->playback = std::move(track.playback);
                 }
                 preview(prepared->presentation, prepared->audio->peaks());
-                QString analyzedSource;
                 if (bpmEngine || harmonyEngine) {
+                    const int stemStages = completedStages;
                     // Both maps use the same exact original mix, never a stem
                     // leaf/overview. Admit playback before optional analysis.
                     try {
                         report(bpmEngine ? "bpm-prepare" : "harmony-prepare", completedStages);
-                        auto original = store.prepare(path, stop);
-                        analyzedSource = original.sourceSha256;
+                        auto original = store.prepare(path, stop, sourceId);
                         if (bpmEngine) {
                             report("bpm", completedStages);
                             prepared->bpm = library::analyzeBpmCached(original.audio, *bpmEngine, bpmCache, stop);
@@ -1059,21 +1108,22 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                             prepared->harmony = library::analyzeHarmony(original.audio, *harmonyEngine, stop);
                             ++completedStages;
                         }
+                    } catch (const library::PreparedSourceMismatch&) {
+                        if (harmonyEngine)
+                            throw library::HarmonySourceError("Original source changed during harmony analysis");
+                        prepared->bpm = {{}, "Failed", "Source changed during BPM analysis."};
+                        ++completedStages;
                     } catch (const library::BpmSourceError&) { throw;
                     } catch (const library::HarmonySourceError&) { throw;
                     } catch (const std::exception&) {
                         if (stop.stop_requested()) throw;
                         if (bpmEngine) prepared->bpm = {{}, "Failed", "Original-mix BPM analysis could not complete."};
                         if (harmonyEngine) prepared->harmony = {"Failed", "Original-mix harmony analysis could not complete.", 0, {}, {}};
-                        completedStages = 1 + int(bpmEngine.has_value()) + int(harmonyEngine.has_value());
+                        completedStages = stemStages + int(bpmEngine.has_value()) + int(harmonyEngine.has_value());
                     }
                 }
-                if (!analyzedSource.isEmpty() && analyzedSource != sourceId) {
-                    if (harmonyEngine) throw library::HarmonySourceError("Original source changed during harmony analysis");
-                    prepared->bpm = {{}, "Failed", "Source changed during BPM analysis."};
-                }
             } else {
-                auto track = store.prepare(path, stop);
+                auto track = store.prepare(path, stop, expectedSource);
                 sourceId = track.sourceSha256;
                 prepared->cacheHit = track.cacheHit;
                 prepared->presentation = std::move(track.presentation);
@@ -1099,8 +1149,6 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                 prepared->audio = std::make_shared<const PreparedPcm>(std::move(track.audio));
             }
             if (stop.stop_requested()) throw std::runtime_error("Audio preparation cancelled");
-            if (!expectedSource.isEmpty() && sourceId != expectedSource)
-                throw std::runtime_error("Source changed; import this file again before loading its library entry.");
             prepared->sourceId = sourceId;
             report("prime", completedStages);
             if (!prepared->playback) prepared->playback = prepared->audio->makePlayback();
@@ -1142,7 +1190,7 @@ bool DeckController::deferForegroundPreparation(ForegroundPreparation request)
     preparationPhase_ = "continuation-cleanup";
     preparationCompletedStages_ = 0;
     preparationTotalStages_ = request.kind == ForegroundPreparation::Kind::CueImport ? 2 :
-        request.importOnly ? 3 : 3 + int(preparationOptions_.bpmEngine.has_value()) + int(preparationOptions_.harmonyEngine.has_value());
+        trackPreparationStageCount(request.importOnly, request.stems);
     preparationCacheHit_ = false;
     if (request.kind == ForegroundPreparation::Kind::Track && !request.importOnly)
         revokeResidentAuthorization(std::size_t(request.deck), "A new track preparation was accepted.");
@@ -1348,12 +1396,16 @@ bool DeckController::continuationEligible(std::size_t deck) const
         (!state_.buffering[deck] && !continuationResidentRangeId(deck)) ||
         (state_.residentHold[deck].active && !continuationResidentRangeId(deck)) ||
         state_.sourceFrames[deck] != clips_[deck]->frames() || state_.sourceFrame[deck] >= clips_[deck]->frames() ||
-        state_.sourcePosition[deck] != double(state_.sourceFrame[deck]) ||
+        !std::isfinite(state_.sourcePosition[deck]) || state_.sourcePosition[deck] < 0 ||
+        std::floor(state_.sourcePosition[deck]) != double(state_.sourceFrame[deck]) ||
         state_.transportRevision[deck] == std::numeric_limits<std::uint64_t>::max()) return false;
     const auto& tempo = state_.tempo[deck];
     const auto& loop = state_.loops[deck];
-    return !tempo.active && !tempo.pending && !tempo.keyLock && tempo.percent == 0 && tempo.appliedPercent == 0 &&
-        !state_.scratch[deck].active && !loop.inSet && !loop.outSet && !loop.active && !loop.cached;
+    const bool mode = std::isfinite(tempo.percent) && tempo.percent >= -6 && tempo.percent <= 6 &&
+        !tempo.finished && (tempo.active ? tempo.supported :
+            (!tempo.pending && tempo.percent == 0 && tempo.appliedPercent == 0));
+    return mode && !state_.scratch[deck].active &&
+        !loop.inSet && !loop.outSet && !loop.active && !loop.cached;
 }
 
 bool DeckController::continuationCurrent() const
@@ -1364,7 +1416,10 @@ bool DeckController::continuationCurrent() const
     return session_.get() == attempt.session && clips_[deck] == attempt.original && continuationEligible(deck) &&
         sourceIds_[deck] == attempt.original->liveSourceSha256 &&
         state_.sourceGeneration[deck] == attempt.sourceGeneration && state_.transportRevision[deck] == attempt.revision &&
-        state_.sourceFrame[deck] == attempt.frame && continuationResidentRangeId(deck) == attempt.residentHoldRangeId;
+        state_.sourceFrame[deck] == attempt.frame && state_.sourcePosition[deck] == attempt.position &&
+        state_.tempo[deck].active == attempt.tempo.active && state_.tempo[deck].percent == attempt.tempo.percent &&
+        state_.tempo[deck].keyLock == attempt.tempo.keyLock &&
+        continuationResidentRangeId(deck) == attempt.residentHoldRangeId;
 }
 
 void DeckController::cancelContinuation(std::size_t deck, const QString& reason)
@@ -1393,11 +1448,12 @@ void DeckController::considerContinuation()
             // Healthy progress or a deliberate non-rendering state ends this
             // stall. An unchanged failed/buffering source does not rearm a miss.
             if ((!state_.buffering[deck] && !state_.residentHold[deck].active) ||
-                state_.sourceFrame[deck] != episode.frame || state_.transportRevision[deck] != episode.revision ||
+                state_.sourceFrame[deck] != episode.frame || state_.sourcePosition[deck] != episode.position ||
+                state_.transportRevision[deck] != episode.revision ||
                 rangeId != episode.residentHoldRangeId) {
                 episode.attempted = false; episode.stalled.invalidate();
                 if (!state_.buffering[deck] && (state_.playing[deck] || state_.cuePreview[deck]) &&
-                    state_.sourceFrame[deck] > episode.frame) {
+                    state_.sourcePosition[deck] > episode.position) {
                     episode.status = "Idle"; episode.detail.clear();
                 }
             }
@@ -1405,11 +1461,13 @@ void DeckController::considerContinuation()
         }
         if (episode.clip != clips_[deck].get() || episode.sourceGeneration != state_.sourceGeneration[deck] ||
             episode.revision != state_.transportRevision[deck] || episode.frame != state_.sourceFrame[deck] ||
+            episode.position != state_.sourcePosition[deck] ||
             episode.residentHoldRangeId != rangeId) {
             const auto attempts = episode.clip == clips_[deck].get() ? episode.attempts : 0;
             episode = {};
             episode.clip = clips_[deck].get(); episode.sourceGeneration = state_.sourceGeneration[deck];
             episode.revision = state_.transportRevision[deck]; episode.frame = state_.sourceFrame[deck];
+            episode.position = state_.sourcePosition[deck];
             episode.residentHoldRangeId = rangeId;
             episode.attempts = attempts; episode.stalled.start();
         }
@@ -1445,17 +1503,19 @@ void DeckController::considerContinuation()
         ContinuationAttempt attempt;
         attempt.deck = deck; attempt.original = original; attempt.session = session_.get();
         attempt.sourceGeneration = state_.sourceGeneration[deck]; attempt.revision = state_.transportRevision[deck];
-        attempt.frame = state_.sourceFrame[deck]; attempt.generation = ++nextSourceGeneration_;
+        attempt.frame = state_.sourceFrame[deck]; attempt.position = state_.sourcePosition[deck];
+        attempt.tempo = state_.tempo[deck]; attempt.generation = ++nextSourceGeneration_;
         attempt.residentHoldRangeId = rangeId;
         attempt.deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
         episode.generation = attempt.generation;
         const auto frame = attempt.frame;
+        const auto position = attempt.position;const auto tempo = attempt.tempo;
         const auto deadline = attempt.deadline;
         continuation_ = std::move(attempt);
         episode.status = "Checking"; episode.detail.clear();
         loadCancellation_ = std::stop_source{};
         loaderPurpose_ = LoaderPurpose::Continuation;
-        loader_.setFuture(QtConcurrent::run([original, frame, deadline, limits,
+        loader_.setFuture(QtConcurrent::run([original, frame, position, tempo, deadline, limits,
             cache = baseCache + "/prepared/v1", engine = *preparationOptions_.stemEngine,
             parentStop = loadCancellation_.get_token()]() -> LoadResult {
             try {
@@ -1487,7 +1547,7 @@ void DeckController::considerContinuation()
                         return leaf.frames() != original->frames();
                     }) || frame >= original->frames())
                     throw std::runtime_error("Prepared bank identity or exact source geometry differs from the live source.");
-                auto pcm = std::make_shared<PreparedPcm>(std::move(bank->stems));
+                auto pcm = std::make_shared<PreparedPcm>(std::move(bank->stems), std::move(bank->vocalActivity));
                 pcm->sourcePath = original->sourcePath; pcm->artifactKey = original->artifactKey;
                 pcm->liveSourceSha256 = original->liveSourceSha256; pcm->observations = original->observations;
                 auto prepared = std::make_shared<PreparedLoad>();
@@ -1496,9 +1556,9 @@ void DeckController::considerContinuation()
                 check();
                 const auto remaining = std::chrono::duration_cast<std::chrono::milliseconds>(
                     deadline - std::chrono::steady_clock::now());
-                if (remaining.count() <= 0 || !prepared->playback->prime(frame,
+                if (remaining.count() <= 0 || !prepared->playback->primeContinuation(position,tempo,
                     std::min(std::chrono::milliseconds(2000), remaining), admission.get_token()) ||
-                    !prepared->playback->primedForContinuation(frame))
+                    !prepared->playback->primedForContinuation(position))
                     throw std::runtime_error("Prepared continuation could not prime its exact source cursor.");
                 check();
                 return {std::move(prepared), {}, {}, true};
@@ -1541,7 +1601,7 @@ void DeckController::continuationLoaded(const LoadResult& result)
     // Control publication and the callback both require the unused exact prime.
     // No seek/reset/stop or gain retarget is applied to this candidate here.
     attempt.published = session_->requestSourceContinuation(attempt.deck, attempt.prepared->playback,
-        attempt.sourceGeneration, attempt.revision, attempt.frame, attempt.generation, attempt.residentHoldRangeId);
+        attempt.sourceGeneration, attempt.revision, attempt.position, attempt.generation, attempt.residentHoldRangeId);
     if (!attempt.published) {
         episode.status = "Unavailable"; episode.detail = "The exact prepared continuation could not be published.";
         auto playback = std::move(attempt.prepared->playback);
@@ -1703,11 +1763,10 @@ void DeckController::loaded()
     resetResidentAuthorization(std::size_t(pendingDeck_));
     continuationEpisodes_[pendingDeck_] = {};
     names_[pendingDeck_] = pendingName_;
-    if (sourceIds_[pendingDeck_] != result.prepared->sourceId) bpmOverrides_[pendingDeck_].reset();
-    sourceIds_[pendingDeck_] = result.prepared->sourceId;
+    setDeckSource(std::size_t(pendingDeck_), result.prepared->sourceId);
     presentations_[pendingDeck_] = std::move(result.prepared->presentation);
-    bpmEstimates_[pendingDeck_] = std::move(result.prepared->bpm);
-    harmonyEstimates_[pendingDeck_] = std::move(result.prepared->harmony);
+    bpmTiming_[pendingDeck_] = library::BpmTiming(std::move(result.prepared->bpm));
+    harmonyTiming_[pendingDeck_] = library::HarmonyTiming(std::move(result.prepared->harmony));
     waveforms_[pendingDeck_] = result.prepared->waveform;
     ++waveformRevisions_[pendingDeck_];
     state_.sourceFrame[pendingDeck_] = 0;
@@ -1746,8 +1805,14 @@ void DeckController::installSession(std::unique_ptr<audio::PreparedPlayback> ret
     initial.crossfader = state_.crossfader;
     initial.cueSelected = state_.cueSelected;
     initial.cueGain = state_.cueGain;
-    for (std::size_t deck = 0; deck < initial.stemGain.size(); ++deck)
+    for (std::size_t deck = 0; deck < initial.stemGain.size(); ++deck) {
         if (state_.stemBank[deck]) initial.stemGain[deck] = state_.stemGain[deck];
+        const auto& playback = stoppedPlaybacks_[deck];
+        const bool resumeTempo = state_.tempo[deck].active && !state_.scratch[deck].active &&
+            !state_.sourceReadError[deck];
+        if (playback && (resumeTempo || (!playback->isLive() && state_.loops[deck].inSet)))
+            initial.preparedResumePosition[deck] = state_.sourcePosition[deck];
+    }
     // Reuse both exact stopped owners and the prepared first-load candidate.
     // Reset/prime belongs to LiveSession's existing worker-side constructor.
     auto playbacks = std::move(stoppedPlaybacks_);
@@ -1871,13 +1936,12 @@ void DeckController::settleReplacement(bool stopped)
     resetResidentAuthorization(std::size_t(pendingDeck_));
     continuationEpisodes_[pendingDeck_] = {};
     names_[pendingDeck_] = pendingName_;
-    if (sourceIds_[pendingDeck_] != pendingLoad_->sourceId) bpmOverrides_[pendingDeck_].reset();
-    sourceIds_[pendingDeck_] = pendingLoad_->sourceId;
+    setDeckSource(std::size_t(pendingDeck_), pendingLoad_->sourceId);
     scratchGestures_[pendingDeck_].reset();
     scratchEnds_[pendingDeck_].reset();
     presentations_[pendingDeck_] = std::move(pendingLoad_->presentation);
-    bpmEstimates_[pendingDeck_] = std::move(pendingLoad_->bpm);
-    harmonyEstimates_[pendingDeck_] = std::move(pendingLoad_->harmony);
+    bpmTiming_[pendingDeck_] = library::BpmTiming(std::move(pendingLoad_->bpm));
+    harmonyTiming_[pendingDeck_] = library::HarmonyTiming(std::move(pendingLoad_->harmony));
     waveforms_[pendingDeck_] = pendingLoad_->waveform;
     ++waveformRevisions_[pendingDeck_];
     pendingLoad_.reset();
@@ -1968,8 +2032,8 @@ void DeckController::installed()
             names_[deck].clear();
             sourceIds_[deck].clear();
             presentations_[deck] = {};
-            bpmEstimates_[deck] = {};
-            harmonyEstimates_[deck] = {};
+            bpmTiming_[deck] = {};
+            harmonyTiming_[deck] = {};
             bpmOverrides_[deck].reset();
             waveforms_[deck].clear();
             ++waveformRevisions_[deck];
@@ -2475,9 +2539,9 @@ void DeckController::setCrossfader(double position)
 
 void DeckController::setTempoPercent(int deck, double percent)
 {
-    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck] || clips_[deck]->live() ||
+    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck] ||
         !std::isfinite(percent) || percent < -6.0 || percent > 6.0) {
-        fail("Tempo requires prepared audio and a value between -6 and +6 percent.");
+        fail("Tempo requires a loaded deck and a value between -6 and +6 percent.");
         return;
     }
     audio::RenderCore::Command command;
@@ -2493,7 +2557,7 @@ void DeckController::setTempoBpm(int deck, double bpm)
         fail("Load a track before changing BPM.");
         return;
     }
-    const auto reference = bpmOverrides_[deck].value_or(bpmEstimates_[deck].bpm.value_or(0.));
+    const auto reference = bpmOverrides_[deck].value_or(bpmTiming_[deck].estimate().bpm.value_or(0.));
     const auto percent = library::tempoPercentForBpm(reference, bpm);
     if (!percent) {
         fail("BPM needs a valid original reference and a target within the tempo range.");
@@ -2509,10 +2573,7 @@ void DeckController::setBpmOverride(int deck, double bpm)
         fail("Original BPM must be between 20 and 400 for a loaded track.");
         return;
     }
-    // A source reference is metadata. Changing it never changes playback speed
-    // or issues a render command; the acknowledged ratio remains authoritative.
-    bpmOverrides_[deck] = bpm;
-    notifyStateChanged();
+    updateBpmOverride(deck, bpm);
 }
 
 void DeckController::clearBpmOverride(int deck)
@@ -2521,14 +2582,62 @@ void DeckController::clearBpmOverride(int deck)
         fail("Load a track before selecting automatic BPM.");
         return;
     }
-    bpmOverrides_[deck].reset();
+    updateBpmOverride(deck, std::nullopt);
+}
+
+const library::LibraryTrack* DeckController::cataloguedDeck(std::size_t deck) const
+{
+    if (!clips_[deck]) return nullptr;
+    const auto found = std::ranges::find_if(libraryEntries_, [&](const auto& track) {
+        return track.sourceSha256 == sourceIds_[deck] && track.frames == clips_[deck]->frames();
+    });
+    return found == libraryEntries_.end() ? nullptr : &*found;
+}
+
+void DeckController::setDeckSource(std::size_t deck, const QString& sourceId)
+{
+    if (sourceIds_[deck] == sourceId) return;
+    sourceIds_[deck] = sourceId;
+    const auto* track = cataloguedDeck(deck);
+    bpmOverrides_[deck] = track ? track->manualBpm : std::nullopt;
+}
+
+void DeckController::updateBpmOverride(int deck, std::optional<double> bpm)
+{
+    // A BPM reference is source metadata. The acknowledged audio ratio still
+    // governs playback, and ad-hoc tracks can use a temporary deck reference.
+    const auto* track = cataloguedDeck(std::size_t(deck));
+    if (!track) {
+        bpmOverrides_[deck] = bpm;
+        notifyStateChanged();
+        return;
+    }
+    if (busy_) {
+        fail("Wait for the current operation to finish before saving BPM.");
+        return;
+    }
+    const auto sourceId = track->sourceSha256;
+    const auto frames = track->frames;
+    busy_ = true;
+    error_.clear(); libraryError_.clear();
+    pendingImport_ = true; pendingStems_ = false; pendingDeck_ = deck;
+    pendingName_ = names_[deck]; pendingPath_.clear();
+    pendingPresentation_ = {}; pendingWaveform_.clear();
+    preparationStatus_ = "Saving"; preparationPhase_ = "library";
+    preparationCompletedStages_ = 0; preparationTotalStages_ = 1;
+    preparationCacheHit_ = false;
+    catalogJob_.setFuture(QtConcurrent::run([path = libraryPath_, sourceId, frames, bpm]() -> CatalogResult {
+        try { return {library::LibraryCatalog(path).updateManualBpm(sourceId, frames, bpm), {}, true, sourceId}; }
+        catch (const std::exception& error) { return {{}, QString::fromUtf8(error.what()), true}; }
+        catch (...) { return {{}, "Cannot save the reference BPM.", true}; }
+    }));
     notifyStateChanged();
 }
 
 void DeckController::toggleMasterTempo(int deck)
 {
-    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck] || clips_[deck]->live()) {
-        fail("Master Tempo requires prepared audio.");
+    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck]) {
+        fail("Load a track before selecting Master Tempo.");
         return;
     }
     audio::RenderCore::Command command;
@@ -2539,8 +2648,8 @@ void DeckController::toggleMasterTempo(int deck)
 
 void DeckController::resetTempo(int deck)
 {
-    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck] || clips_[deck]->live()) {
-        fail("Tempo reset requires prepared audio.");
+    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck]) {
+        fail("Load a track before resetting tempo.");
         return;
     }
     audio::RenderCore::Command command;
@@ -2646,7 +2755,7 @@ void DeckController::configureAudioRouting(const QString& masterLeft, const QStr
     else if (discovery_) routingSnapshot_ = discovery_->routingSnapshot();
     auto find = [&](const QString& key) -> std::optional<audio::PortIdentity> {
         for (const auto& port : routingSnapshot_.playbackPorts)
-            if (audio::isPlaybackPort(port) && portKey(port) == key) return port;
+            if (audio::isPlaybackPort(port) && !port.unavailable && portKey(port) == key) return port;
         return std::nullopt;
     };
     audio::RoutingConfig config;
@@ -2658,7 +2767,7 @@ void DeckController::configureAudioRouting(const QString& masterLeft, const QStr
         return true;
     };
     if (!pair(masterLeft, masterRight, config.master) || !pair(cueLeft, cueRight, config.cue)) {
-        fail("An output port is missing. Refresh and select both channels again.");
+        fail("An output port is unavailable. Refresh and select both channels again.");
         return;
     }
     const auto resolved = audio::resolveAudioRouting(routingSnapshot_, config);
@@ -2666,10 +2775,17 @@ void DeckController::configureAudioRouting(const QString& masterLeft, const QStr
         fail(QString::fromStdString(!resolved.master ? resolved.masterError : resolved.cueError));
         return;
     }
-    // Runtime identities protect against ID reuse. Reconfiguration intentionally
-    // interrupts output, then restores the exact stopped transport state.
+    const auto samePair = [](const auto& selected, const auto& active) {
+        if (!selected || !active) return !selected && !active;
+        return audio::samePortIdentity(selected->left, active->left) &&
+            audio::samePortIdentity(selected->right, active->right);
+    };
+    const auto expectedCueStatus = resolved.cue ? audio::CueRouteStatus::Ready : audio::CueRouteStatus::Disabled;
+    const bool unchanged = session_ && ready_ && routingSnapshot_.masterReady &&
+        routingSnapshot_.cueStatus == expectedCueStatus && routingSnapshot_.cueReady == bool(resolved.cue) &&
+        samePair(resolved.master, routingSnapshot_.master) && samePair(resolved.cue, routingSnapshot_.cue);
     routingConfig_ = std::move(config);
-    if (!clips_[0] && !clips_[1]) {
+    if (unchanged || (!clips_[0] && !clips_[1])) {
         error_.clear();
         notifyStateChanged();
         return;
@@ -2727,7 +2843,9 @@ void DeckController::recordingStarted()
         recordingError_ = result.error;
         recordingStatus_ = "Failed";
     } else {
-        if (!session_ || !ready_) recordingStopRequested_ = true;
+        // A route rebuild can finish opening the writer between sessions.
+        // The installer will attach it, or request a stop if the new output fails.
+        if (!session_ && !installationPending_) recordingStopRequested_ = true;
         pollRecording();
     }
     notifyStateChanged();

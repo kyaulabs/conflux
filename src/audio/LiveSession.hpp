@@ -26,6 +26,8 @@ class LiveSession {
 public:
     struct InitialState {
         std::array<std::uint64_t, RenderCore::deckCount> sourceFrame{};
+        // Only for the same loop or active-tempo owner from a quiesced session.
+        std::array<std::optional<double>, RenderCore::deckCount> preparedResumePosition{};
         std::array<std::uint64_t, RenderCore::deckCount> cueFrame{};
         std::array<bool, RenderCore::deckCount> playing{};
         std::array<RenderCore::HotCues, RenderCore::deckCount> hotCues{};
@@ -115,7 +117,7 @@ public:
     bool requestSourceReplacement(std::size_t deck, std::unique_ptr<PreparedPlayback>& candidate,
                                   std::uint64_t generation) noexcept;
     // Same-deck prepared-bank continuation. The caller proves same-track PCM
-    // provenance and primes this exact frame off-thread before publication.
+    // provenance and primes this exact nominal position and mode off-thread before publication.
     // After queued controls drain, the callback validates source generation,
     // transport revision, exact cursor and supported modes before any swap.
     // Rejection never pauses/uncues the old deck; candidate ownership follows
@@ -124,7 +126,7 @@ public:
     // queued manual controls invalidate the request before any later swap.
     bool requestSourceContinuation(std::size_t deck, std::unique_ptr<PreparedPlayback>& candidate,
                                    std::uint64_t expectedSourceGeneration,
-                                   std::uint64_t expectedTransportRevision, std::uint64_t frame,
+                                   std::uint64_t expectedTransportRevision, double position,
                                    std::uint64_t generation, std::uint64_t residentHoldRangeId = 0) noexcept;
     [[nodiscard]] bool sourceReplacementPending() const noexcept;
     std::optional<SourceReplacementResult> takeSourceReplacementResult() noexcept;

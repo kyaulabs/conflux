@@ -28,10 +28,11 @@ public:
         FramePlan(std::uint64_t input, std::uint64_t output) noexcept : input_(input), output_(output) {}
         std::uint64_t input_, output_;
     };
-    // Bounded4096 scratch, one stereo zero state, constant sinc ratio, positive
-    // input then deferred zero-input EOF; count actual generated data. Counting
-    // samples are discarded; actual stem PCM always uses the Best filter.
-    // Check stop before allocation and between each bounded library call.
+    // Count exact 48 kHz EOF coverage for the fixed 44.1 kHz input.
+    // Use the verified 0.2.2 clock formula when supported. Otherwise count
+    // discarded stereo zeros with bounded scratch and deferred zero-input EOF.
+    // Check stop before producing a plan and during the counting fallback.
+    // Actual stem PCM always uses the Best filter.
     // Zero/unaddressable input OR output-cap geometry ->invalid_argument;
     // actual output over cap
     // ->length_error; cancellation/library error ->runtime_error. No ceil guess.
@@ -39,8 +40,9 @@ public:
                                  std::stop_token stop = {});
 
     // Construct fresh state for an output cursor in[0,plan.outputFrames()].
-    // Anchor is max(0,floor(target/160)-32)*147; internal discard reaches the
-    // exact target before any samples become output. The closed finite fixture
+    // Below EOF, the anchor is max(0,floor(target/160)-32)*147, with
+    // internal discard up to the target. Exact EOF anchors at inputFrames(),
+    // with no input to convert. The closed finite fixture
     // and closed4*HOP+211 interior-seek fixtures support this candidate; this
     // is finite numerical evidence, not an all-duration equivalence proof.
     explicit StemRateConverter(FramePlan plan, std::uint64_t targetFrame = 0);

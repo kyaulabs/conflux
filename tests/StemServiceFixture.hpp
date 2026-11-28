@@ -105,12 +105,18 @@ if MODE in ['descendant', 'dead-leader']:
     child = subprocess.Popen([sys.executable, '-B', '-c', 'import time; time.sleep(120)'])
     fields = pathlib.Path('/proc/%d/stat' % child.pid).read_text().rsplit(') ', 1)[1].split()
     marker('.native-start').write_text(fields[19])
-    marker('.native').write_text(str(child.pid))
-def runtime_event(tag):
-    emit({'event': 'runtime', 'worker_generation': tag, 'model_id': model['sha256'],
+    # The test treats .native's presence as readiness for both identity files.
+    pending_pid = marker('.native-pending')
+    pending_pid.write_text(str(child.pid))
+    pending_pid.replace(marker('.native'))
+def runtime_event(tag, retired=None, revision='a' * 40):
+    value = {'event': 'runtime', 'worker_generation': tag, 'model_id': model['sha256'],
         'ready': {'sample_rate': 44100, 'channels': 2, 'segment_frames': WINDOW,
-            'stems': ROLES, 'backend': a.backend, 'threads': a.threads, 'revision': 'a' * 40,
-            'weight_storage': 'native', 'fence_wait_mode': 'blocking'}})
+            'stems': ROLES, 'backend': a.backend, 'threads': a.threads, 'revision': revision,
+            'weight_storage': 'native', 'fence_wait_mode': 'blocking'}}
+    if retired is not None:
+        value['replaces_generation'] = retired
+    emit(value)
     trace({'fixture': 'runtime', 'generation': tag})
 def publish():
     global cursor, sequence, chunks, saw_two
@@ -136,6 +142,9 @@ def publish():
         'frames': frames, 'final': cursor + frames == n, 'bytes': value['bytes'], 'sha256': value['sha256'],
         'request_id': sequence, 'worker_ready_at': time.monotonic(), 'published_at': time.monotonic()}
     if MODE in ['timing', 'timing-no-hop', 'timing-partial', 'timing-zero']:
+        emit({'event': 'started', 'generation': generation, 'source_id': source['sha256'],
+              'model_id': model['sha256'], 'request_id': sequence, 'window_start_frame': cursor - cursor % HOP,
+              'preroll': False, 'timestamp': 1000.125})
         event['worker_ready_at'] = 1000.25; event['published_at'] = 1000.375
         if MODE == 'timing': event['hop_service_ms'] = 125.0
         names = ['source_read_ms', 'request_ms', 'overlap_ms', 'native_elapsed_ms', 'native_inference_wall_ms',
@@ -151,6 +160,10 @@ def publish():
         target = event.setdefault('native_timings', {}) if key.startswith('native_') else event
         target[key] = {'bool': True, 'string': '1', 'nan': float('nan'), 'inf': float('inf'),
             'negative-inf': -float('inf'), 'negative': -.125}[kind]
+    if MODE in ['timing-cached', 'timing-cached-with-native']:
+        event.update(inference_reused=True, overlap_ms=.25, hop_service_ms=125.0,
+                     worker_ready_at=1000.25, published_at=1000.375)
+    if MODE == 'timing-cached-with-native': event['native_timings'] = {'native_elapsed_ms': 5.0}
     if MODE == 'timing-extra': event['native_timings'] = {'private_path': '/private/input.f32'}
     if MODE.startswith('timing-container:'):
         event['native_timings'] = {'bool': True, 'string': 'opaque', 'null': None, 'array': []}[MODE.split(':')[1]]
@@ -254,13 +267,23 @@ try:
             tag = generation + 1 if MODE == 'runtime-future' else generation
             runtime_event(tag)
         if not source_seen:
+            replacement = None
+            after_source = MODE.endswith('-after-source')
+            if generation == 2 and MODE.startswith('runtime-restart'):
+                restart_mode = MODE.removesuffix('-after-source')
+                retired = None if restart_mode == 'runtime-restart-no-proof' else 2 if restart_mode == 'runtime-restart-current' else 1
+                revision = 'b' * 40 if restart_mode == 'runtime-restart-changed' else 'a' * 40
+                replacement = (generation, retired, revision)
+                if not after_source: runtime_event(*replacement)
             source_seen = True
             source_id = identity(P.with_name('source.wav'))['sha256'] if MODE == 'source-original' else source['sha256']
-            tag = generation - 1 if MODE == 'stale-after-seek' and generation > 1 else generation
+            stale_seek = MODE in ['stale-after-seek', 'stale-after-first-reserve'] and generation > 1
+            tag = generation - 1 if stale_seek else generation
             # Deliberately nonidentity diagnostics; the raw fake stem files are
             # ALREADY restored PCM. The receiver must not apply these again.
             emit({'event': 'source', 'generation': tag, 'source_id': source_id,
                 'source_frames': n, 'source_format': 'f32le', 'mean': .375, 'std': .0625})
+            if replacement and after_source: runtime_event(*replacement)
         if MODE == 'error-then-clean':
             emit({'event': 'error', 'generation': generation, 'code': 'RuntimeError',
                   'message': 'fixture primary error', 'retained_job': False}); break
@@ -271,7 +294,8 @@ try:
         if MODE == 'unexpected-closed': break
         if MODE == 'unknown-event':
             emit({'event': 'surprise'}); break
-        gated = MODE == 'gate-after-first' and chunks >= 1 and not marker('.release').exists()
+        gated = (MODE in ['gate-after-first', 'stale-after-first-reserve']
+                 and chunks >= 1 and not marker('.release').exists())
         if not gated and cursor < n and None in leases: publish()
         if cursor == n and not complete and any(lease is None for lease in leases):
             complete = True
@@ -280,6 +304,9 @@ try:
             trace({'fixture': 'complete', 'generation': generation})
 finally:
     selector.close()
+    if MODE == 'native-signal':
+        # Outlive the player's ordinary shutdown grace.
+        time.sleep(.400)
     if MODE == 'preserve-job': (job / 'unknown-owner').write_bytes(b'preserve this fixed job')
     if child is not None:
         child.terminate()
@@ -288,10 +315,17 @@ finally:
     trace({'fixture': 'closed', 'outstanding_slots': sum(lease is not None for lease in leases),
            'wire_bytes_before_closed': wire_bytes})
     actual_outstanding = sum(lease is not None for lease in leases)
-    emit({'event': 'closed', 'generation': generation,
+    receipt = {'event': 'closed', 'generation': generation,
         'reason': 'signal' if stop else reason, 'worker_closed': True,
         'outstanding_slots': (actual_outstanding + 1) % 3 if MODE == 'bad-closed-count' else actual_outstanding,
-        'telemetry_dropped': 7, 'closed_at': time.monotonic()})
+        'telemetry_dropped': 7, 'closed_at': time.monotonic()}
+    if MODE != 'legacy-closed' and os.environ.get('CONFLUX_STEM_NATIVE_SHUTDOWN') == '1':
+        receipt['native_shutdown'] = {'exit_code': 0, 'kill_requested': False}
+        if MODE == 'native-signal':
+            receipt['native_shutdown'] = {'signal': 9, 'kill_requested': True}
+        if MODE == 'bad-native-shutdown':
+            receipt['native_shutdown']['signal'] = 9
+    emit(receipt)
 )PY";
     writeFixtureBytes(fixture.service, script);
     writeFixtureBytes(fixture.marker(".outside"), "outside sentinel must survive\n");

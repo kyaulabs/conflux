@@ -198,13 +198,13 @@ class _Session:
         self.generation = self.command_id = self.sequence = 0
         self.loaded = self.active = self.source_ready = self.completed = False
         self.runtime_ready = None
+        self.runtime_generation = self.retired_fault = 0
         self.next_frame = 0
         self.leases = [None, None]
 
     def verify_signatures(self):
         for pinned in self.pins:
-            if (exporter._signature(pinned.path.lstat()) != pinned.signature
-                    or exporter._signature(os.fstat(pinned.fd)) != pinned.signature):
+            if not pinned.matches_signature():
                 raise RuntimeError("service source, model or tool changed")
 
     def drops(self):
@@ -283,15 +283,29 @@ class _Session:
                 or event["generation"] > self.generation):
             raise RuntimeError("invalid service worker event generation")
         kind = event.get("event")
+        generation = event["generation"]
         if kind == "runtime_ready":
+            ready = exporter._ready(event, self.model.digest, self.worker.backend, self.worker.threads)
+            receipt = {"event": "runtime", "worker_generation": generation,
+                       "model_id": self.model.digest, "ready": ready}
             if self.runtime_ready is not None:
-                raise RuntimeError("service runtime restarted unexpectedly")
-            self.runtime_ready = exporter._ready(event, self.model.digest,
-                                                  self.worker.backend, self.worker.threads)
-            self.wire.emit({"event": "runtime", "worker_generation": event["generation"],
-                            "model_id": self.model.digest, "ready": self.runtime_ready})
+                # A verified prefix can have been delivered before an old
+                # unrelated request failed. Keep its source and leases.
+                if (not self.runtime_generation <= self.retired_fault < generation
+                        or (self.source_ready and self.next_frame == self.frames)
+                        or ready != self.runtime_ready):
+                    raise RuntimeError("service runtime restarted unexpectedly")
+                receipt["replaces_generation"] = self.retired_fault
+            self.runtime_ready = ready
+            self.runtime_generation = generation
+            self.retired_fault = 0
+            self.wire.emit(receipt)
             return
-        if event["generation"] != self.generation or not self.active:
+        if generation != self.generation or not self.active:
+            # The worker reaps a failed runtime before publishing a replacement.
+            # Only a superseded fault can authorize a new runtime receipt.
+            if kind == "error" and self.runtime_generation <= generation < self.generation:
+                self.retired_fault = max(self.retired_fault, generation)
             return
         if kind == "source_ready":
             mean, std = event.get("mean"), event.get("std")
@@ -367,6 +381,12 @@ class _Session:
                 if not _finite(metrics[key]):
                     raise RuntimeError("invalid native chunk timing")
                 native_timings["native_" + key] = metrics[key]
+        if "inference_reused" in event:
+            if (event["inference_reused"] is not True or native_timings
+                    or "request_ms" in timings or "source_read_ms" in timings
+                    or not {"overlap_ms", "hop_service_ms"} <= timings.keys()):
+                raise RuntimeError("invalid cached stem timing")
+            timings["inference_reused"] = True
         if native_timings:
             # Keep the existing 32-member per-object wire cap unchanged.
             timings["native_timings"] = native_timings
@@ -428,7 +448,7 @@ def serve_f32(source_f32, directory, runtime, model, *, backend="vulkan", thread
                 or stat.S_IMODE(info.st_mode) != 0o600 or info.st_size != 0):
             raise ValueError("unsafe service ownership lock")
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        source = exporter._PinnedFile(source_f32, limits.max_input_bytes, stack, stop, deadline)
+        source = exporter._PinnedFile(source_f32, limits.max_input_bytes, stack, stop, deadline, prepare_f32=True)
         reserved = reservation_bytes(source.size, limits.max_diagnostic_bytes)
         if reserved > limits.max_job_bytes:
             raise ValueError("service exceeds whole-job byte reservation")
@@ -447,7 +467,8 @@ def serve_f32(source_f32, directory, runtime, model, *, backend="vulkan", thread
             native_factory = lambda *args: NativeRuntime(*args, spool_directory=directory / "native",
                                                          max_stderr_bytes=limits.max_diagnostic_bytes)
             worker = (_worker_factory or StemWorker)(runtime_pin.path, model_pin.path, backend=backend,
-                threads=threads, max_ready=1, request_timeout=limits.request_timeout, _backend_factory=native_factory)
+                threads=threads, max_ready=1, request_timeout=limits.request_timeout,
+                _backend_factory=native_factory, _model_pin=model_pin, _prepared_source=source.prepared_source)
             session = _Session(source, model_pin, runtime_pin, directory, wire, worker, pins)
             wire.emit({"event": "ready", "generation": 0, "describe": description,
                        "source": {"format": "f32le", "sample_rate": RATE, "channels": CHANNELS,
@@ -508,10 +529,15 @@ def serve_f32(source_f32, directory, runtime, model, *, backend="vulkan", thread
                                    "code": type(primary).__name__, "message": str(primary)[:1024],
                                    "retained_job": retained})
                     if closed and not retained:
-                        wire.emit({"event": "closed", "generation": session.generation if session else 0,
+                        receipt = {"event": "closed", "generation": session.generation if session else 0,
                                    "reason": "error" if primary is not None else reason, "worker_closed": True,
                                    "outstanding_slots": sum(lease is not None for lease in session.leases) if session else 0,
-                                   "telemetry_dropped": session.drops() if session else 0, "closed_at": time.monotonic()})
+                                   "telemetry_dropped": session.drops() if session else 0, "closed_at": time.monotonic()}
+                        if os.environ.get("CONFLUX_STEM_NATIVE_SHUTDOWN") == "1":
+                            native_shutdown = worker.statistics().get("native_shutdown")
+                            if native_shutdown is not None:
+                                receipt["native_shutdown"] = native_shutdown
+                        wire.emit(receipt)
                     wire.drain()
                 except BaseException as drain_error:
                     if primary is None:

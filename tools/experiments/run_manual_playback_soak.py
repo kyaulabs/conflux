@@ -38,25 +38,39 @@ def pin(path):
     return {"path": str(path), "bytes": info.st_size, "sha256": value.hexdigest()}
 
 
-def process_identity(pid):
+def process_identity(pid, owner_uid=None):
     root = Path("/proc") / str(pid)
-    if root.stat().st_uid != os.getuid():
+    if owner_uid is None:
+        owner_uid = os.getuid()
+    if root.stat().st_uid != owner_uid:
         raise RuntimeError("Observed PID is not owned by the current user")
     fields = (root / "stat").read_text().rsplit(")", 1)[1].split()
     return {"pid": pid, "start_ticks": int(fields[19]),
             "command": [part.decode(errors="replace") for part in (root / "cmdline").read_bytes().split(b"\0") if part]}
 
 
-def guard_identity(script, service_file):
-    raw = read_command(["systemctl", "--user", "show", "thermal-guard.service",
-                        "--property=ActiveState,MainPID,InvocationID,ExecMainStartTimestampMonotonic"])
+def guard_service_identity(script, service_file, scope, timeout=3):
+    system_service = scope == "system"
+    service = service_file.name if system_service else "thermal-guard.service"
+    properties = "ActiveState,MainPID,InvocationID,ExecMainStartTimestampMonotonic"
+    if system_service:
+        properties += ",FragmentPath"
+    raw = read_command(["systemctl", "--system" if system_service else "--user", "show", service,
+                        "--property=" + properties], timeout=timeout)
     fields = dict(line.split("=", 1) for line in raw.splitlines() if "=" in line)
     if fields.get("ActiveState") != "active" or int(fields.get("MainPID", 0)) <= 0:
-        raise RuntimeError("Existing thermal-guard.service must remain active")
-    identity = process_identity(int(fields["MainPID"]))
+        raise RuntimeError(f"Existing {service} must remain active")
+    if system_service and fields.get("FragmentPath") != str(service_file):
+        raise RuntimeError("Active system thermal guard does not match the pinned unit")
+    identity = process_identity(int(fields["MainPID"]), 0 if system_service else None)
     if str(script) not in identity["command"]:
         raise RuntimeError("Active thermal guard does not match the pinned script")
-    return {"service": fields, "process": identity, "script": pin(script), "unit": pin(service_file)}
+    return {"service": fields, "process": identity}
+
+
+def guard_identity(script, service_file, scope="user"):
+    return {**guard_service_identity(script, service_file, scope),
+            "script": pin(script), "unit": pin(service_file)}
 
 
 def power_state():
@@ -165,7 +179,7 @@ def owned_objects(objects, pid):
 
 
 
-# These identities select the previously promoted pair; paths remain explicit.
+# Preserve the promoted runtime as the default and pin the model in every host run.
 FLASH_RUNTIME_SHA256 = "6f4dca329ee158ad4c1abe963cd9d0940d63ba8a309afdc8b4cd1b7259edbc53"
 FLASH_MODEL_SHA256 = "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
 
@@ -208,12 +222,90 @@ def duration_stats(values):
             "nearest_rank_p99_ms": ordered[math.ceil(.99 * len(ordered)) - 1] if ordered else None}
 
 
-def validate_hour_result(native, observations, background=False):
-    """Check bounded native hour evidence before the wrapper's cleanup gate."""
+def live_timing_passes(observations):
+    hops = observations["service_hops"]
+    inferred = observations.get("inferred_service_hops", hops)
+    phases = observations["chunk_phases"]["fields"]
+    count = hops["count"]
+    return (observations["service_metrics_complete"] and hops["complete"]
+            and count == observations["kind_counts"]["ChunkValidated"] > 0
+            and hops["nearest_rank_p99_ms"] < 4095
+            and 0 < inferred["count"] <= count and inferred["nearest_rank_p99_ms"] < 4095
+            and set(phases) == set(LIVE_PHASE_NAMES)
+            and all(row["count"] == (count if key == "overlap_ms" else inferred["count"])
+                    for key, row in phases.items()))
+
+
+HOUR_CACHED_SOURCE = (1031940, 1123201)
+HOUR_FRESH_SOURCE = (4127760, 4492801)
+HOUR_SCREEN_SECONDS = 540
+STEM_HOP_FRAMES = 257985
+
+
+def hour_inference_coverage(native, observations, geometry):
+    if geometry == HOUR_CACHED_SOURCE:
+        return {"source_profile": "short_replay", "fresh_inference_sustained": False}
+    source_frames = geometry[1]
+    replays = [event for event in native["controls"] if event.get("kind") == "replay_recovery"]
+    begin, end = native["measurement_begin_output_frame"], native["measurement_end_output_frame"]
+    boundaries = [begin, *(event["output_begin"] for event in replays), end]
+    if len(replays) < 2 or any(not 0 < b - a <= 2 * source_frames for a, b in zip(boundaries, boundaries[1:])):
+        raise RuntimeError("Hour qualification: live replays did not span the measured hour")
+    previous = [event.get("previous_generation") for event in replays]
+    if (any(type(generation) is not int or generation < 1 for generation in previous)
+            or any(b != a + 1 for a, b in zip(previous, previous[1:]))):
+        raise RuntimeError("Hour qualification: full replay generations are incomplete")
+    issued = [event.get("issued_ns") for event in replays]
+    if (any(type(stamp) is not int or stamp <= 0 for stamp in issued)
+            or any(b <= a for a, b in zip(issued, issued[1:]))):
+        raise RuntimeError("Hour qualification: replay issue clocks are invalid")
+    spans = dict(zip(previous[1:], zip(issued, issued[1:])))
+    epochs = {row["generation"]: row for row in observations["epochs"].values()}
+    for generation, (begin_ns, end_ns) in spans.items():
+        epoch = epochs.get(generation, {})
+        if (epoch.get("target") != 0 or epoch.get("final") is not True
+                or not begin_ns <= epoch.get("command_ns", 0) <= epoch.get("converter_complete_ns", 0) < end_ns):
+            raise RuntimeError("Hour qualification: completed replay lost its exact command/EOF binding")
+    fresh = {generation: set() for generation in spans}
+    request_ids = set()
+    for row in observations["chunk_phases"].get("hops", ()):
+        if row.get("inference_reused"):
+            continue
+        request = row["request_id"]
+        if request in request_ids:
+            raise RuntimeError("Hour qualification: duplicate fresh inference request")
+        request_ids.add(request)
+        generation, start = row["generation"], row["input_first"]
+        if generation not in spans or not (0 < start < geometry[0] and start % STEM_HOP_FRAMES == 0
+                                            and row["input_frames"] == STEM_HOP_FRAMES):
+            continue
+        begin_ns, end_ns = spans[generation]
+        started = row.get("matching_worker_start_ns", 0)
+        if begin_ns <= started <= row["validated_ns"] < end_ns:
+            fresh[generation].add(start)
+    if len(request_ids) != observations.get("inferred_service_hops", {}).get("count"):
+        raise RuntimeError("Hour qualification: fresh replay timing evidence differs")
+    # Sixteen windows force new work with the tested one-opening/seven-recent
+    # window cache. Require fresh coverage in each entire measured replay,
+    # giving the initial partial generation and terminal drain no credit.
+    counts = [len(windows) for windows in fresh.values()]
+    minimum = geometry[0] // STEM_HOP_FRAMES // 2
+    if min(counts) < minimum:
+        raise RuntimeError("Hour qualification: replay span lacks sustained fresh inference")
+    return {"source_profile": "fresh_replay", "fresh_inference_sustained": True,
+            "completed_replays": len(counts), "minimum_fresh_nonopening_windows": min(counts),
+            "fresh_nonopening_windows_by_complete_replay": counts}
+
+
+def validate_hour_result(native, observations, background=False, *, screen=False):
+    """Check the hour workload's health at the explicitly requested duration."""
+    expected_duration = HOUR_SCREEN_SECONDS if screen else 3600
+    expected_mode = "live-stems-hour-screen" if screen else "live-stems-hour"
+
     def check(condition, description):
         if not condition:
             raise RuntimeError("Hour qualification: " + description)
-    check(native.get("mode") == "live-stems-hour" and native.get("requested_seconds") == 3600
+    check(native.get("mode") == expected_mode and native.get("requested_seconds") == expected_duration
           and native.get("passed") is True and native.get("cancelled") is False
           and native.get("functional_only") is False and native.get("host_audio") is True
           and native.get("shutdown_completed") is True, "incomplete/non-host hour")
@@ -233,13 +325,14 @@ def validate_hour_result(native, observations, background=False):
     else:
         check(isinstance(coverage, dict) and coverage.get("visible_ui_qualification_eligible", True) is True,
               "background UI evidence cannot enter visible qualification")
-    check(native["setup"]["input_frames"] == 1031940 and native["setup"]["output_frames"] == 1123201
-          and native["peer"]["frames"] == 480 * 48000,
+    geometry = native["setup"]["input_frames"], native["setup"]["output_frames"]
+    sources = (HOUR_FRESH_SOURCE,) if screen else (HOUR_CACHED_SOURCE, HOUR_FRESH_SOURCE)
+    check(geometry in sources and native["peer"]["frames"] == 480 * 48000,
           "changed source/peer geometry")
     check(native["measurement_intervals_closed"] and native["last_recovery_complete"], "open measurement/control")
     begin, end = native["measurement_begin_output_frame"], native["measurement_end_output_frame"]
     wall = native["measured_wall_ms"] / 1000
-    check(3600 <= wall <= 3602 and abs((end - begin) / 48000 - wall) <= max(.25, wall * .002),
+    check(expected_duration <= wall <= expected_duration + 2 and abs((end - begin) / 48000 - wall) <= max(.25, wall * .002),
           "wall/output duration agreement failed")
     check(native["callbacks"] > 0 and not native["scene_errors"]
           and 0 < native["maximum_gui_heartbeat_gap_ns"] < 2000000000, "audio/control loop not responsive")
@@ -253,13 +346,13 @@ def validate_hour_result(native, observations, background=False):
           and row["graph_quantum_min"] == row["graph_quantum_max"] == 256 for row in native["timing"]),
           "driver continuity/quantum failed")
     samples = native["samples"]
-    check(2 <= len(samples) <= 362 and samples[0]["elapsed_ms"] < 2000
-          and samples[-1]["elapsed_ms"] >= 3590000
+    check(2 <= len(samples) <= expected_duration // 10 + 2 and samples[0]["elapsed_ms"] < 2000
+          and samples[-1]["elapsed_ms"] >= (expected_duration - 10) * 1000
           and all(not row["snapshot_drops"] for row in samples)
           and all(10000 <= b["elapsed_ms"] - a["elapsed_ms"] < 12000 for a, b in zip(samples, samples[1:])),
           "bounded ten-second snapshots incomplete")
     controls, peers, intervals = native["controls"], native["peer_controls"], native["intervals"]
-    check(len(controls) <= 512 and len(peers) == 8 and 0 < len(intervals) <= 2048, "control/interval capacity")
+    check(len(controls) <= 512 and len(peers) == (1 if screen else 8) and 0 < len(intervals) <= 2048, "control/interval capacity")
     anchor, cursor = begin, native["measurement_begin_peer_frame"]
     check(0 <= cursor < 420 * 48000, "peer already due before measurement")
     for control in peers:
@@ -296,17 +389,16 @@ def validate_hour_result(native, observations, background=False):
     check(steady == [native["steady_starved_a"], native["steady_starved_b"]] == [0, 0]
           and native["steady_starved_frames"] == sum(steady) and native["control_starved_frames"] == sum(controlled),
           "deck-specific steady starvation observed")
-    hops = observations["service_hops"]; phases = observations["chunk_phases"]["fields"]
-    check(observations["service_metrics_complete"] and hops["complete"]
-          and hops["count"] == observations["kind_counts"]["ChunkValidated"] > 0
-          and hops["nearest_rank_p99_ms"] < 4095, "service hop p99/loss gate failed")
-    check(set(phases) == set(LIVE_PHASE_NAMES) and all(row["present_for_all_chunks"] and row["count"] == hops["count"] for row in phases.values()),
-          "all thirteen phases required on every validated chunk")
-    return {"peer_rewinds": len(peers), "service_hops": hops["count"],
+    hops = observations["service_hops"]
+    check(live_timing_passes(observations), "service hop p99/loss/thirteen-phase gate failed")
+    coverage = hour_inference_coverage(native, observations, geometry)
+    scope = ("Nine-minute fresh-replay diagnostic" if screen else
+             "background audio/stem hour; visible UI not qualified" if background else "visible audio/UI hour")
+    return {**coverage, "peer_rewinds": len(peers), "service_hops": hops["count"],
             "service_hops_at_or_above_target": hops["at_or_above_target"],
             "strict_service_p99_target_ms": 4095, "steady_starved_a": steady[0], "steady_starved_b": steady[1],
             "visible_ui_qualification_eligible": not background,
-            "scope": "background audio/stem hour; visible UI not qualified" if background else "visible audio/UI hour"}
+            "scope": scope}
 
 
 def validate_active_controls(native, observations=None, *, functional=False, normal_redraw=False):
@@ -390,12 +482,7 @@ def validate_active_controls(native, observations=None, *, functional=False, nor
           0 < native["maximum_frame_presentation_gap_ns"] < 2000000000, "UI not responsive")
     if not functional:
         check(native["execution_deadline_misses"] == 0 and observations is not None, "host timing evidence missing")
-        hops, phases = observations["service_hops"], observations["chunk_phases"]["fields"]
-        check(observations["service_metrics_complete"] and hops["complete"] and
-              hops["count"] == observations["kind_counts"]["ChunkValidated"] > 0 and
-              hops["nearest_rank_p99_ms"] < 4095 and set(phases) == set(LIVE_PHASE_NAMES) and
-              all(x["present_for_all_chunks"] and x["count"] == hops["count"] for x in phases.values()),
-              "strict service p99/loss/thirteen-phase gate failed")
+        check(live_timing_passes(observations), "strict service p99/loss/thirteen-phase gate failed")
         check(bool(native["timing"]) and all(x["driver_position_observed"] and not x["driver_position_discontinuities"] and
               not x["driver_recovery_flags"] and x["graph_quantum_min"] == x["graph_quantum_max"] == 256
               for x in native["timing"]), "driver continuity/quantum fault")
@@ -409,15 +496,17 @@ def live_qualified(result, hour, background=False):
     return bool(hour and not background and result.get("passed") is True and result.get("cleanup_proven") is True
                 and result.get("mode") != "live-stems-controls-normal-redraw"
                 and result.get("ui_mode", "visible") == "visible" and isinstance(native, dict)
-                and native.get("mode") != "live-stems-controls-normal-redraw"
+                and native.get("mode") == "live-stems-hour"
                 and native.get("ui_mode", "visible") == "visible" and isinstance(gates, dict) and gates
-                and gates.get("visible_ui_qualification_eligible", True) is True)
+                and gates.get("visible_ui_qualification_eligible", True) is True
+                and gates.get("fresh_inference_sustained") is True)
 
 
 def summarize_live_observations(path, native):
     # The writer has already bounded lines/bytes. Enforce the same bounds when
     # reopening evidence; this parser never reads a media or slot file.
-    line_limit, byte_limit = live_evidence_limits(native.get("mode") == "live-stems-hour")
+    hour_workload = native.get("mode") in ("live-stems-hour", "live-stems-hour-screen")
+    line_limit, byte_limit = live_evidence_limits(hour_workload)
     if path.stat().st_size > byte_limit:
         raise RuntimeError("Observation file exceeds its bound")
     rows = []
@@ -439,15 +528,17 @@ def summarize_live_observations(path, native):
             and counters["retained"] == counters["attempted"] == len(records)):
         raise RuntimeError("Observation evidence is incomplete")
     names = ("ServiceReady", "RuntimeReady", "RequestObserved", "CommandQueued", "CommandAccepted", "ChunkValidated",
-             "PacketAccepted", "PacketDiscarded", "RawComplete", "ConverterComplete", "ServiceClosed")
+             "PacketAccepted", "PacketDiscarded", "RawComplete", "ConverterComplete", "ServiceClosed", "WorkerRequestStarted")
     counts = dict.fromkeys(names, 0)
-    hops, ready_to_pre_emit, validation, publication, full_waits = [], [], [], [], []
+    request_starts = {}
+    hops, inferred_hops, ready_to_pre_emit, validation, publication, full_waits = [], [], [], [], [], []
     phase_names = LIVE_PHASE_NAMES
     phases = {key: [] for key in phase_names}
     phase_hops = []
     current_epoch, previous_ordinal = 0, None
     epochs, commands, accepted_at, completed_at, telemetry = {}, {}, {}, {}, []
     last_sequence = last_generation = 0; last_accepted_epoch = 0
+    native_shutdown = None
     total_input, total_output = native["setup"]["input_frames"], native["setup"]["output_frames"]
     for row in records:
         if counts["ServiceClosed"]:
@@ -479,6 +570,16 @@ def summarize_live_observations(path, native):
             epochs[row["epoch"]].update(generation=row["generation"], validated_end=row["input_first"], validated_contiguous=True, raw_service_endpoint=None, command_ns=queued["observed_ns"],
                                         first_validated_ns=None)
             accepted_at[row["generation"]] = row["observed_ns"]
+        elif kind == "WorkerRequestStarted":
+            request = row["request_id"]
+            started = row.get("worker_started_seconds")
+            if (row["epoch"] != last_accepted_epoch or row["generation"] != last_generation
+                    or not last_generation or type(request) is not int or request <= 0 or request in request_starts
+                    or not 0 <= row["input_first"] < total_input or row["input_first"] % 257985
+                    or type(row.get("worker_preroll")) is not bool or type(started) not in (int, float)
+                    or not math.isfinite(started) or started < 0):
+                raise RuntimeError("Invalid worker request start observation")
+            request_starts[request] = row
         elif kind == "ChunkValidated":
             epoch = epochs[row["epoch"]]
             end = row["input_first"] + row["input_frames"]
@@ -498,13 +599,30 @@ def summarize_live_observations(path, native):
             if not math.isfinite(delay) or delay < 0:
                 raise RuntimeError("Python-domain ready-to-pre-emit interval is invalid")
             ready_to_pre_emit.append(delay)
+            reused = "inference_reused" in row
+            if reused and (row["inference_reused"] is not True or not row["hop_service_present"]
+                           or "overlap_ms" not in row or any(key in row for key in phase_names if key != "overlap_ms")):
+                raise RuntimeError("Invalid cached stem timing")
             if row["hop_service_present"]:
                 if not math.isfinite(row["hop_service_ms"]) or row["hop_service_ms"] < 0:
                     raise RuntimeError("Invalid optional hop service interval")
                 hops.append(row["hop_service_ms"])
-            phase_row = {key: row[key] for key in ("epoch", "generation", "request_id", "lease_sequence", "input_first", "input_frames")}
+                if not reused:
+                    inferred_hops.append(row["hop_service_ms"])
+            phase_row = {key: row[key] for key in (
+                "epoch", "generation", "request_id", "lease_sequence", "input_first", "input_frames")}
+            if hour_workload:
+                phase_row["validated_ns"] = row["validated_ns"]
+                started = request_starts.get(row["request_id"])
+                # Count only a distinct native start bound to this replay and
+                # input window. An adopted older request remains a valid hop.
+                if (not reused and started and not started["worker_preroll"]
+                        and all(started[key] == row[key] for key in ("epoch", "generation", "input_first"))):
+                    phase_row["matching_worker_start_ns"] = started["observed_ns"]
             if row["hop_service_present"]:
                 phase_row["hop_service_ms"] = row["hop_service_ms"]
+            if reused:
+                phase_row["inference_reused"] = True
             for key in phase_names:
                 if key in row:
                     value = row[key]
@@ -546,11 +664,27 @@ def summarize_live_observations(path, native):
                     not epochs[row["epoch"]]["validated_contiguous"] or epochs[row["epoch"]]["validated_end"] != total_input):
                 raise RuntimeError("Converter completion endpoint/binding differs")
             epochs[row["epoch"]]["converter_complete"] = True
+            if hour_workload:
+                epochs[row["epoch"]]["converter_complete_ns"] = row["observed_ns"]
         elif kind == "ServiceClosed":
             if (row["epoch"] != last_accepted_epoch or row["generation"] != last_generation or
                     not epochs[last_accepted_epoch]["validated_end"] <= row["input_first"] <= total_input):
                 raise RuntimeError("Closed raw endpoint/binding differs")
             epochs[last_accepted_epoch]["raw_service_endpoint"] = row["input_first"]
+        if "native_shutdown" in row:
+            shutdown = row["native_shutdown"]
+            if kind != "ServiceClosed" or type(shutdown) is not dict or type(shutdown.get("kill_requested")) is not bool:
+                raise RuntimeError("Invalid native shutdown observation")
+            fields = set(shutdown) - {"kill_requested"}
+            if fields == {"exit_code"}:
+                status, minimum, maximum = shutdown["exit_code"], 0, 255
+            elif fields == {"signal"}:
+                status, minimum, maximum = shutdown["signal"], 1, 64
+            else:
+                raise RuntimeError("Ambiguous native shutdown observation")
+            if type(status) is not int or not minimum <= status <= maximum:
+                raise RuntimeError("Invalid native shutdown status")
+            native_shutdown = shutdown
         present = row["telemetry_dropped_present"]
         if type(present) is not bool or (present and kind not in ("RawComplete", "ServiceClosed")):
             raise RuntimeError("Invalid service telemetry loss presence")
@@ -574,22 +708,26 @@ def summarize_live_observations(path, native):
             epoch["command_to_published_reserve_ms"] = (epoch["reserve_published_ns"] - epoch["command_ns"]) / 1e6
     setup = native["setup"]
     return {"service_telemetry_loss": telemetry, "service_metrics_complete": metrics_complete,
+            "native_shutdown": native_shutdown,
             "factory_spans_ms": {"entry_to_capture": (setup["input_captured_ns"] - setup["factory_entry_ns"]) / 1e6,
                 "capture_to_count": (setup["count_complete_ns"] - setup["input_captured_ns"]) / 1e6,
                 "count_to_commit": (setup["factory_committed_ns"] - setup["count_complete_ns"]) / 1e6},
             "load_to_first_cursor_poll_upper_ms": (native["first_advance_observed_ns"] - native["load_issued_ns"]) / 1e6,
             "incomplete_generation_seek": {"submitted": seek is not None, "exercised": seek_observed,
                 "scope": "Retrospective accepted/RawComplete C++ stamps at seek issue; no native inference-start claim"},
-            "scope": ("Sustained repeated-generation actual-player observations; qualification remains gated by native health and wrapper cleanup; no physical/consumed timing qualification"
+            "scope": ("Nine-minute fresh-replay diagnostic; sustained qualification requires the full hour"
+                      if native.get("mode") == "live-stems-hour-screen" else
+                      "Sustained repeated-generation actual-player observations; qualification remains gated by native health and wrapper cleanup; no physical/consumed timing qualification"
                       if native.get("mode") == "live-stems-hour" else
                       "Short repeated-generation diagnostics; no sustained p99 or physical/consumed timing qualification"),
             "kind_counts": counts, "epochs": epochs, "service_hops": {**stats(hops), "strict_target_ms": 4095,
                 "at_or_above_target": sum(value >= 4095 for value in hops),
                 "complete": metrics_complete and len(hops) == counts["ChunkValidated"] > 0},
+            "inferred_service_hops": {**stats(inferred_hops), "at_or_above_target": sum(value >= 4095 for value in inferred_hops)},
             "lease_validation": stats(validation),
             "worker_ready_to_service_pre_emit": {**stats(ready_to_pre_emit),
                 "scope": "Python monotonic domain only; excludes JSON serialization/write, pipe delivery and C++ receipt"},
-            "chunk_phases": {"scope": "Original nested durations in ms for validated chunks only; omissions remain absent. Preroll, canceled and discarded work is not fully covered. No cross-clock subtraction or additive phase interpretation.",
+            "chunk_phases": {"scope": "Nested durations in ms for validated chunks. Reused inference has delivery and overlap timings only. Preroll, canceled and discarded work is not fully covered. No cross-clock subtraction or additive phase interpretation.",
                 "hops": phase_hops, "fields": {key: {**stats(values), "present_for_all_chunks": len(values) == counts["ChunkValidated"] > 0}
                                                  for key, values in phases.items()}},
             "packet_ready_to_publish": stats(publication), "actual_full_waits": stats(full_waits),
@@ -599,10 +737,12 @@ def summarize_live_observations(path, native):
 def run_live(args):
     import selectors
     hour = args.live_stems_hour
+    screen = getattr(args, "live_stems_hour_screen", False)
+    hour_workload = hour or screen
     background = args.background
     active_controls = getattr(args, "active_controls", False)
     normal_redraw = getattr(args, "normal_redraw", False)
-    if normal_redraw and (not active_controls or hour or background or args.seconds != 120):
+    if normal_redraw and (not active_controls or hour_workload or background or args.seconds != 120):
         raise RuntimeError("Normal redraw requires exactly 120 seconds of short visible active controls")
     binary = args.binary.resolve(strict=True)
     source, peer = args.track_a.resolve(strict=True), args.track_b.resolve(strict=True)
@@ -612,7 +752,8 @@ def run_live(args):
             raise RuntimeError("Live tools must be explicit regular executable/source/model paths")
     output = args.output.absolute(); output.mkdir(mode=0o700, parents=False, exist_ok=False)
     cache = output / "cache"; cache.mkdir(mode=0o700); stop = output / "stop"
-    result = {"schema": 2, "passed": False, "qualified": False, "mode": "live-stems-hour" if hour else "live-stems", "requested_seconds": args.seconds,
+    base_mode = "live-stems-hour" if hour else "live-stems-hour-screen" if screen else "live-stems"
+    result = {"schema": 2, "passed": False, "qualified": False, "mode": base_mode, "requested_seconds": args.seconds,
               "ui_mode": "background" if background else "visible", "visible_ui_required": not background,
               "started_at_utc": datetime.now(timezone.utc).isoformat(), "scope": "Explicit short native actual-model controller playback; no endurance, fallback or physical latency qualification"}
     if active_controls:
@@ -628,7 +769,9 @@ def run_live(args):
     if background:
         result["scope"] = "Background actual-player audio/stem diagnostics with observed UI coverage; no visible UI or full audio/UI qualification"
         result.pop("qualified_scope", None)
-    history_limit, command_byte_limit = live_process_history_limits(hour)
+    if screen:
+        result["scope"] = "Nine-minute fresh-replay diagnostic; sustained qualification requires the full hour"
+    history_limit, command_byte_limit = live_process_history_limits(hour_workload)
     result["process_history_limits"] = {"identities": history_limit, "command_bytes": command_byte_limit,
                                         "live_processes": 64, "argv_snapshots_per_identity": 8}
     child = None; root_identity = None; owned = {}; observed_groups = set(); known_graph = set(); requested_stop = None; stop_at = None
@@ -660,16 +803,10 @@ def run_live(args):
         finally:
             os.close(descriptor)
     def live_guard():
-        raw = read_command(["systemctl", "--user", "show", "thermal-guard.service",
-            "--property=ActiveState,MainPID,InvocationID,ExecMainStartTimestampMonotonic"], timeout=max(.1, min(3, deadline - time.monotonic() - 10)))
-        fields = dict(line.split("=", 1) for line in raw.splitlines() if "=" in line)
-        if fields.get("ActiveState") != "active" or int(fields.get("MainPID", 0)) <= 0:
-            raise RuntimeError("Existing thermal guard must stay active")
-        identity = process_identity(int(fields["MainPID"]))
-        if str(args.guard_script.resolve(strict=True)) not in identity["command"]:
-            raise RuntimeError("Active guard command differs")
-        return {"service": fields, "process": identity, "script": live_pin(args.guard_script.resolve(), 1024 * 1024),
-                "unit": live_pin(args.guard_unit.resolve(), 1024 * 1024)}
+        script, unit = args.guard_script.resolve(strict=True), args.guard_unit.resolve(strict=True)
+        timeout = max(.1, min(3, deadline - time.monotonic() - 10))
+        identity = guard_service_identity(script, unit, getattr(args, "guard_scope", "user"), timeout=timeout)
+        return {**identity, "script": live_pin(script, 1024 * 1024), "unit": live_pin(unit, 1024 * 1024)}
     def process_record(pid):
         root = Path("/proc") / str(pid)
         if root.stat().st_uid != os.getuid():
@@ -839,14 +976,19 @@ def run_live(args):
         paths = {"binary": binary, "track_a": source, "track_b": peer, "runner": Path(__file__).resolve(), **assets,
                  **{"ui:" + name: source_root / name for name in ui_assets}}
         result["pins_before"] = {name: live_pin(path, 256 * 1024 * 1024 if name not in ("track_a", "track_b") else 1024**3) for name, path in paths.items()}
-        if result["pins_before"]["runtime"]["sha256"] != FLASH_RUNTIME_SHA256 or result["pins_before"]["model"]["sha256"] != FLASH_MODEL_SHA256:
-            raise RuntimeError("Actual-model host check requires the exact promoted Flash runtime/model")
+        expected_runtime = getattr(args, "expected_runtime_sha256", None) or FLASH_RUNTIME_SHA256
+        if result["pins_before"]["runtime"]["sha256"] != expected_runtime:
+            raise RuntimeError("Actual-model host check runtime does not match the expected SHA-256")
+        if result["pins_before"]["model"]["sha256"] != FLASH_MODEL_SHA256:
+            raise RuntimeError("Actual-model host check requires the exact promoted model")
+        if expected_runtime != FLASH_RUNTIME_SHA256:
+            result["expected_runtime_sha256"] = expected_runtime
         result["guard_before"] = live_guard()
         result["power_before"] = power_state()
         if not result["power_before"]["ac_online"] or not result["power_before"]["lid_open"]:
             raise RuntimeError("Live host check requires AC power and open lid")
         sensors = sensor_paths(); result["host_before"] = observation(sensors)
-        result["required_free_bytes"] = live_required_free_bytes(args.seconds, hour)
+        result["required_free_bytes"] = live_required_free_bytes(args.seconds, hour_workload)
         if shutil.disk_usage(output).free < result["required_free_bytes"]:
             raise RuntimeError("Insufficient free space for bounded cache, recording and evidence")
         result["human_before_launch"] = live_readiness(args.readiness_decision, output.name, background)
@@ -855,7 +997,7 @@ def run_live(args):
         environment = os.environ.copy(); environment.update({"CONFLUX_ALLOW_HOST_SOAK": "1", "XDG_CACHE_HOME": str(cache)})
         for number in (signal.SIGINT, signal.SIGTERM):
             previous[number] = signal.signal(number, lambda signum, _frame: request_stop(f"runner signal {signum}"))
-        native_mode = "--live-stems-hour" if hour else "--live-stems"
+        native_mode = "--" + base_mode
         if active_controls:
             native_mode = "--live-stems-controls-normal-redraw" if normal_redraw else "--live-stems-controls"
         if background:
@@ -919,8 +1061,14 @@ def run_live(args):
             raise RuntimeError("Bounded native result missing")
         result["native"] = json.loads(native_path.read_text())
         native = result["native"]
-        if native.get("functional_only") is not False or native.get("host_audio") is not True or native.get("source_root") != str(source_root):
+        if native.get("functional_only") is not False or native.get("host_audio") is not True:
             raise RuntimeError("Synthetic/private result cannot qualify as host evidence")
+        reported_root = native.get("source_root")
+        if not isinstance(reported_root, str):
+            raise RuntimeError("Native UI source root is missing")
+        reported_root = Path(reported_root)
+        if not reported_root.is_absolute() or not reported_root.samefile(source_root):
+            raise RuntimeError("Native UI source root differs from the pinned runner assets")
         if native.get("ui_mode", "visible") != result["ui_mode"]:
             raise RuntimeError("Native UI mode differs from explicitly launched mode")
         if background and native.get("ui_coverage", {}).get("visible_ui_qualification_eligible") is not False:
@@ -937,8 +1085,9 @@ def run_live(args):
         result["power_after"] = power_state(); result["guard_after"] = live_guard()
         if active_controls:
             result["active_controls"] = validate_active_controls(native, result["observations"], normal_redraw=normal_redraw)
-        if hour:
-            result["hour_gates"] = validate_hour_result(native, result["observations"], background)
+        if hour or screen:
+            key = "hour_screen_checks" if screen else "hour_gates"
+            result[key] = validate_hour_result(native, result["observations"], background, screen=screen)
         result["passed"] = bool(child.poll() == 0 and native["passed"] and not requested_stop and complete_capture and result["pins_unchanged"]
             and result["guard_after"] == result["guard_before"] and result["power_after"]["ac_online"] and result["power_after"]["lid_open"] and known_graph)
     except Exception as error:
@@ -1051,31 +1200,45 @@ def main():
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--live-stems", action="store_true", help="short actual-model live controller diagnostic")
     modes.add_argument("--live-stems-hour", action="store_true", help="exactly one hour of sustained actual-model controller playback")
+    modes.add_argument("--live-stems-hour-screen", action="store_true", help="nine-minute diagnostic using the hour's fresh-replay workload")
     parser.add_argument("--background", action="store_true", help="live audio/stem diagnostics without visible UI qualification")
     parser.add_argument("--active-controls", action="store_true", help="short visible live mode with 16 actual accessible UI actions")
     parser.add_argument("--normal-redraw", action="store_true", help="explicit 50 ms forced-redraw diagnostic; requires exactly 120s visible active controls")
     for name in ("python", "exporter", "worker", "service", "runtime", "model", "readiness-decision"):
         parser.add_argument("--" + name, type=Path)
+    parser.add_argument("--expected-runtime-sha256", metavar="HEX",
+                        help="Expected SHA-256 of the actual live runtime (default: promoted Flash runtime)")
+    parser.add_argument("--guard-scope", choices=("user", "system"), default="user",
+                        help="observe the user thermal guard or an explicit root-run system service")
     parser.add_argument("--guard-script", type=Path, default=Path.home() / ".local/bin/thermal-guard")
     parser.add_argument("--guard-unit", type=Path, default=Path.home() / ".config/systemd/user/thermal-guard.service")
     args = parser.parse_args()
+    live_mode = args.live_stems or args.live_stems_hour or args.live_stems_hour_screen
+    if args.expected_runtime_sha256 is not None:
+        if not live_mode:
+            parser.error("--expected-runtime-sha256 requires a live stem mode")
+        digest = args.expected_runtime_sha256
+        if len(digest) != 64 or any(char not in "0123456789abcdef" for char in digest):
+            parser.error("--expected-runtime-sha256 requires 64 lowercase hexadecimal digits")
     if args.active_controls and (not args.live_stems or args.live_stems_hour or args.background):
         parser.error("--active-controls requires short visible --live-stems")
-    if args.background and not (args.live_stems or args.live_stems_hour):
-        parser.error("--background requires --live-stems or --live-stems-hour")
+    if args.background and not live_mode:
+        parser.error("--background requires a live stem mode")
+    fixed_seconds = 3600 if args.live_stems_hour else HOUR_SCREEN_SECONDS if args.live_stems_hour_screen else None
     if args.seconds is None:
-        args.seconds = 3600 if args.live_stems_hour else 120 if args.live_stems else 1800
+        args.seconds = fixed_seconds or (120 if args.live_stems else 1800)
     if args.normal_redraw and (not args.active_controls or not args.live_stems or args.live_stems_hour or args.background or args.seconds != 120):
         parser.error("--normal-redraw requires exactly 120 seconds of short visible --live-stems --active-controls")
     live_names = ("python", "exporter", "worker", "service", "runtime", "model", "readiness_decision")
-    if args.live_stems or args.live_stems_hour:
-        if (args.seconds != 3600 if args.live_stems_hour else not 120 <= args.seconds <= 180) or any(getattr(args, name) is None or not getattr(args, name).is_absolute() for name in live_names):
-            parser.error("Live mode requires120–180 seconds (hour: exactly3600) and explicit absolute tool/readiness paths")
+    if live_mode:
+        valid_duration = args.seconds == fixed_seconds if fixed_seconds else 120 <= args.seconds <= 180
+        if not valid_duration or any(getattr(args, name) is None or not getattr(args, name).is_absolute() for name in live_names):
+            parser.error("Live mode requires 120–180 seconds (hour: 3600, hour screen: 540) and explicit absolute tool/readiness paths")
         if os.environ.get("CONFLUX_PRIVATE_ROUTING_CHECK") or os.environ.get("QT_QPA_PLATFORM") in ("offscreen", "minimal"):
             parser.error("Live host launcher rejects private/offscreen qualification")
         return run_live(args)
     if any(getattr(args, name) is not None for name in live_names):
-        parser.error("Stem tool/readiness options require --live-stems or --live-stems-hour")
+        parser.error("Stem tool/readiness options require a live stem mode")
     if not 60 <= args.seconds <= 3600:
         parser.error("--seconds must be between 60 and 3600 seconds")
     if os.environ.get("CONFLUX_PRIVATE_ROUTING_CHECK") or os.environ.get("QT_QPA_PLATFORM") in ("offscreen", "minimal"):
@@ -1107,7 +1270,7 @@ def main():
                 raise RuntimeError(f"Required installed read-only command is unavailable: {name}")
         result["pins"] = {"binary": pin(binary), "track_a": pin(track_a), "track_b": pin(track_b),
                           "runner": pin(Path(__file__).resolve())}
-        result["guard_before"] = guard_identity(args.guard_script.resolve(strict=True), args.guard_unit.resolve(strict=True))
+        result["guard_before"] = guard_identity(args.guard_script.resolve(strict=True), args.guard_unit.resolve(strict=True), args.guard_scope)
         result["power_before"] = power_state()
         if not result["power_before"]["ac_online"] or not result["power_before"]["lid_open"]:
             raise RuntimeError("Connect AC power and leave the laptop lid open before the soak")
@@ -1151,7 +1314,7 @@ def main():
                         request_stop("CPU/ACPI temperature observation unavailable")
                     next_sample = elapsed + 2
                 if elapsed >= next_identity:
-                    identity = guard_identity(args.guard_script.resolve(), args.guard_unit.resolve())
+                    identity = guard_identity(args.guard_script.resolve(), args.guard_unit.resolve(), args.guard_scope)
                     if identity != result["guard_before"]:
                         request_stop("Existing thermal guard identity/source changed")
                     next_identity = elapsed + 10
@@ -1195,7 +1358,7 @@ def main():
         result["host_after"] = observation(paths)
         result["thermal_summary"] = thermal_summary(output / "host-observations.jsonl")
         result["power_after"] = power_state()
-        result["guard_after"] = guard_identity(args.guard_script.resolve(), args.guard_unit.resolve())
+        result["guard_after"] = guard_identity(args.guard_script.resolve(), args.guard_unit.resolve(), args.guard_scope)
         result["guard_identity_unchanged"] = result["guard_before"] == result["guard_after"]
         result["passed"] = (child.returncode == 0 and result["native"].get("passed", False) and requested_stop is None
                             and result["guard_identity_unchanged"] and bool(owned_graph_identities)

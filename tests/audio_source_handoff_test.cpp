@@ -149,9 +149,13 @@ void continuationIdentityAndQuiesce()
     SourceHandoff handoff;
     std::array<float, 8> pcm{};
     const SourceHandoff::Request continuation{0, AudioSource::fromMemory(pcm), nullptr, 9,
-        SourceHandoff::Kind::Continuation, 7, 42, 3};
+        SourceHandoff::Kind::Continuation, 7, 42, 3.375};
     auto invalid = continuation;
-    invalid.frame = 4;
+    for (const double bad : std::array<double,3>{-1.,NAN,INFINITY}) {
+        invalid.position=bad;require(!handoff.request(invalid),"Continuation accepted a nonfinite or negative cursor");
+    }
+    invalid=continuation;
+    invalid.position = 4;
     require(!handoff.request(invalid), "Continuation accepted an unprimed EOF cursor");
     invalid = continuation;
     invalid.generation = 7;
@@ -166,7 +170,7 @@ void continuationIdentityAndQuiesce()
     SourceHandoff::Request observed;
     require(handoff.readPending(observed) && observed.kind == SourceHandoff::Kind::Continuation &&
             observed.expectedSourceGeneration == 7 && observed.expectedTransportRevision == 42 &&
-            observed.frame == 3 && observed.generation == 9 && observed.residentHoldRangeId == 0,
+            observed.position == 3.375 && observed.generation == 9 && observed.residentHoldRangeId == 0,
         "Continuation lost its source/transport/cursor identity");
     require(!handoff.request(continuation), "Pending continuation was overwritten");
     require(handoff.complete(false, {}, 256), "Rejected continuation lost callback completion");
@@ -202,7 +206,7 @@ void residentContinuationWaitingOwnersAndQuiesce()
         auto invalid = request;
         invalid.kind = SourceHandoff::Kind::Replacement;
         require(!handoff.request(invalid), "Ordinary replacement accepted resident-boundary metadata");
-        invalid = request; invalid.frame = request.source.frames;
+        invalid = request; invalid.position = request.source.frames;
         require(!handoff.request(invalid), "Resident continuation accepted finite EOF");
         invalid = request; invalid.generation = request.expectedSourceGeneration;
         require(!handoff.request(invalid), "Resident continuation reused source generation");
@@ -215,7 +219,7 @@ void residentContinuationWaitingOwnersAndQuiesce()
         auto oldRef = retainedSource.descriptor();
         for (unsigned block = 0; block < 3; ++block) {
             require(handoff.readPending(observed) && observed.kind == SourceHandoff::Kind::Continuation &&
-                observed.residentHoldRangeId == rangeId && observed.frame == frame &&
+                observed.residentHoldRangeId == rangeId && observed.position == frame &&
                 observed.expectedSourceGeneration == 7 && observed.expectedTransportRevision == 42 &&
                 observed.source.context == &candidateSource && handoff.busy(),
                 "Waiting continuation changed its source, range or transport ticket");

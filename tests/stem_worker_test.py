@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Behavior tests for the M0 supervisor, requiring neither model nor GPU."""
 
+from contextlib import ExitStack
 import hashlib
 import io
 import json
@@ -23,8 +24,9 @@ import warnings
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from tools.stems.export import _PinnedFile
 from tools.stems.worker import (CHANNELS, HOP, OVERLAP, RATE, STEMS, WINDOW,
-                                NativeRuntime, StemWorker)
+                                NativeRuntime, StemWorker, _SEEK_CACHE_WINDOWS)
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools" / "benchmarks"))
 from stem_worker import Load
 
@@ -244,6 +246,53 @@ class WorkerTest(unittest.TestCase):
                     return event
         self.fail(f"no {name} event for generation {generation}")
 
+    def test_verified_model_pin_is_reused_and_rejects_replacement(self):
+        with ExitStack() as stack:
+            model_pin = _PinnedFile(self.model, 1024, stack, None, time.monotonic() + 3)
+            worker, backend = self.worker(_model_pin=model_pin)
+            try:
+                with patch("tools.stems.worker._open_model",
+                           side_effect=AssertionError("verified pin must avoid a duplicate model scan")):
+                    generation = worker.load(self.path)
+                    ready = self.event(worker, "runtime_ready", generation)
+                    self.assertEqual(ready["model_id"], hashlib.sha256(self.model.read_bytes()).hexdigest())
+                    self.assertEqual(ready["model_id"], model_pin.digest)
+            finally:
+                worker.close()
+            self.assertEqual(backend.starts, 1)
+            self.assertTrue(backend.closed)
+
+            replacement = self.root / "replacement.gguf"
+            replacement.write_bytes(self.model.read_bytes())
+            replacement.replace(self.model)
+            worker, backend = self.worker(_model_pin=model_pin)
+            try:
+                generation = worker.load(self.path)
+                failure = self.event(worker, "error", generation)
+                self.assertIn("model changed", failure["message"])
+                self.assertEqual(backend.starts, 0)
+            finally:
+                worker.close()
+
+    def test_pinned_model_change_during_native_start_fails_and_closes_backend(self):
+        with ExitStack() as stack:
+            model_pin = _PinnedFile(self.model, 1024, stack, None, time.monotonic() + 3)
+
+            class ChangingRuntime(FakeRuntime):
+                def start(backend):
+                    self.model.write_bytes(b"changed during native startup")
+                    return super().start()
+
+            worker, backend = self.worker(ChangingRuntime(), _model_pin=model_pin)
+            try:
+                generation = worker.load(self.path)
+                failure = self.event(worker, "error", generation)
+                self.assertIn("model changed during runtime loading", failure["message"])
+            finally:
+                worker.close()
+            self.assertEqual(backend.starts, 1)
+            self.assertTrue(backend.closed)
+
     def collect(self, worker, generation):
         chunks = []
         deadline = time.monotonic() + 8
@@ -375,9 +424,9 @@ class WorkerTest(unittest.TestCase):
         self.assertTrue(fake.wait_call(1))
         cancelled = worker.cancel()
         self.assertGreater(cancelled, old)
-        fake.release()
-        self.event(worker, "discarded", old)
         latest = worker.seek(HOP + 7)
+        fake.release()
+        self.assertEqual(self.event(worker, "discarded", old)["request_id"], 1)
         source = self.event(worker, "source_ready", latest)
         self.assertTrue(source["reused"])
         self.assertEqual(source["source_format"], "f32le")
@@ -386,6 +435,7 @@ class WorkerTest(unittest.TestCase):
         chunk = self.event(worker, "chunk", latest)
         self.assertEqual(chunk["frame_start"], HOP + 7)
         self.assertEqual(chunk["source_format"], "f32le")
+        self.assertEqual(chunk["request_id"], 3)
         self.assertTrue(worker.is_current(chunk))
         worker.cancel()
         self.assertFalse(worker.is_current(chunk))
@@ -499,6 +549,781 @@ class WorkerTest(unittest.TestCase):
         self.assertEqual(sum(chunk["frames"] for chunk in self.collect(worker, generation)), 3)
         self.assertEqual(fake.starts, 1)
 
+    def test_seek_reuses_exact_window_tail_while_new_suffix_is_blocked(self):
+        raw = self.root / "seek-tail.f32"
+        self.audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([c["samples"] for c in self.collect(reference, reference.load_f32(raw))], axis=1)
+        worker, fake = self.worker(FakeRuntime(blocked=True))
+        generation = worker.load_f32(raw)
+        self.assertTrue(fake.wait_call(1))
+        fake.release()
+        initial = self.event(worker, "chunk", generation)
+        self.assertTrue(fake.wait_call(2))
+        frame = HOP - 4704
+        seek = worker.seek(frame)
+        reused = self.event(worker, "chunk", seek, timeout=1)
+        self.assertEqual(fake.calls, 2)
+        fake.release()
+        continued = self.event(worker, "chunk", seek, timeout=1)
+        self.assertEqual(continued["request_id"], 2)
+        self.assertEqual(continued["frame_start"], HOP)
+        self.assertEqual(continued["metrics"]["id"], 2)
+        self.assertNotIn("inference_reused", continued)
+        self.assertEqual((reused["frame_start"], reused["frames"]), (frame, 4704))
+        self.assertEqual(reused["request_id"], initial["request_id"])
+        self.assertIs(reused["inference_reused"], True)
+        self.assertNotIn("metrics", reused)
+        np.testing.assert_array_equal(reused["samples"], expected[:, frame:HOP])
+        self.assertTrue(fake.wait_call(3))
+        fake.release()
+        suffix = [continued, *self.collect(worker, seek)]
+        np.testing.assert_array_equal(np.concatenate([c["samples"] for c in suffix], axis=1), expected[:, HOP:])
+        self.assertEqual(fake.calls, 3)
+
+    def test_backward_seek_reuses_three_published_windows_with_an_active_request(self):
+        raw = self.root / "backward-seek.f32"
+        audio = fixture(self.root / "four-windows.wav", 3 * HOP + 137)
+        audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([c["samples"] for c in self.collect(reference, reference.load_f32(raw))], axis=1)
+
+        worker, fake = self.worker(FakeRuntime(blocked=True), max_ready=1)
+        generation = worker.load_f32(raw)
+        published = []
+        for call in range(1, 4):
+            self.assertTrue(fake.wait_call(call))
+            fake.release()
+            published.append(self.event(worker, "chunk", generation))
+        self.assertTrue(fake.wait_call(4))
+        frame = HOP - 4704
+        seek = worker.seek(frame)
+        replayed = [self.event(worker, "chunk", seek, timeout=1) for _ in published]
+        self.assertEqual(fake.calls, 4)
+        self.assertEqual(worker.statistics()["inflight"]["request_id"], 4)
+        fake.release()
+        suffix, = self.collect(worker, seek)
+        self.assertEqual(suffix["request_id"], 4)
+        self.assertNotIn("inference_reused", suffix)
+        self.assertEqual(replayed[0]["frame_start"], frame)
+        self.assertEqual([chunk["request_id"] for chunk in replayed],
+                         [chunk["request_id"] for chunk in published])
+        self.assertTrue(all(chunk["inference_reused"] is True and "metrics" not in chunk for chunk in replayed))
+        np.testing.assert_array_equal(np.concatenate([chunk["samples"] for chunk in replayed], axis=1),
+                                      expected[:, frame:3 * HOP])
+
+        self.assertEqual(fake.calls, 4)
+        np.testing.assert_array_equal(suffix["samples"], expected[:, 3 * HOP:])
+
+        # The first window has aged out of the three recent-window slots.
+        # A replay at the converter anchor must still use the original opening.
+        opening_anchor = 236082
+        revisit = worker.seek(opening_anchor)
+        opening = self.event(worker, "chunk", revisit, timeout=1)
+        restored = [opening, *self.collect(worker, revisit)]
+        self.assertEqual([chunk["request_id"] for chunk in restored], [1, 2, 3, 4])
+        self.assertEqual(opening["frame_start"], opening_anchor)
+        self.assertTrue(all(chunk["inference_reused"] is True for chunk in restored))
+        self.assertEqual(fake.calls, 4)
+        np.testing.assert_array_equal(np.concatenate([chunk["samples"] for chunk in restored], axis=1),
+                                      expected[:, opening_anchor:])
+
+        # The same retained opening supplies exact-grid preroll, without
+        # evicting one of the three useful recent weighted windows.
+        restored = self.collect(worker, worker.seek(HOP))
+        self.assertEqual([chunk["request_id"] for chunk in restored], [2, 3, 4])
+        self.assertTrue(all(chunk["inference_reused"] is True for chunk in restored))
+        self.assertEqual(fake.calls, 4)
+        np.testing.assert_array_equal(np.concatenate([chunk["samples"] for chunk in restored], axis=1),
+                                      expected[:, HOP:])
+
+    def test_cold_seek_only_infers_windows_that_contribute_to_output(self):
+        raw = self.root / "cold-seek-overlap-boundary.f32"
+        self.audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([chunk["samples"] for chunk in
+                                   self.collect(reference, reference.load_f32(raw))], axis=1)
+
+        for frame, first_window in ((HOP + OVERLAP - 1, 0), (HOP + OVERLAP, HOP)):
+            with self.subTest(frame=frame):
+                worker, fake = self.worker(FakeRuntime(blocked=True), max_ready=1)
+                opened = worker.load_f32(raw, start_frame=len(self.audio))
+                self.assertEqual(self.collect(worker, opened), [])
+
+                seek = worker.seek(frame)
+                started = self.event(worker, "started", seek)
+                self.assertEqual(started["window_start_frame"], first_window)
+                self.assertEqual(started["preroll"], first_window == 0)
+                calls_to_target = 2 if first_window == 0 else 1
+                fake.release(calls_to_target)
+                first = self.event(worker, "chunk", seek)
+                self.assertEqual((first["request_id"], first["frame_start"]), (calls_to_target, frame))
+                np.testing.assert_array_equal(first["samples"], expected[:, frame:2 * HOP])
+                self.assertTrue(fake.wait_call(calls_to_target + 1))
+
+                repeat = worker.seek(frame)
+                replayed = self.event(worker, "chunk", repeat, timeout=1)
+                self.assertTrue(replayed["inference_reused"])
+                self.assertEqual(replayed["request_id"], first["request_id"])
+                np.testing.assert_array_equal(replayed["samples"], first["samples"])
+                fake.release()
+                final, = self.collect(worker, repeat)
+                np.testing.assert_array_equal(final["samples"], expected[:, 2 * HOP:])
+                self.assertEqual(fake.calls, calls_to_target + 1)
+
+    def test_repeat_cold_seek_reuses_preroll_while_suffix_is_pending(self):
+        raw = self.root / "cold-seek-preroll.f32"
+        self.audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([chunk["samples"] for chunk in
+                                   self.collect(reference, reference.load_f32(raw))], axis=1)
+        worker, fake = self.worker(FakeRuntime(blocked=True), max_ready=1)
+        start = HOP + 17
+        original = worker.load_f32(raw, start_frame=start)
+        self.assertTrue(fake.wait_call(1))
+        fake.release(2)
+        first = self.event(worker, "chunk", original)
+        self.assertEqual((first["request_id"], first["frame_start"]), (2, start))
+        np.testing.assert_array_equal(first["samples"], expected[:, start:2 * HOP])
+        self.assertTrue(fake.wait_call(3))
+
+        target = start + 19
+        repeat = worker.seek(target)
+        replayed = self.event(worker, "chunk", repeat, timeout=1)
+        self.assertEqual((replayed["request_id"], replayed["frame_start"]), (2, target))
+        self.assertTrue(replayed["inference_reused"])
+        self.assertEqual(fake.calls, 3)
+        self.assertEqual(worker.statistics()["inflight"]["request_id"], 3)
+        np.testing.assert_array_equal(replayed["samples"], expected[:, target:2 * HOP])
+
+        fake.release()
+        remaining, = self.collect(worker, repeat)
+        self.assertEqual(remaining["request_id"], 3)
+        self.assertNotIn("inference_reused", remaining)
+        np.testing.assert_array_equal(remaining["samples"], expected[:, 2 * HOP:])
+        self.assertEqual(fake.calls, 3)
+
+    def test_repeat_seek_retains_interior_preroll_when_cache_has_space(self):
+        target = 2 * HOP
+        tail = 4 * HOP
+        raw = self.root / "interior-preroll.f32"
+        fixture(self.root / "interior-preroll.wav", tail + 137).astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([chunk["samples"] for chunk in
+                                   self.collect(reference, reference.load_f32(raw))], axis=1)
+        worker, fake = self.worker(FakeRuntime(blocked=True), max_ready=1)
+
+        entered = worker.load_f32(raw, start_frame=target + OVERLAP)
+        self.assertTrue(fake.wait_call(1))
+        fake.release()
+        initial = self.event(worker, "chunk", entered)
+        self.assertEqual((initial["request_id"], initial["frame_start"]), (1, target + OVERLAP))
+        self.assertTrue(fake.wait_call(2))
+        with worker._condition:
+            self.assertEqual(list(worker._weighted_windows), [target])
+
+        first = worker.seek(target + 17)
+        fake.release()
+        preroll = self.event(worker, "started", first)
+        self.assertTrue(preroll["preroll"])
+        self.assertEqual((preroll["request_id"], preroll["window_start_frame"]), (3, target - HOP))
+        self.assertTrue(fake.wait_call(3))
+        fake.release()
+        first_pass = [self.event(worker, "chunk", first) for _ in range(2)]
+        self.assertEqual([chunk["request_id"] for chunk in first_pass], [1, 2])
+        np.testing.assert_array_equal(np.concatenate([chunk["samples"] for chunk in first_pass], axis=1),
+                                      expected[:, target + 17:tail])
+        self.assertTrue(fake.wait_call(4))
+
+        repeat = worker.seek(target + 37)
+        replay = [self.event(worker, "chunk", repeat, timeout=1) for _ in range(2)]
+        self.assertEqual([chunk["request_id"] for chunk in replay], [1, 2])
+        self.assertTrue(all(chunk["inference_reused"] for chunk in replay))
+        self.assertEqual(fake.calls, 4)
+        self.assertEqual(worker.statistics()["inflight"]["request_id"], 4)
+        np.testing.assert_array_equal(np.concatenate([chunk["samples"] for chunk in replay], axis=1),
+                                      expected[:, target + 37:tail])
+        with worker._condition:
+            self.assertEqual(set(worker._weighted_windows), {target - HOP, target, target + HOP})
+        fake.release()
+        remainder, = self.collect(worker, repeat)
+        self.assertEqual(remainder["request_id"], 4)
+        np.testing.assert_array_equal(remainder["samples"], expected[:, tail:])
+        self.assertEqual(fake.calls, 4)
+
+    def test_repeat_seek_keeps_opening_preroll_with_cached_forward_windows(self):
+        capacity = _SEEK_CACHE_WINDOWS
+        suffix_frame = (capacity + 1) * HOP
+        raw = self.root / "opening-preroll.f32"
+        audio = fixture(self.root / "opening-preroll.wav", suffix_frame + 137)
+        audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([chunk["samples"] for chunk in
+                                   self.collect(reference, reference.load_f32(raw))], axis=1)
+        worker, fake = self.worker(FakeRuntime(blocked=True), max_ready=1)
+
+        # Starting after the overlap fills all recent slots without the opening.
+        original = worker.load_f32(raw, start_frame=HOP + OVERLAP)
+        forward = []
+        for call in range(1, capacity + 1):
+            self.assertTrue(fake.wait_call(call))
+            fake.release()
+            forward.append(self.event(worker, "chunk", original))
+        self.assertTrue(fake.wait_call(capacity + 1))
+
+        first = worker.seek(HOP + 17)
+        fake.release()  # Finish the superseded suffix request.
+        opening = self.event(worker, "started", first)
+        self.assertEqual(opening["window_start_frame"], 0)
+        self.assertTrue(opening["preroll"])
+        self.assertTrue(fake.wait_call(capacity + 2))
+        fake.release()
+        first_pass = [self.event(worker, "chunk", first) for _ in forward]
+        self.assertEqual([chunk["request_id"] for chunk in first_pass],
+                         [chunk["request_id"] for chunk in forward])
+        np.testing.assert_array_equal(np.concatenate([c["samples"] for c in first_pass], axis=1),
+                                      expected[:, HOP + 17:suffix_frame])
+        self.assertTrue(fake.wait_call(capacity + 3))
+
+        repeat = worker.seek(HOP + 37)
+        replay = [self.event(worker, "chunk", repeat, timeout=1) for _ in forward]
+        self.assertEqual([chunk["request_id"] for chunk in replay],
+                         [chunk["request_id"] for chunk in forward])
+        self.assertTrue(all(chunk["inference_reused"] for chunk in replay))
+        np.testing.assert_array_equal(np.concatenate([c["samples"] for c in replay], axis=1),
+                                      expected[:, HOP + 37:suffix_frame])
+        self.assertEqual(fake.calls, capacity + 3)
+
+        fake.release()
+        tail, = self.collect(worker, repeat)
+        self.assertEqual(tail["request_id"], capacity + 3)
+        np.testing.assert_array_equal(tail["samples"], expected[:, suffix_frame:])
+        self.assertEqual(fake.calls, capacity + 3)
+
+    def test_seek_uses_active_target_window_with_cached_preroll(self):
+        raw = self.root / "seek-active-target.f32"
+        self.audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([c["samples"] for c in self.collect(reference, reference.load_f32(raw))], axis=1)
+        worker, fake = self.worker(FakeRuntime(blocked=True), max_ready=1)
+        original = worker.load_f32(raw)
+        self.assertTrue(fake.wait_call(1))
+        fake.release()
+        self.event(worker, "chunk", original)
+        self.assertTrue(fake.wait_call(2))
+
+        frame = HOP + 17
+        latest = worker.seek(frame)
+        fake.release()
+        chunk = self.event(worker, "chunk", latest, timeout=1)
+        self.assertEqual((chunk["request_id"], chunk["frame_start"]), (2, frame))
+        self.assertFalse(chunk.get("inference_reused", False))
+        np.testing.assert_array_equal(chunk["samples"], expected[:, frame:2 * HOP])
+        self.assertTrue(fake.wait_call(3))
+        fake.release()
+        suffix, = self.collect(worker, latest)
+        self.assertEqual(suffix["request_id"], 3)
+        np.testing.assert_array_equal(suffix["samples"], expected[:, 2 * HOP:])
+        self.assertEqual(fake.calls, 3)
+
+    def test_seek_reuses_reply_received_before_superseded_chunk_is_published(self):
+        raw = self.root / "seek-returned-target.f32"
+        self.audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([chunk["samples"] for chunk in
+                                   self.collect(reference, reference.load_f32(raw))], axis=1)
+        worker, fake = self.worker(max_ready=1)
+        received = threading.Event()
+        resume = threading.Event()
+        infer = worker._inference_for_window
+
+        def receive_window(command, source, start, preroll, **options):
+            reply = infer(command, source, start, preroll, **options)
+            if command.generation == 1 and start == HOP:
+                received.set()
+                if not resume.wait(timeout=3):
+                    raise TimeoutError("test did not resume stem reconstruction")
+            return reply
+
+        with patch.object(worker, "_inference_for_window", side_effect=receive_window):
+            original = worker.load_f32(raw)
+            self.event(worker, "chunk", original)
+            try:
+                self.assertTrue(received.wait(timeout=3))
+                frame = HOP + 17
+                latest = worker.seek(frame)
+            finally:
+                resume.set()
+            first, tail = self.collect(worker, latest)
+
+        self.assertEqual((first["request_id"], first["frame_start"]), (2, frame))
+        self.assertEqual(first["metrics"]["id"], 2)
+        self.assertFalse(first.get("inference_reused", False))
+        self.assertEqual((tail["request_id"], fake.calls), (3, 3))
+        np.testing.assert_array_equal(np.concatenate([first["samples"], tail["samples"]], axis=1),
+                                      expected[:, frame:])
+
+    def test_return_seek_preserves_completed_window_during_superseded_cache_insertion(self):
+        raw = self.root / "superseded-cache-insertion.f32"
+        audio = fixture(self.root / "superseded-cache-insertion.wav", 3 * HOP + 137)
+        audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        continuous = self.collect(reference, reference.load_f32(raw))
+        expected = continuous[1]["samples"][:, OVERLAP:]
+
+        for edge in ("before_validation", "during_validation"):
+            with self.subTest(edge=edge):
+                worker, backend = self.worker(FakeRuntime(blocked=True), max_ready=1)
+                try:
+                    opened = worker.load_f32(raw)
+                    self.assertTrue(backend.wait_call(1))
+                    backend.release()
+                    self.event(worker, "chunk", opened)
+                    self.assertTrue(backend.wait_call(2))
+
+                    entered, resume = threading.Event(), threading.Event()
+                    remember = worker._remember_superseded_seek_window
+                    isfinite = np.isfinite
+
+                    def wait_for_seek():
+                        entered.set()
+                        if not resume.wait(3):
+                            raise TimeoutError("test did not release obsolete window validation")
+
+                    def during_validation(samples):
+                        wait_for_seek()
+                        return isfinite(samples)
+
+                    def handoff(command, pending, output):
+                        if edge == "before_validation":
+                            wait_for_seek()
+                            return remember(command, pending, output)
+                        with patch("tools.stems.worker.np.isfinite", during_validation):
+                            return remember(command, pending, output)
+
+                    with patch.object(worker, "_remember_superseded_seek_window", side_effect=handoff):
+                        try:
+                            worker.seek(2 * HOP + OVERLAP)
+                            backend.release()
+                            self.assertTrue(entered.wait(3), "obsolete request did not enter the cache")
+                            frame = HOP + OVERLAP
+                            generation = worker.seek(frame)
+                        finally:
+                            resume.set()
+                        chunk = self.event(worker, "chunk", generation, timeout=1)
+
+                    self.assertEqual((chunk["request_id"], chunk["frame_start"]), (2, frame))
+                    self.assertIs(chunk["inference_reused"], True)
+                    np.testing.assert_array_equal(chunk["samples"], expected)
+                finally:
+                    worker.close(timeout=0.05)
+
+    def test_end_of_file_replay_reuses_last_thirty_seconds_with_overlap(self):
+        # Place the replay one frame into a hop and EOF inside the seventh
+        # contributing window. The preceding window still contributes audio.
+        replay_frame = 5 * HOP + 1
+        total_frames = replay_frame + 30 * RATE
+        raw = self.root / "replay-suffix.f32"
+        audio = fixture(self.root / "replay-suffix.wav", total_frames)
+        audio.astype("<f4").tofile(raw)
+        worker, backend = self.worker()
+        continuous = self.collect(worker, worker.load_f32(raw))
+        initial_calls = backend.calls
+
+        chunks = self.collect(worker, worker.seek(replay_frame))
+
+        self.assertEqual(backend.calls, initial_calls)
+        self.assertTrue(all(chunk["inference_reused"] for chunk in chunks))
+        index, offset = divmod(replay_frame, HOP)
+        self.assertEqual([chunk["request_id"] for chunk in chunks],
+                         [chunk["request_id"] for chunk in continuous[index:]])
+        self.assertEqual(chunks[0]["frame_start"], replay_frame)
+        self.assertEqual(chunks[-1]["frame_start"] + chunks[-1]["frames"], total_frames)
+        for replayed, expected in zip(chunks, continuous[index:], strict=True):
+            np.testing.assert_array_equal(replayed["samples"], expected["samples"][:, offset:])
+            offset = 0
+
+    def test_rewind_reuses_evicted_overlap_without_reusing_evicted_target(self):
+        target = 4
+        raw = self.root / "evicted-overlap.f32"
+        fixture(self.root / "evicted-overlap.wav", (target + _SEEK_CACHE_WINDOWS) * HOP).astype("<f4").tofile(raw)
+        worker, backend = self.worker(max_ready=1)
+        continuous = self.collect(worker, worker.load_f32(raw))
+        calls = backend.calls
+        frame = target * HOP + 17
+
+        replay = self.collect(worker, worker.seek(frame))
+
+        self.assertEqual(backend.calls, calls)
+        self.assertTrue(all(chunk["inference_reused"] for chunk in replay))
+        self.assertEqual(len(replay), len(continuous) - target)
+        for i, chunk in enumerate(replay):
+            np.testing.assert_array_equal(chunk["samples"],
+                                          continuous[target + i]["samples"][:, 17 if i == 0 else 0:])
+
+        # Only the tail of this window survives. Starting in its own body
+        # still requires its model result even after a successful rewind.
+        offset = OVERLAP
+        in_evicted = self.collect(worker, worker.seek((target - 1) * HOP + offset))
+        self.assertEqual(backend.calls, calls + 1)
+        self.assertFalse(in_evicted[0].get("inference_reused", False))
+        np.testing.assert_array_equal(in_evicted[0]["samples"], continuous[target - 1]["samples"][:, offset:])
+
+        # Replacing the source clears both the full windows and old tails.
+        other = self.root / "other.f32"
+        fixture(self.root / "other.wav", (target + 1) * HOP, phase=10).astype("<f4").tofile(other)
+        before = backend.calls
+        from_new_source, = self.collect(worker, worker.load_f32(other, start_frame=frame))
+        self.assertEqual(backend.calls, before + 2)
+        self.assertNotEqual(from_new_source["source_id"], replay[0]["source_id"])
+
+    def test_cold_preroll_is_reused_on_repeat_with_full_window_cache(self):
+        target = 3
+        raw = self.root / "new-preroll.f32"
+        fixture(self.root / "new-preroll.wav", (target + _SEEK_CACHE_WINDOWS) * HOP).astype("<f4").tofile(raw)
+        worker, backend = self.worker(max_ready=1)
+        self.collect(worker, worker.load_f32(raw, start_frame=target * HOP + OVERLAP))
+        calls = backend.calls
+        frame = target * HOP + 17
+
+        first = self.collect(worker, worker.seek(frame))
+        self.assertEqual(backend.calls, calls + 1)
+        repeat = self.collect(worker, worker.seek(frame + 1))
+
+        self.assertEqual(backend.calls, calls + 1)
+        self.assertEqual(len(repeat), len(first))
+        for i, chunk in enumerate(repeat):
+            np.testing.assert_array_equal(chunk["samples"], first[i]["samples"][:, 1 if i == 0 else 0:])
+
+    def test_nearby_rewind_preserves_cached_suffix_after_missing_windows(self):
+        target_window = 2
+        latest = target_window + _SEEK_CACHE_WINDOWS
+        target_frame = target_window * HOP + 1
+        raw = self.root / "midtrack-rewind.f32"
+        fixture(self.root / "midtrack-rewind.wav", (latest + 2) * HOP).astype("<f4").tofile(raw)
+        worker, _ = self.worker(max_ready=1)
+        generation = worker.load_f32(raw)
+        played = [self.event(worker, "chunk", generation) for _ in range(latest)]
+        with worker._condition:
+            self.assertTrue(worker._condition.wait_for(lambda: len(worker._chunks) == 1, timeout=4))
+            queued = worker._chunks[0]
+            self.assertEqual(queued["frame_start"], latest * HOP)
+        played.append(queued)
+
+        replay = worker.seek(target_frame)
+        for index in range(target_window, latest + 1):
+            chunk = self.event(worker, "chunk", replay)
+            trim = 1 if index == target_window else 0
+            self.assertEqual(chunk["frame_start"], index * HOP + trim)
+            np.testing.assert_array_equal(chunk["samples"], played[index]["samples"][:, trim:])
+            if index > target_window:
+                self.assertTrue(chunk.get("inference_reused"), f"cached replay window {index} was recomputed")
+                self.assertEqual(chunk["request_id"], played[index]["request_id"])
+
+    def test_return_seek_can_reuse_completed_window_with_all_cache_slots_full(self):
+        capacity = _SEEK_CACHE_WINDOWS
+        full_cache = {index * HOP for index in range(1, capacity + 1)}
+        raw = self.root / "full-seek-cache.f32"
+        audio = fixture(self.root / "full-seek-cache.wav", (capacity + 3) * HOP + OVERLAP + 137)
+        audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        continuous = self.collect(reference, reference.load_f32(raw))
+
+        for action in ("return_before_validation", "return_during_validation",
+                       "return_for_following_window", "continue_away"):
+            with self.subTest(action=action):
+                worker, backend = self.worker(FakeRuntime(blocked=True), max_ready=1)
+                try:
+                    initial = worker.load_f32(raw)
+                    for call in range(1, capacity + 2):
+                        self.assertTrue(backend.wait_call(call))
+                        backend.release()
+                        self.event(worker, "chunk", initial)
+                    self.assertTrue(backend.wait_call(capacity + 2))
+                    with worker._condition:
+                        self.assertEqual(set(worker._weighted_windows), full_cache)
+
+                    entered, resume = threading.Event(), threading.Event()
+                    remember = worker._remember_superseded_seek_window
+                    finite = np.isfinite
+
+                    def pause_validation():
+                        entered.set()
+                        if not resume.wait(3):
+                            raise TimeoutError("test did not release the superseded reply")
+
+                    def wait_during_validation(samples):
+                        pause_validation()
+                        return finite(samples)
+
+                    def handoff(command, pending, output):
+                        if action == "return_during_validation":
+                            with patch("tools.stems.worker.np.isfinite", wait_during_validation):
+                                return remember(command, pending, output)
+                        pause_validation()
+                        return remember(command, pending, output)
+
+                    with patch.object(worker, "_remember_superseded_seek_window", side_effect=handoff):
+                        try:
+                            worker.seek((capacity + 3) * HOP + OVERLAP)
+                            backend.release()
+                            self.assertTrue(entered.wait(2), "superseded reply did not reach validation")
+                            needs_following = action == "return_for_following_window"
+                            index = capacity if needs_following else capacity + 1
+                            offset = OVERLAP + 37 if needs_following else 0
+                            if action != "continue_away":
+                                generation = worker.seek(index * HOP + offset)
+                        finally:
+                            resume.set()
+                        if action == "continue_away":
+                            self.assertTrue(backend.wait_call(capacity + 3))
+                            with worker._condition:
+                                self.assertEqual(set(worker._weighted_windows), full_cache)
+                            index = 1
+                            generation = worker.seek(index * HOP)
+                        chunk = self.event(worker, "chunk", generation, timeout=1)
+
+                        if needs_following:
+                            # The late return needs more than the clipped first hop.
+                            # Both replies can supply it without another inference.
+                            following = self.event(worker, "chunk", generation, timeout=1)
+                            self.assertEqual((following["request_id"], following["frame_start"]), (capacity + 2, (capacity + 1) * HOP))
+                            self.assertIs(following["inference_reused"], True)
+                            np.testing.assert_array_equal(following["samples"], continuous[capacity + 1]["samples"])
+
+                    self.assertEqual((chunk["request_id"], chunk["frame_start"]), (index + 1, index * HOP + offset))
+                    self.assertIs(chunk["inference_reused"], True)
+                    np.testing.assert_array_equal(chunk["samples"], continuous[index]["samples"][:, offset:])
+                    if action != "continue_away":
+                        with worker._condition:
+                            self.assertEqual(set(worker._weighted_windows), (full_cache - {HOP}) | {(capacity + 1) * HOP})
+                finally:
+                    worker.close(timeout=0.05)
+
+    def test_seek_retains_active_target_while_filling_missing_preroll(self):
+        raw = self.root / "seek-active-target-uncached-preroll.f32"
+        self.audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([c["samples"] for c in self.collect(reference, reference.load_f32(raw))], axis=1)
+        worker, fake = self.worker(FakeRuntime(blocked=True), max_ready=1)
+        opened = worker.load_f32(raw, start_frame=len(self.audio))
+        self.assertEqual(self.collect(worker, opened), [])
+
+        original = worker.seek(HOP + OVERLAP)
+        target = self.event(worker, "started", original)
+        self.assertEqual(target["window_start_frame"], HOP)
+        self.assertTrue(fake.wait_call(1))
+
+        frame = HOP + 17
+        latest = worker.seek(frame)
+        fake.release(3)
+        overlap = self.event(worker, "started", latest)
+        self.assertEqual(overlap["window_start_frame"], 0)
+        self.assertTrue(overlap["preroll"])
+        first = self.event(worker, "chunk", latest)
+        self.assertEqual(first["request_id"], target["request_id"])
+        self.assertEqual(first["metrics"]["id"], target["request_id"])
+        self.assertFalse(first.get("inference_reused", False))
+        self.assertGreaterEqual(first["hop_service_ms"], (first["ready_at"] - overlap["timestamp"]) * 1000)
+        tail, = self.collect(worker, latest)
+        self.assertEqual([first["frame_start"], tail["frame_start"]], [frame, 2 * HOP])
+        np.testing.assert_array_equal(np.concatenate([first["samples"], tail["samples"]], axis=1),
+                                      expected[:, frame:])
+        self.assertEqual(worker.statistics()["discarded_count"], 0)
+        self.assertEqual(fake.calls, 3)
+
+    def test_repeated_cold_seek_uses_parked_target_during_missing_preroll(self):
+        raw = self.root / "repeated-cold-target.f32"
+        self.audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([chunk["samples"] for chunk in
+                                   self.collect(reference, reference.load_f32(raw))], axis=1)
+        cases = (("needs overlap", HOP + 37, 1, 3),
+                 ("past overlap", HOP + OVERLAP + 37, 1, 3),
+                 ("after cancellation", HOP + 37, 4, 5))
+        for description, frame, expected_request, expected_calls in cases:
+            with self.subTest(description=description):
+                worker, fake = self.worker(FakeRuntime(blocked=True), max_ready=1)
+                opened = worker.load_f32(raw, start_frame=len(self.audio))
+                self.assertEqual(self.collect(worker, opened), [])
+
+                original = worker.seek(HOP + OVERLAP)
+                target = self.event(worker, "started", original)
+                self.assertEqual((target["request_id"], target["window_start_frame"]), (1, HOP))
+                self.assertTrue(fake.wait_call(1))
+                first_seek = worker.seek(HOP + 17)
+                fake.release()
+                overlap = self.event(worker, "started", first_seek)
+                self.assertEqual(overlap["window_start_frame"], 0)
+                self.assertTrue(overlap["preroll"])
+                self.assertTrue(fake.wait_call(2))
+
+                if description == "after cancellation":
+                    worker.cancel()
+                final_seek = worker.seek(frame)
+                if description == "past overlap":
+                    # The parked target is complete, and this seek no longer
+                    # needs the in-flight preroll. Require exact audio before
+                    # the obsolete native request is allowed to finish.
+                    first = self.event(worker, "chunk", final_seek, timeout=1)
+                    self.assertEqual(fake.calls, 2)
+                    fake.release(4)
+                    tail, = self.collect(worker, final_seek)
+                else:
+                    fake.release(4)
+                    first, tail = self.collect(worker, final_seek)
+
+                self.assertEqual((first["request_id"], first["frame_start"]), (expected_request, frame))
+                self.assertEqual(first["metrics"]["id"], expected_request)
+                self.assertFalse(first.get("inference_reused", False))
+                self.assertEqual((tail["request_id"], fake.calls), (expected_calls, expected_calls))
+                np.testing.assert_array_equal(np.concatenate([first["samples"], tail["samples"]], axis=1),
+                                              expected[:, frame:])
+                worker.close()
+
+    def test_adjacent_seek_reuses_parked_window_as_overlap(self):
+        raw = self.root / "adjacent-parked-overlap.f32"
+        self.audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([chunk["samples"] for chunk in
+                                   self.collect(reference, reference.load_f32(raw))], axis=1)
+
+        for before_parking in (False, True):
+            with self.subTest(before_parking=before_parking):
+                worker, fake = self.worker(FakeRuntime(blocked=True), max_ready=1)
+                opened = worker.load_f32(raw, start_frame=len(self.audio))
+                self.assertEqual(self.collect(worker, opened), [])
+                original = worker.seek(HOP + OVERLAP)
+                parked = self.event(worker, "started", original)
+                self.assertEqual((parked["request_id"], parked["window_start_frame"]), (1, HOP))
+                self.assertTrue(fake.wait_call(1))
+
+                old_wait = worker._wait_inference
+                reply_received = threading.Event()
+                resume = threading.Event()
+                first_seek = worker.seek(HOP + 17)
+
+                def stop_between_reply_and_parking(command=None, **kwargs):
+                    result = old_wait(command, **kwargs)
+                    if (before_parking and command is not None and command.generation == first_seek
+                            and kwargs.get("adopt") and not kwargs.get("keep_pending")):
+                        reply_received.set()
+                        if not resume.wait(3):
+                            raise TimeoutError("test did not release completed target")
+                    return result
+
+                # Pause the fake NativeRuntime at ownership boundaries, rather
+                # than hoping to hit a timing window with a short sleep.
+                try:
+                    with patch.object(worker, "_wait_inference", stop_between_reply_and_parking):
+                        fake.release()
+                        if before_parking:
+                            self.assertTrue(reply_received.wait(3))
+                        else:
+                            pending = self.event(worker, "started", first_seek)
+                            self.assertEqual((pending["request_id"], pending["window_start_frame"]), (2, 0))
+                            self.assertTrue(pending["preroll"])
+                            self.assertTrue(fake.wait_call(2))
+                        frame = 2 * HOP + 37
+                        final = worker.seek(frame)
+                        resume.set()
+                        if not before_parking:
+                            fake.release()  # Finish the obsolete opening request.
+
+                        target = self.event(worker, "started", final)
+                        self.assertEqual(target["window_start_frame"], 2 * HOP,
+                                         "The completed overlap was separated again")
+                        expected_calls = 2 if before_parking else 3
+                        self.assertEqual(target["request_id"], expected_calls)
+                        fake.release()
+                        chunk, = self.collect(worker, final)
+                        self.assertEqual((chunk["frame_start"], chunk["request_id"], fake.calls),
+                                         (frame, expected_calls, expected_calls))
+                        np.testing.assert_array_equal(chunk["samples"], expected[:, frame:])
+                finally:
+                    resume.set()
+                    worker.close(timeout=.05)
+
+    def test_seek_uses_active_preroll_before_first_target_chunk(self):
+        raw = self.root / "seek-active-preroll.f32"
+        self.audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([c["samples"] for c in self.collect(reference, reference.load_f32(raw))], axis=1)
+        worker, fake = self.worker(FakeRuntime(blocked=True), max_ready=1)
+        worker.load_f32(raw)
+        self.assertTrue(fake.wait_call(1))
+
+        frame = HOP + 17
+        latest = worker.seek(frame)
+        fake.release()
+        self.assertTrue(fake.wait_call(2))
+        fake.release()
+        chunk = self.event(worker, "chunk", latest, timeout=1)
+        self.assertEqual((chunk["request_id"], chunk["frame_start"]), (2, frame))
+        np.testing.assert_array_equal(chunk["samples"], expected[:, frame:2 * HOP])
+        self.assertTrue(fake.wait_call(3))
+        fake.release()
+        suffix, = self.collect(worker, latest)
+        self.assertEqual(suffix["request_id"], 3)
+        np.testing.assert_array_equal(suffix["samples"], expected[:, 2 * HOP:])
+        self.assertEqual(fake.calls, 3)
+
+    def test_superseded_inference_failure_preserves_cold_seek(self):
+        raw = self.root / "cold-seek-fault.f32"
+        self.audio.astype("<f4").tofile(raw)
+        broken = FakeRuntime(blocked=True, fail=True)
+        replacement = FakeRuntime()
+        backends = iter((broken, replacement))
+        worker = StemWorker("fake-runtime", self.model, _backend_factory=lambda *_: next(backends))
+        self.workers.append(worker)
+
+        old = worker.load_f32(raw)
+        self.assertTrue(broken.wait_call(1))
+        frame = HOP + 17
+        latest = worker.seek(frame)
+        broken.release()
+
+        failure = self.event(worker, "error")
+        self.assertEqual(failure["generation"], old)
+        self.assertIn("injected runtime fault", failure["message"])
+        chunks = self.collect(worker, latest)
+        self.assertEqual(chunks[0]["frame_start"], frame)
+        self.assertEqual(chunks[0]["request_id"], 3)  # Prior-grid window then requested window.
+        self.assertFalse(chunks[0].get("inference_reused", False))
+        reference, _ = self.worker()
+        continuous = self.collect(reference, reference.load_f32(raw))
+        expected = np.concatenate([chunk["samples"] for chunk in continuous], axis=1)
+        actual = np.concatenate([chunk["samples"] for chunk in chunks], axis=1)
+        np.testing.assert_array_equal(actual, expected[:, frame:])
+        self.assertTrue(broken.closed)
+        self.assertEqual(replacement.starts, 1)
+
+
+    def test_cached_seek_fault_marks_active_prefix_stale(self):
+        raw = self.root / "cached-seek-fault.f32"
+        self.audio.astype("<f4").tofile(raw)
+        worker, fake = self.worker(FakeRuntime(blocked=True))
+        old = worker.load_f32(raw)
+        self.assertTrue(fake.wait_call(1))
+        fake.release()
+        initial = self.event(worker, "chunk", old)
+        self.assertTrue(fake.wait_call(2))
+
+        frame = HOP - 4704
+        latest = worker.seek(frame)
+        cached = self.event(worker, "chunk", latest, timeout=1)
+        self.assertTrue(cached["inference_reused"])
+        self.assertTrue(worker.is_current(cached))
+        np.testing.assert_array_equal(cached["samples"], initial["samples"][:, frame:])
+        fake.fail = True
+        fake.release()
+
+        failure = self.event(worker, "error")
+        self.assertEqual(failure["generation"], latest)
+        self.assertIn("injected runtime fault", failure["message"])
+        self.assertFalse(worker.is_current(cached))
+        self.assertEqual(fake.calls, 2)
+
     def test_seek_matches_continuous_grid_and_reuses_model_and_statistics(self):
         worker, fake = self.worker()
         baseline = self.collect(worker, worker.load(self.path))
@@ -554,6 +1379,51 @@ class WorkerTest(unittest.TestCase):
         self.assertEqual(chunk["frame_start"], 2 * HOP + 11)
         self.assertEqual(fake.calls, 3)  # stale call + exact-grid prior/current.
         self.assertEqual(fake.starts, 1)
+
+    def test_seek_supersedes_window_after_read_before_native_submission(self):
+        path = self.root / "direct-submit.f32"
+        audio = fixture(self.root / "direct-submit.wav", 2 * HOP + OVERLAP + 137)
+        audio.astype("<f4").tofile(path)
+        reference, _ = self.worker()
+        expected = self.collect(reference, reference.load_f32(path))[-1]["samples"]
+
+        worker, fake = self.worker()
+        read_window = worker._read_window
+        check = worker._check
+        prepared = threading.Event()
+        resume = threading.Event()
+        after_read = False
+
+        def read(source, start):
+            nonlocal after_read
+            window = read_window(source, start)
+            after_read = start == 0
+            return window
+
+        def stop_after_validation(command):
+            nonlocal after_read
+            check(command)
+            if after_read:
+                after_read = False
+                prepared.set()
+                if not resume.wait(3):
+                    raise TimeoutError("test did not release prepared window")
+
+        with (patch.object(worker, "_read_window", side_effect=read),
+              patch.object(worker, "_check", side_effect=stop_after_validation)):
+            worker.load_f32(path)
+            try:
+                self.assertTrue(prepared.wait(3), "first window never passed validation")
+                latest = worker.seek(2 * HOP + OVERLAP)
+            finally:
+                resume.set()
+            chunk, = self.collect(worker, latest)
+
+        self.assertEqual(chunk["frame_start"], 2 * HOP + OVERLAP)
+        np.testing.assert_array_equal(chunk["samples"], expected[:, OVERLAP:])
+        self.assertEqual(chunk["request_id"], 1)
+        self.assertEqual(fake.calls, 1)
+        self.assertEqual(worker.statistics()["discarded_count"], 0)
 
     def test_cancel_running_idle_and_pending_then_seek(self):
         worker, fake = self.worker(FakeRuntime(blocked=True))

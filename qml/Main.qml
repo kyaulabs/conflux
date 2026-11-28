@@ -177,6 +177,29 @@ ApplicationWindow {
                 onClicked: audioSettings.open()
                 Accessible.name: "Audio outputs and stereo recording"
                 Accessible.description: deckController.recording.active ? "Stereo master recording is active." : "Configure outputs or record the stereo master."
+                readonly property string recordingState: deckController.recording.status || ""
+                onRecordingStateChanged: {
+                    const announcer = audioSettings.opened ? recordingStatusLabel : audioSettingsButton
+                    if (!announcer || typeof announcer.Accessible.announce !== "function")
+                        return
+                    let message
+                    switch (recordingState) {
+                    case "Recording":
+                        message = "Master recording started."
+                        break
+                    case "Complete":
+                        message = "Master recording saved."
+                        break
+                    case "Failed":
+                        message = "Master recording failed."
+                        if (deckController.recording.error)
+                            message += " " + deckController.recording.error
+                        break
+                    default:
+                        return
+                    }
+                    announcer.Accessible.announce(message, Accessible.Polite)
+                }
                 contentItem: Item {
                     implicitWidth: recordingHeaderRow.implicitWidth
                     implicitHeight: recordingHeaderRow.height
@@ -228,6 +251,10 @@ ApplicationWindow {
                     border.color: parent.activeFocus ? Brand.ConfluxTheme.primary : Brand.ConfluxTheme.controlBorder
                 }
                 Accessible.name: "Switch color theme (F6)"
+                Accessible.onPressAction: clicked()
+                Accessible.description: Brand.ConfluxTheme.dark
+                    ? "Dark theme is active. Switch to light theme."
+                    : "Light theme is active. Switch to dark theme."
             }
             WindowActions { targetWindow: window }
         }
@@ -238,6 +265,7 @@ ApplicationWindow {
             Layout.fillHeight: true
             spacing: 10
             DeckSurface {
+                id: deckASurface
                 deckIndex: 0
                 controller: deckController
                 Layout.fillWidth: true
@@ -251,6 +279,7 @@ ApplicationWindow {
                 Layout.fillHeight: true
             }
             DeckSurface {
+                id: deckBSurface
                 deckIndex: 1
                 controller: deckController
                 Layout.fillWidth: true
@@ -307,6 +336,8 @@ ApplicationWindow {
             }
             Item { Layout.fillWidth: true; visible: deckController.error.length === 0 }
             Button {
+                id: statusButton
+                objectName: "controlStatusOpen"
                 text: "CONTROL STATUS"
                 flat: true
                 font.family: Brand.ConfluxTheme.displayFont
@@ -349,6 +380,7 @@ ApplicationWindow {
         id: library
         objectName: "libraryDrawer"
         property int selectedDeck: 0
+        onOpened: importedCues.preferredDeck = selectedDeck
         property string selectedId: ""
         property string cuePathSourceId: ""
         property string recoverySourceId: ""
@@ -379,6 +411,27 @@ ApplicationWindow {
                                             ? selectedTrack.cues : []
         readonly property var selectedLevels: selectedTrack !== null && selectedTrack.levels !== undefined
                                               ? selectedTrack.levels : ({})
+        readonly property string selectedAnalysis: {
+            if (!opened || selectedTrack === null)
+                return "Analysis unavailable"
+
+            let sourceBpm = ""
+            const estimates = []
+            for (const surface of [deckASurface, deckBSurface]) {
+                if (!surface.deck.loaded || surface.deck.replacing || surface.showingPreparation
+                        || surface.sourceId !== selectedId)
+                    continue
+                const estimate = Number(surface.bpmState.estimated)
+                if (!sourceBpm && surface.bpmState.status === "Estimated"
+                        && Number.isFinite(estimate) && estimate >= 20 && estimate <= 400)
+                    sourceBpm = "Estimated source BPM " + estimate.toFixed(1)
+                if (surface.localSourceKeyText)
+                    estimates.push(surface.deckName + " " + surface.localSourceKeyText)
+            }
+            if (sourceBpm)
+                estimates.unshift(sourceBpm)
+            return estimates.length ? estimates.join(" · ") : "Analysis unavailable"
+        }
         readonly property var preparation: deckController.preparation
         readonly property string preparationText: {
             if (preparation.status === "Idle") return ""
@@ -829,6 +882,8 @@ ApplicationWindow {
                     Layout.minimumHeight: 100
                     clip: true
                     model: deckController.libraryTracks
+                    activeFocusOnTab: count > 0
+                    Accessible.name: "Saved tracks"
                     spacing: 4
                     ScrollBar.vertical: ScrollBar { }
                     delegate: ItemDelegate {
@@ -838,13 +893,23 @@ ApplicationWindow {
                         width: savedTracks.width
                         height: 56
                         highlighted: library.selectedId === modelData.id
-                        onClicked: library.selectTrack(modelData)
+                        focusPolicy: Qt.ClickFocus
+                        onClicked: {
+                            savedTracks.currentIndex = index
+                            library.selectTrack(modelData)
+                        }
+                        Keys.onReturnPressed: clicked()
+                        Keys.onEnterPressed: clicked()
+                        Accessible.focusable: true
+                        Accessible.selectable: true
+                        Accessible.selected: highlighted
                         Accessible.onPressAction: clicked()
                         Accessible.name: modelData.name + (modelData.available ? "" : ", source missing")
-                        Accessible.description: "Select this track for Load A, Load B or cue-sheet import. Whole-track levels appear in details. Tempo, beat, phrase and key are unknown."
+                        Accessible.description: "Select this track for Load A, Load B or cue-sheet import. Track details show levels and available analysis."
                         background: Rectangle {
                             radius: 3
                             color: parent.highlighted ? Brand.ConfluxTheme.raised : Brand.ConfluxTheme.canvas
+                            border.width: parent.activeFocus ? 2 : 1
                             border.color: parent.activeFocus || parent.highlighted
                                           ? Brand.ConfluxTheme.primary : Brand.ConfluxTheme.divider
                         }
@@ -887,7 +952,7 @@ ApplicationWindow {
                     }
                     Label {
                         objectName: "libraryTrackAnalysis"
-                        text: "Tempo / beat / phrase / key: unknown."
+                        text: library.selectedAnalysis
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         color: Brand.ConfluxTheme.muted
@@ -959,46 +1024,70 @@ ApplicationWindow {
                         clip: true
                         model: library.selectedCues
                         spacing: 4
+                        property int preferredDeck: 0
+                        readonly property var matchingDecks: [library.canJumpCue(0), library.canJumpCue(1)]
+                        readonly property int keyboardDeck: matchingDecks[preferredDeck] ? preferredDeck : matchingDecks.indexOf(true)
+                        activeFocusOnTab: count > 0 && keyboardDeck >= 0
+                        Accessible.name: "Imported cues"
+                        Accessible.description: "Use Up and Down to move through the cues, and Left and Right to choose a deck."
+                        Keys.onLeftPressed: { if (matchingDecks[0]) preferredDeck = 0 }
+                        Keys.onRightPressed: { if (matchingDecks[1]) preferredDeck = 1 }
                         ScrollBar.vertical: ScrollBar { }
-                        delegate: RowLayout {
+                        delegate: FocusScope {
+                            id: cueRow
                             required property var modelData
                             required property int index
                             width: importedCues.width
                             height: 56
-                            spacing: 8
-                            Label {
-                                objectName: "libraryCue" + index + "Name"
-                                text: modelData.trackNumber + ". " + modelData.label
-                                textFormat: Text.PlainText
-                                elide: Text.ElideRight
-                                color: Brand.ConfluxTheme.text
-                                Layout.fillWidth: true
-                                Accessible.name: text
-                            }
-                            Label {
-                                objectName: "libraryCue" + index + "Time"
-                                text: library.cueTime(modelData.seconds)
-                                textFormat: Text.PlainText
-                                color: Brand.ConfluxTheme.muted
-                                font.family: Brand.ConfluxTheme.monoFont
-                            }
-                            Button {
-                                objectName: "libraryCue" + index + "JumpA"
-                                text: "JUMP A"
-                                enabled: library.canJumpCue(0)
-                                Layout.minimumWidth: 88
-                                Layout.minimumHeight: 44
-                                onClicked: deckController.jumpToImportedCue(0, library.selectedId, index)
-                                Accessible.name: "Jump Deck A to cue " + modelData.trackNumber + ": " + modelData.label
-                            }
-                            Button {
-                                objectName: "libraryCue" + index + "JumpB"
-                                text: "JUMP B"
-                                enabled: library.canJumpCue(1)
-                                Layout.minimumWidth: 88
-                                Layout.minimumHeight: 44
-                                onClicked: deckController.jumpToImportedCue(1, library.selectedId, index)
-                                Accessible.name: "Jump Deck B to cue " + modelData.trackNumber + ": " + modelData.label
+                            RowLayout {
+                                anchors.fill: parent
+                                spacing: 8
+                                Label {
+                                    objectName: "libraryCue" + cueRow.index + "Name"
+                                    text: cueRow.modelData.trackNumber + ". " + cueRow.modelData.label
+                                    textFormat: Text.PlainText
+                                    elide: Text.ElideRight
+                                    color: Brand.ConfluxTheme.text
+                                    Layout.fillWidth: true
+                                    Accessible.name: text
+                                }
+                                Label {
+                                    objectName: "libraryCue" + cueRow.index + "Time"
+                                    text: library.cueTime(cueRow.modelData.seconds)
+                                    color: Brand.ConfluxTheme.muted
+                                    font.family: Brand.ConfluxTheme.monoFont
+                                }
+                                Repeater {
+                                    model: ["A", "B"]
+                                    Button {
+                                        required property int index
+                                        required property string modelData
+                                        objectName: "libraryCue" + cueRow.index + "Jump" + modelData
+                                        text: "JUMP " + modelData
+                                        enabled: importedCues.matchingDecks[index]
+                                        focusPolicy: Qt.ClickFocus
+                                        focus: importedCues.keyboardDeck === index
+                                        Layout.minimumWidth: 88
+                                        Layout.minimumHeight: 44
+                                        onClicked: {
+                                            importedCues.preferredDeck = index
+                                            importedCues.currentIndex = cueRow.index
+                                            deckController.jumpToImportedCue(index, library.selectedId, cueRow.index)
+                                        }
+                                        Keys.onReturnPressed: clicked()
+                                        Keys.onEnterPressed: clicked()
+                                        Accessible.focusable: enabled
+                                        Accessible.name: "Jump Deck " + modelData + " to cue " + cueRow.modelData.trackNumber + ": " + cueRow.modelData.label
+                                        Rectangle {
+                                            objectName: parent.objectName + "Focus"
+                                            anchors.fill: parent
+                                            visible: parent.activeFocus
+                                            color: "transparent"
+                                            border.width: 2
+                                            border.color: Brand.ConfluxTheme.primary
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -1064,13 +1153,71 @@ ApplicationWindow {
         property string masterRight: ""
         property string cueLeft: ""
         property string cueRight: ""
-        readonly property var masterOptions: [{key: "", label: "Default master"}].concat(deckController.audioRouting.ports)
-        readonly property var cueOptions: [{key: "", label: "Cue disabled"}].concat(deckController.audioRouting.ports)
-        readonly property bool completePairs: (masterLeft.length === 0) === (masterRight.length === 0)
-                                             && (cueLeft.length === 0) === (cueRight.length === 0)
-        readonly property bool distinctPorts: {
-            const keys = [masterLeft, masterRight, cueLeft, cueRight].filter(function(key) { return key.length > 0 })
-            return keys.every(function(key, index) { return keys.indexOf(key) === index })
+        readonly property var playbackOptions: {
+            if (!visible)
+                return []
+            const ports = deckController.audioRouting.ports
+            const counts = new Map()
+            for (const port of ports)
+                counts.set(port.label, (counts.get(port.label) || 0) + 1)
+            return ports.map(port => counts.get(port.label) === 1 ? port : ({
+                key: port.key,
+                sinkKey: port.sinkKey,
+                label: qsTr("%1 (%2 / %3)").arg(port.label).arg(port.nodeName).arg(port.portName)
+            }))
+        }
+        readonly property var masterOptions: [{key: "", label: "Default master"}].concat(playbackOptions)
+        readonly property var cueOptions: [{key: "", label: "Cue disabled"}].concat(playbackOptions)
+        readonly property string routingValidationMessage: {
+            if (!visible)
+                return ""
+            if ((masterLeft.length === 0) !== (masterRight.length === 0)
+                    || (cueLeft.length === 0) !== (cueRight.length === 0))
+                return qsTr("Select both channels of each pair, or leave both empty.")
+            const keys = [masterLeft, masterRight, cueLeft, cueRight].filter(key => key.length > 0)
+            if (keys.some(key => optionIndex(playbackOptions, key) < 0))
+                return qsTr("An output is unavailable. Select another playback port.")
+            if (!masterLeft) {
+                const defaultPorts = deckController.audioRouting.defaultMasterPorts
+                for (const key of defaultPorts)
+                    keys.push(key)
+            }
+            if (keys.some((key, index) => keys.indexOf(key) !== index))
+                return qsTr("Master and cue must use distinct playback ports.")
+            if (!pairUsesSameSink(masterLeft, masterRight) || !pairUsesSameSink(cueLeft, cueRight))
+                return qsTr("Choose both channels of each pair from the same output device.")
+            return ""
+        }
+        function pairUsesSameSink(left, right) {
+            if (!left)
+                return true
+            return playbackOptions[optionIndex(playbackOptions, left)].sinkKey
+                === playbackOptions[optionIndex(playbackOptions, right)].sinkKey
+        }
+        component OutputPortPicker: ComboBox {
+            id: picker
+            Layout.fillWidth: true
+            Layout.minimumHeight: 40
+            textRole: "label"
+            Accessible.description: currentIndex < 0 ? qsTr("Selected playback port is unavailable") : currentText
+            delegate: Component {
+                ItemDelegate {
+                    id: option
+                    required property int index
+                    required property var modelData
+                    width: picker.width
+                    highlighted: picker.highlightedIndex === index
+                    text: modelData.label
+                    contentItem: Text {
+                        text: option.text
+                        textFormat: Text.PlainText
+                        wrapMode: Text.Wrap
+                        verticalAlignment: Text.AlignVCenter
+                        font: picker.font
+                        color: option.highlighted ? option.palette.highlightedText : option.palette.text
+                    }
+                }
+            }
         }
         function optionIndex(options, key) {
             for (let i = 0; i < options.length; ++i)
@@ -1114,6 +1261,29 @@ ApplicationWindow {
                 Layout.fillHeight: true
                 clip: true
                 contentWidth: availableWidth
+
+                function revealFocusedControl() {
+                    const focusItem = window.activeFocusItem
+                    const view = contentItem
+                    if (!audioSettings.opened || !focusItem || !view) return
+                    let parent = focusItem.parent
+                    while (parent && parent !== view.contentItem)
+                        parent = parent.parent
+                    if (!parent) return
+
+                    const bounds = focusItem.mapToItem(view, 0, 0, focusItem.width, focusItem.height)
+                    const delta = bounds.y < 0 ? bounds.y : Math.max(0, bounds.y + bounds.height - view.height)
+                    if (delta === 0) return
+                    const end = view.originY + Math.max(0, view.contentHeight - view.height)
+                    view.contentY = Math.max(view.originY, Math.min(end, view.contentY + delta))
+                }
+
+                Connections {
+                    target: window
+                    enabled: audioSettings.opened
+                    function onActiveFocusItemChanged() { Qt.callLater(audioScroll.revealFocusedControl) }
+                }
+
                 ColumnLayout {
                     width: audioScroll.availableWidth
                     spacing: 12
@@ -1124,7 +1294,7 @@ ApplicationWindow {
                         color: Brand.ConfluxTheme.text
                     }
                     Label {
-                        text: "Refresh playback ports, then choose your outputs. You can save outputs before loading a track. Applying during playback briefly interrupts audio, then restores transport. Headphone cue needs four distinct ports across master and cue; it never falls back to the default master."
+                        text: "Refresh playback ports, then choose your outputs. You can save outputs before loading a track. Changing outputs during playback briefly interrupts audio, then restores transport. Headphone cue needs four distinct ports across master and cue; it never falls back to the default master."
                         wrapMode: Text.WordWrap
                         color: Brand.ConfluxTheme.muted
                         Layout.fillWidth: true
@@ -1141,44 +1311,32 @@ ApplicationWindow {
                         rowSpacing: 8
                         Layout.fillWidth: true
                         Label { text: "MASTER LEFT"; color: Brand.ConfluxTheme.text; font.family: Brand.ConfluxTheme.displayFont }
-                        ComboBox {
+                        OutputPortPicker {
                             objectName: "masterLeftPort"
-                            Layout.fillWidth: true
-                            Layout.minimumHeight: 40
-                            textRole: "label"
                             model: audioSettings.masterOptions
                             currentIndex: audioSettings.optionIndex(model, audioSettings.masterLeft)
                             onActivated: function(index) { audioSettings.masterLeft = model[index].key }
                             Accessible.name: "Master left playback port"
                         }
                         Label { text: "MASTER RIGHT"; color: Brand.ConfluxTheme.text; font.family: Brand.ConfluxTheme.displayFont }
-                        ComboBox {
+                        OutputPortPicker {
                             objectName: "masterRightPort"
-                            Layout.fillWidth: true
-                            Layout.minimumHeight: 40
-                            textRole: "label"
                             model: audioSettings.masterOptions
                             currentIndex: audioSettings.optionIndex(model, audioSettings.masterRight)
                             onActivated: function(index) { audioSettings.masterRight = model[index].key }
                             Accessible.name: "Master right playback port"
                         }
                         Label { text: "CUE LEFT"; color: Brand.ConfluxTheme.text; font.family: Brand.ConfluxTheme.displayFont }
-                        ComboBox {
+                        OutputPortPicker {
                             objectName: "cueLeftPort"
-                            Layout.fillWidth: true
-                            Layout.minimumHeight: 40
-                            textRole: "label"
                             model: audioSettings.cueOptions
                             currentIndex: audioSettings.optionIndex(model, audioSettings.cueLeft)
                             onActivated: function(index) { audioSettings.cueLeft = model[index].key }
                             Accessible.name: "Headphone cue left playback port"
                         }
                         Label { text: "CUE RIGHT"; color: Brand.ConfluxTheme.text; font.family: Brand.ConfluxTheme.displayFont }
-                        ComboBox {
+                        OutputPortPicker {
                             objectName: "cueRightPort"
-                            Layout.fillWidth: true
-                            Layout.minimumHeight: 40
-                            textRole: "label"
                             model: audioSettings.cueOptions
                             currentIndex: audioSettings.optionIndex(model, audioSettings.cueRight)
                             onActivated: function(index) { audioSettings.cueRight = model[index].key }
@@ -1187,9 +1345,8 @@ ApplicationWindow {
                     }
                     Label {
                         objectName: "routingValidation"
-                        visible: !audioSettings.completePairs || !audioSettings.distinctPorts
-                        text: !audioSettings.completePairs ? "Select both channels of each pair, or leave both empty."
-                                                          : "Master and cue must use distinct playback ports."
+                        text: audioSettings.routingValidationMessage
+                        visible: text.length > 0
                         wrapMode: Text.WordWrap
                         color: Brand.ConfluxTheme.accent
                         Layout.fillWidth: true
@@ -1209,7 +1366,7 @@ ApplicationWindow {
                             text: "APPLY OUTPUTS"
                             Layout.minimumHeight: 44
                             enabled: !deckController.busy && !deckController.recording.active
-                                     && audioSettings.completePairs && audioSettings.distinctPorts
+                                     && audioSettings.routingValidationMessage.length === 0
                             onClicked: deckController.configureAudioRouting(audioSettings.masterLeft, audioSettings.masterRight,
                                                                            audioSettings.cueLeft, audioSettings.cueRight)
                             Accessible.name: "Apply master and headphone cue outputs"
@@ -1280,6 +1437,7 @@ ApplicationWindow {
                         }
                     }
                     Label {
+                        id: recordingStatusLabel
                         objectName: "recordingStatus"
                         text: "Recording: " + deckController.recording.status
                         color: deckController.recording.active ? Brand.ConfluxTheme.primary : Brand.ConfluxTheme.text
@@ -1320,24 +1478,74 @@ ApplicationWindow {
 
     Popup {
         id: controlStatus
+        objectName: "controlStatus"
         anchors.centerIn: parent
         width: Math.min(560, window.width - 48)
-        height: statusContents.implicitHeight + topPadding + bottomPadding
+        height: Math.min(window.height - 48, statusTitle.implicitHeight + statusText.implicitHeight
+                         + Math.max(44, statusClose.implicitHeight) + 2 * statusContents.spacing
+                         + topPadding + bottomPadding)
         modal: true
+        focus: true
         padding: 24
+        onOpened: statusScroll.forceActiveFocus()
+        onClosed: statusButton.forceActiveFocus()
         background: Rectangle { color: Brand.ConfluxTheme.surface; border.color: Brand.ConfluxTheme.divider; radius: 6 }
         ColumnLayout {
             id: statusContents
             anchors.fill: parent
             spacing: 16
-            Label { text: "CONTROL STATUS"; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: Brand.ConfluxTheme.textPixels(24); color: Brand.ConfluxTheme.text }
             Label {
-                text: "Load, play/pause, temporary CUE, position seek and jog, channel/master levels, three-band channel EQ, crossfader, headphone cue selection and peak/RMS meters are active. Pause and press deck CUE to set a point; press again there to preview while held. CUE during playback returns to the point and pauses. Press PLAY during a preview to keep playing. The crossfader selects A at left, B at right and both channel levels unchanged at center. Mixer CUE selects the independent pre-fader headphone bus. Choose separate outputs and record the post-master mix in AUDIO / REC. Waveform overviews show actual source peaks, normalized for display. Hold and drag the platter to scratch prepared audio in either direction; release to restore its previous play or pause request and selected BPM and Master Tempo at the consumed position. Clear stored loops before scratching. Live stems do not support vinyl scratch. Arrow keys and the wheel remain positional search.\n\nPrepared tracks support manual IN/OUT and RELOOP/EXIT: set IN, wait for OUT readiness, then press OUT during playback. EXIT continues past OUT; RELOOP starts at IN again. Seek, jog, transport CUE, replacement and an audio-output rebuild clear the loop. Live stems and quantized beat-loop buttons do not support these manual loops.\n\nPrepared tracks use BPM-based tempo adjustment; move the BPM rail down to speed up. Arrows change 0.1 BPM; Shift and Page keys change 1 BPM. Click the deck LCD BPM value to override the original reference or return to automatic analysis. Automatic values are estimates and can be corrected. The speed range remains six percent around the reference. MASTER TEMPO preserves pitch. Changes follow acknowledged state and may buffer while the worker starts or reprimes. The displayed source time is nominal while processing, and the complete processed tail plays after it reaches the track end. TEMPO RESET returns to normal playback; loops and tempo processing are mutually gated for now. Live-stem tempo remains unavailable.\n\nHot cues A–H capture manual point cues: press an empty pad to set it, or a stored pad to start playback there. DELETE then a stored pad clears it without moving playback. Slots survive an audio-output rebuild and clear when the track is replaced. Active loops cannot be stored in a point pad. Sync and effects await their audio features; their controls are inactive. Decks C/D are reserved."
-                wrapMode: Text.WordWrap
+                id: statusTitle
+                text: "CONTROL STATUS"
+                font.family: Brand.ConfluxTheme.displayFont
+                font.pixelSize: Brand.ConfluxTheme.textPixels(24)
                 color: Brand.ConfluxTheme.text
-                Layout.fillWidth: true
             }
-            Button { text: "CLOSE"; Layout.minimumHeight: 44; onClicked: controlStatus.close() }
+            ScrollView {
+                id: statusScroll
+                objectName: "controlStatusScroll"
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                contentWidth: availableWidth
+                contentHeight: statusText.implicitHeight
+                clip: true
+                activeFocusOnTab: true
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                Accessible.name: "Control instructions"
+                function scrollBy(pixels) {
+                    const view = contentItem
+                    view.contentY = Math.max(0, Math.min(view.contentHeight - view.height, view.contentY + pixels))
+                }
+                Keys.onUpPressed: scrollBy(-24)
+                Keys.onDownPressed: scrollBy(24)
+                Keys.onPressed: function(event) {
+                    if (event.key === Qt.Key_PageUp || event.key === Qt.Key_PageDown) {
+                        scrollBy((event.key === Qt.Key_PageUp ? -1 : 1) * (height - 24))
+                        event.accepted = true
+                    }
+                }
+                background: Rectangle {
+                    color: "transparent"
+                    border.color: statusScroll.activeFocus ? Brand.ConfluxTheme.primary : "transparent"
+                    radius: Brand.ConfluxTheme.controlRadius
+                }
+                Label {
+                    id: statusText
+                    width: statusScroll.availableWidth
+                    text: "Load, play/pause, temporary CUE, position seek and jog, channel/master levels, three-band channel EQ, crossfader, headphone cue selection and peak/RMS meters are active. Pause and press deck CUE to set a point; press again there to preview while held. CUE during playback returns to the point and pauses. Press PLAY during a preview to keep playing. The crossfader selects A at left, B at right and both channel levels unchanged at center. Mixer CUE selects the independent pre-fader headphone bus. Choose separate outputs and record the post-master mix in AUDIO / REC. Waveform overviews show actual source peaks, normalized for display. Hold and drag the platter to scratch prepared audio in either direction; release to restore its previous play or pause request and selected BPM and Master Tempo at the consumed position. Clear stored loops before scratching. Live stems do not support vinyl scratch. Arrow keys and the wheel remain positional search.\n\nPrepared tracks support manual IN/OUT and RELOOP/EXIT: set IN, wait for OUT readiness, then press OUT during playback. EXIT continues past OUT; RELOOP starts at IN again. Seek, jog, transport CUE, replacement and an audio-output rebuild clear the loop. Live stems and quantized beat-loop buttons do not support these manual loops.\n\nPrepared tracks and live stems use BPM-based tempo adjustment; move the BPM rail down to speed up. Arrows change 0.1 BPM; Shift and Page keys change 1 BPM. Click the deck LCD BPM value to override the original reference or return to automatic analysis. Automatic values are estimates and can be corrected. The speed range remains six percent around the reference. MASTER TEMPO preserves pitch. Changes follow acknowledged state and may buffer while the worker starts or reprimes. The displayed source time is nominal while processing, and the complete processed tail plays after it reaches the track end. TEMPO RESET restores the original BPM and retains the Master Tempo selection. Prepared manual loops also support BPM changes and Master Tempo. Live stems retain the selected BPM and Master Tempo through an approved recovery loop. Leave recovery before changing tempo or resetting it.\n\nHot cues A–H capture manual point cues: press an empty pad to set it, or a stored pad to start playback there. DELETE then a stored pad clears it without moving playback. Slots survive an audio-output rebuild and clear when the track is replaced. Active loops cannot be stored in a point pad. Sync and effects await their audio features; their controls are inactive. Decks C/D are reserved."
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    color: Brand.ConfluxTheme.text
+                }
+            }
+            Button {
+                id: statusClose
+                objectName: "controlStatusClose"
+                text: "CLOSE"
+                Layout.minimumHeight: 44
+                onClicked: controlStatus.close()
+                Accessible.name: "Close control status (Escape)"
+            }
         }
     }
 }

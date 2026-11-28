@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "at_utc": "2026-11-05T05:06:57.905626+00:00",
+  "source_head": "9e35bda2eeb75c54630b392a9b631d3fca212684",
+  "passed": true,
+  "unit": "conflux-player-fence-close-laptop-20261104-01.service",
+  "invocation": "6d785df6bfbb477b858fb14116f9e0a6",
+  "unit_before_retirement": {
+    "LoadState": "loaded",
+    "ActiveState": "active",
+    "SubState": "exited",
+    "InvocationID": "6d785df6bfbb477b858fb14116f9e0a6",
+    "MainPID": "0",
+    "Result": "success",
+    "ExecMainStatus": "0",
+    "ControlGroup": ""
+  },
+  "unit_retirement_observations": [
+    {
+      "exit": 0,
+      "state": {
+        "LoadState": "not-found",
+        "ActiveState": "inactive",
+        "SubState": "dead",
+        "InvocationID": "",
+        "MainPID": "0",
+        "Result": "success",
+        "ExecMainStatus": "0",
+        "ControlGroup": ""
+      }
+    }
+  ],
+  "controller_shutdown_ms": 323.332346,
+  "window_close_to_shutdown_ms": 324.103406,
+  "budget_ms": 3000,
+  "actual_owned_unfinished_GPU_fence_observed": true,
+  "completion_mode": "completed during cancellation",
+  "GPU_command_preemption_proven": false,
+  "native_and_all_original_descendants_reaped": true,
+  "native_spool_absent": true,
+  "partial_source_installed": false,
+  "fallback_cleanup_used": false,
+  "temperature_sample_count": 34,
+  "maximum_sampled_C": 88.0,
+  "samples_at_or_above_85C": 1,
+  "samples_at_or_above_95C": 0,
+  "sample_scope": "Two-second observations, not continuous exposure or exclusion of brief unsampled spikes.",
+  "latency_or_sustained_qualification": false,
+  "physical_audio_or_listening_qualification": false,
+  "power_profile_caps_guard_and_OneDrive_not_changed_by_test": true,
+  "temporary_unit_retired": true,
+  "paired_Apollo_pass_already_recorded": true
+}

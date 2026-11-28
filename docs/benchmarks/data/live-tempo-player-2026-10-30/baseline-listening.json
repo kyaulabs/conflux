@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-30T15:51:41.122184+00:00",
+  "source_head": "e86585b537175ea5b5570c6c05565f1f103db050",
+  "unit": "conflux-live-tempo-user-trial-20261030-01.service",
+  "original_invocation_id": "600d3870e8e847149d5d94d65c4842dc",
+  "closed_state_before_retirement": {
+    "ActiveState": "active",
+    "SubState": "exited",
+    "InvocationID": "600d3870e8e847149d5d94d65c4842dc",
+    "MainPID": "0",
+    "ExecMainStatus": "0",
+    "ControlGroup": ""
+  },
+  "retired_unit_state": "LoadState=not-found\nActiveState=inactive\nMainPID=0\nControlGroup=\n",
+  "human_reply": "Acceptable\u2014finished and client closed",
+  "question_item": "[\"request_user_input_async\",\"call_4700d75def9b440094f43e372caa0322\",0]",
+  "accepted_scope": "Club XL live-stem BPM changes, Master Tempo on/off and Reset in the stopped-launch hands-on trial",
+  "new_recovery_handoff_candidate_tested": false,
+  "latency_or_sustained_qualification": false,
+  "goal_listening_dependency_resolved": true,
+  "new_hardware_test_authorized": false
+}

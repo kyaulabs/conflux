@@ -20,7 +20,7 @@ import sys
 RATE, CHANNELS, MAX_FRAMES = 48000, 2, 33554432
 WINDOW, FFT, HOP = 192000, 32768, 16384
 MAX_OUTPUT = 128*1024
-RECIPE = "local-chroma-krumhansl-v1"
+RECIPE = "local-chroma-krumhansl-v2"
 # C-relative semitone order. These are raw profile weights, not probabilities.
 MAJOR = (6.35,2.23,3.48,2.33,4.38,4.09,2.52,5.19,2.39,3.66,2.29,2.88)
 MINOR = (6.33,2.68,3.52,5.38,2.60,3.53,2.54,4.75,3.98,2.69,3.34,3.17)
@@ -56,7 +56,7 @@ def window_result(raw,first,end):
     pitch=np.rint(69+12*np.log2(frequencies[selected]/440)).astype(np.int64)%12
     starts=list(range(0,len(samples)-FFT+1,HOP))
     if starts[-1]!=len(samples)-FFT:starts.append(len(samples)-FFT)
-    chroma=np.zeros(12,dtype=np.float64)
+    evidence=[]
     for start in starts:
         block=samples[start:start+FFT].astype(np.float64)
         block-=block.mean(axis=0)
@@ -64,7 +64,17 @@ def window_result(raw,first,end):
         right=np.abs(np.fft.rfft(block[:,1]*hann))**2
         values=np.bincount(pitch,weights=((left+right)*.5)[selected],minlength=12)
         total=float(values.sum())
-        if total>0:chroma+=values/total
+        if total>0:
+            evidence.append((values/total,total))
+    chroma=np.zeros(12,dtype=np.float64)
+    if evidence:
+        # Preserve equal weighting for the audible blocks. A near-silent
+        # region 60 dB below this window's strongest band power must not
+        # be promoted to the same weight by unit normalization.
+        floor=max(power for _,power in evidence)*1e-6
+        for contribution,power in evidence:
+            if power>=floor:
+                chroma+=contribution
     total=float(chroma.sum())
     if not math.isfinite(total) or total<=0:
         result['reason']='silence';return result

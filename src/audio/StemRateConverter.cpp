@@ -5,10 +5,12 @@
 
 #include <algorithm>
 #include <array>
+#include <cfenv>
 #include <cmath>
 #include <limits>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 
 namespace conflux::audio {
 namespace {
@@ -79,6 +81,23 @@ StemRateConverter::FramePlan StemRateConverter::countFrames(std::uint64_t inputF
     if (!inputFrames || inputFrames > maximumFrames || !maximumOutputFrames || maximumOutputFrames > maximumFrames)
         throw std::invalid_argument("Stem count geometry is empty or unaddressable");
     checkStop(stop);
+#if defined(__x86_64__) && !defined(__FAST_MATH__)
+    // For the libsamplerate 0.2.2 sinc clock, the 147/160 binary64 step
+    // leaves the exact 147-frame boundaries just below the EOF threshold.
+    // Within the live input ceiling, the stereo EOF count is floor(n*160/147)+1.
+    // Keep the counting converter for other library versions, rounding modes
+    // and ranges. No actual stem samples use this shortcut.
+    constexpr std::uint64_t verifiedInputLimit = 33'554'432;
+    if (inputFrames <= verifiedInputLimit && std::numeric_limits<double>::is_iec559 &&
+        std::numeric_limits<double>::digits == 53 && std::fegetround() == FE_TONEAREST &&
+        std::string_view(src_get_version()).starts_with("libsamplerate-0.2.2 ")) {
+        const auto total = inputFrames * outputGrid / inputGrid + 1;
+        checkStop(stop);
+        if (total > maximumOutputFrames)
+            throw std::length_error("Stem output exceeds its counted frame budget");
+        return FramePlan(inputFrames, total);
+    }
+#endif
     // Only the geometry of these discarded zeros is retained. The sinc modes
     // share stereo phase/EOF handling; a shorter filter avoids computing Best
     // samples which no caller consumes. Real stem conversion stays Best below.
@@ -112,8 +131,11 @@ public:
         if (target > plan.outputFrames()) throw std::invalid_argument("Stem seek exceeds counted EOF");
         const auto cell = target / outputGrid;
         const auto anchorCell = cell > prerollCells ? cell - prerollCells : 0;
-        inputFrame_ = inputStart_ = anchorCell * inputGrid;
-        generatedFrame_ = anchorCell * outputGrid;
+        // An explicit seek to EOF has no samples to resample. Keep the
+        // empty-input drain contract without fetching the preceding stem hop.
+        const bool atEnd = target == plan.outputFrames();
+        inputFrame_ = inputStart_ = atEnd ? plan.inputFrames() : anchorCell * inputGrid;
+        generatedFrame_ = atEnd ? target : anchorCell * outputGrid;
         if (inputStart_ > plan.inputFrames() || generatedFrame_ > target)
             throw std::invalid_argument("Stem seek anchor exceeds input geometry");
         discard_ = target - generatedFrame_;

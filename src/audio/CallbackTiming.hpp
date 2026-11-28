@@ -34,6 +34,9 @@ public:
         std::uint32_t rateNum = 0;
         std::uint32_t rateDenom = 0;
         std::uint32_t flags = 0;
+        std::uint64_t nsec = 0;
+
+        bool operator==(const DriverClock&) const noexcept = default;
     };
 
     struct Counters {
@@ -81,7 +84,7 @@ private:
     std::uint64_t graphQuantumMin_ = std::numeric_limits<std::uint64_t>::max();
     std::uint64_t previousEnd_ = 0;
     std::uint32_t previousClock_ = std::numeric_limits<std::uint32_t>::max();
-    std::uint32_t previousCycle_ = 0, previousRateNum_ = 0, previousRateDenom_ = 0;
+    std::uint32_t previousRateNum_ = 0, previousRateDenom_ = 0;
 };
 
 } // namespace conflux::audio

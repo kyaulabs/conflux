@@ -438,8 +438,26 @@ bool queueConcurrentFIFO()
     });
     std::jthread consumer([&] {
         Command value;
+        std::array<Command, TransportQueue::capacity> batch;
+        bool useSnapshot = false;
         while (consumed < count && !failed.load()) {
-            if (queue.tryPop(value)) {
+            useSnapshot = !useSnapshot;
+            if (useSnapshot) {
+                const auto size = queue.pending(batch);
+                bool ordered = true;
+                for (std::size_t index = 0; index < size; ++index)
+                    ordered &= sameMessage(batch[index], message(consumed + static_cast<std::uint32_t>(index)));
+                if (!ordered) {
+                    failed.store(true);
+                    break;
+                }
+                if (size) {
+                    queue.consumePending(static_cast<std::uint32_t>(size));
+                    consumed += static_cast<std::uint32_t>(size);
+                } else {
+                    std::this_thread::yield();
+                }
+            } else if (queue.tryPop(value)) {
                 if (!sameMessage(value, message(consumed))) {
                     failed.store(true);
                     break;

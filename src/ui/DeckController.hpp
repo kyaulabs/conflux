@@ -118,6 +118,8 @@ public:
     Q_INVOKABLE void loopOut(int deck);
     Q_INVOKABLE void loopToggle(int deck);
     Q_INVOKABLE void setTempoPercent(int deck, double percent);
+    // Source-relative estimate from the installed, verified prepared vocal leaf.
+    Q_INVOKABLE QString vocalActivityAt(int deck, qulonglong sourceFrame) const;
     Q_INVOKABLE void setTempoBpm(int deck, double bpm);
     Q_INVOKABLE void setBpmOverride(int deck, double bpm);
     Q_INVOKABLE void clearBpmOverride(int deck);
@@ -159,7 +161,7 @@ private:
     // owns the charged job through callback handoff and worker retirement.
     struct PreparedPcm {
         explicit PreparedPcm(audio::PreparedAudio audio);
-        explicit PreparedPcm(std::array<audio::PreparedAudio, 4> stems);
+        PreparedPcm(std::array<audio::PreparedAudio, 4> stems, library::VocalActivityMap vocals);
         PreparedPcm(std::uint64_t frames, std::vector<float> sourcePeaks, QString sourceSha256,
                     std::shared_ptr<library::LiveStemObservations> observations,
                     QString sourcePath, QString artifactKey,
@@ -172,6 +174,7 @@ private:
         { return live() ? std::span<const float>(livePeaks) : audioLeaves.front().peaks(); }
         std::unique_ptr<audio::PreparedPlayback> makePlayback() const;
         std::vector<audio::PreparedAudio> audioLeaves;
+        library::VocalActivityMap vocalActivity;
         std::uint64_t liveFrames = 0;
         std::vector<float> livePeaks;
         QString liveSourceSha256;
@@ -218,6 +221,7 @@ private:
     struct ContinuationEpisode {
         const PreparedPcm* clip = nullptr;
         std::uint64_t sourceGeneration = 0, revision = 0, frame = 0, generation = 0, attempts = 0, residentHoldRangeId = 0;
+        double position = 0;
         QElapsedTimer stalled;
         bool attempted = false;
         QString status = "Idle", detail;
@@ -227,6 +231,8 @@ private:
         std::shared_ptr<const PreparedPcm> original;
         const audio::LiveSession* session = nullptr;
         std::uint64_t sourceGeneration = 0, revision = 0, frame = 0, generation = 0, residentHoldRangeId = 0;
+        double position = 0;
+        audio::AudioTempoState tempo{};
         std::chrono::steady_clock::time_point deadline;
         std::shared_ptr<PreparedLoad> prepared;
         std::unique_ptr<audio::PreparedPlayback> retired;
@@ -237,6 +243,7 @@ private:
         std::vector<library::LibraryTrack> tracks;
         QString error;
         bool saving = false;
+        QString editedBpmSource{};
     };
     struct InstallResult {
         std::unique_ptr<audio::LiveSession> session;
@@ -253,11 +260,15 @@ private:
     };
     void loaded();
     void catalogFinished();
+    const library::LibraryTrack* cataloguedDeck(std::size_t deck) const;
+    void setDeckSource(std::size_t deck, const QString& sourceId);
+    void updateBpmOverride(int deck, std::optional<double> bpm);
     QString deckCueUnavailable(int deck, bool saving) const;
     QVariantMap savedDeckCue(std::size_t deck) const;
     void beginPreparation(int deck, const QUrl& url, bool importOnly,
                           const QString& expectedSource = {}, bool stems = false,
                           std::optional<library::LiveStemResidentHold> residentHold = {});
+    int trackPreparationStageCount(bool importOnly, bool stems) const;
     bool preparationActive() const;
     void updatePreparation(std::uint64_t serial, QString phase, int completedStages,
                            std::optional<library::TrackPresentation> presentation = {},
@@ -342,8 +353,8 @@ private:
     std::array<QString, 2> names_{};
     std::array<QString, 2> sourceIds_{};
     std::array<library::TrackPresentation, 2> presentations_{};
-    std::array<library::BpmEstimate, 2> bpmEstimates_{};
-    std::array<library::HarmonyEstimate, 2> harmonyEstimates_{};
+    std::array<library::BpmTiming, 2> bpmTiming_{};
+    std::array<library::HarmonyTiming, 2> harmonyTiming_{};
     std::array<std::optional<double>, 2> bpmOverrides_{};
     std::array<QVariantList, 2> waveforms_{};
     std::array<std::uint64_t, 2> waveformRevisions_{};

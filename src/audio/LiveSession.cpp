@@ -9,6 +9,8 @@
 #include <pipewire/pipewire.h>
 #include <pipewire/filter.h>
 #include <pipewire/extensions/metadata.h>
+#include <spa/param/route.h>
+#include <spa/pod/parser.h>
 
 #include <algorithm>
 #include <array>
@@ -22,15 +24,35 @@
 #include <limits>
 #include <map>
 #include <mutex>
+#include <new>
+#include <optional>
 #include <stdexcept>
 #include <string_view>
 #include <utility>
 #include <type_traits>
+#include <vector>
 
 namespace conflux::audio {
 namespace {
 using Clock = std::chrono::steady_clock;
-constexpr std::size_t scratchFrames = 1024;
+constexpr std::size_t scratchFrames = RenderCore::CueBlock::maxFrames;
+using OutputPointers = std::array<float*, 4>;
+
+bool callbackExpired(const spa_io_clock& current, const CallbackTiming::DriverClock& original) noexcept
+{
+    // A new graph cycle can reuse the driver's sample position.
+    static_assert(std::atomic_ref<const std::uint32_t>::is_always_lock_free);
+    static_assert(std::atomic_ref<const std::uint64_t>::is_always_lock_free);
+    const bool newPosition =
+        std::atomic_ref<const std::uint32_t>(current.id).load(std::memory_order_relaxed) != original.id ||
+        std::atomic_ref<const std::uint64_t>(current.position).load(std::memory_order_relaxed) != original.position;
+#ifdef SPA_IO_CLOCK_FLAG_XRUN_RECOVER
+    return newPosition || std::atomic_ref<const std::uint32_t>(current.cycle).load(std::memory_order_relaxed) != original.cycle;
+#else
+    return newPosition;
+#endif
+}
+
 constexpr std::array<const char*, 4> outputNames{"master_FL", "master_FR", "cue_FL", "cue_FR"};
 constexpr std::uint32_t invalidId = PW_ID_ANY;
 
@@ -116,7 +138,11 @@ public:
             if (stop.stop_requested()) throw std::runtime_error("Playback installation cancelled");
             if (!playbacks[deck]) continue;
             const auto timeout = playbacks[deck]->isLive() ? PreparedPlayback::liveWait : std::chrono::seconds(2);
-            if (!playbacks[deck]->primeForSession(initial.sourceFrame[deck], timeout, stop))
+            const auto position = initial.preparedResumePosition[deck];
+            const bool primed = position
+                ? playbacks[deck]->resumeForSession(*position, timeout, stop)
+                : playbacks[deck]->primeForSession(initial.sourceFrame[deck], timeout, stop);
+            if (!primed)
                 throw std::runtime_error("Cannot prime prepared PCM at the initial source position: " + playbacks[deck]->error());
         }
         return playbacks;
@@ -162,13 +188,14 @@ public:
             }
             if (!renderer_.sourceFrames(deck)) {
                 if (initial.sourceFrame[deck] || initial.cueFrame[deck] || initial.playing[deck] || initial.cueSelected[deck] ||
-                    initial.residentHoldRangeId[deck] || initial.hotCues[deck] != RenderCore::HotCues{})
+                    initial.preparedResumePosition[deck] || initial.residentHoldRangeId[deck] ||
+                    initial.hotCues[deck] != RenderCore::HotCues{})
                     throw std::invalid_argument("Unloaded deck cannot have transport or cue selection");
                 continue;
             }
             if (!renderer_.restoreHotCues(deck, initial.hotCues[deck]) ||
                 !renderer_.setCueFrame(deck, initial.cueFrame[deck]) ||
-                !renderer_.restorePrimedCursor(deck, initial.sourceFrame[deck]) ||
+                !renderer_.restorePrimedCursor(deck, initial.sourceFrame[deck], initial.preparedResumePosition[deck]) ||
                 !renderer_.setDeckGain(deck, initial.deckGain[deck]) ||
                 !renderer_.setPlaying(deck, initial.playing[deck]) ||
                 !renderer_.setCueSelected(deck, initial.cueSelected[deck]))
@@ -196,10 +223,40 @@ public:
         Impl* self = nullptr;
         std::uint32_t id = invalidId;
         std::uint64_t serial = 0;
-        std::string name, mediaClass;
+        std::string name, description, mediaClass;
+        std::uint32_t device = invalidId, profileDevice = invalidId;
         pw_node_state state = PW_NODE_STATE_CREATING;
         pw_node* proxy = nullptr;
         spa_hook hook{};
+    };
+    struct DeviceWatch {
+        struct Route {
+            std::vector<std::int32_t> devices;
+            std::uint32_t availability = SPA_PARAM_AVAILABILITY_unknown;
+        };
+        Impl* self = nullptr;
+        pw_device* proxy = nullptr;
+        spa_hook hook{};
+        std::map<std::int32_t, Route> routes;
+        std::map<std::int32_t, std::int32_t> active;
+
+        bool unavailable(std::int32_t profileDevice) const
+        {
+            if (const auto selected = active.find(profileDevice); selected != active.end()) {
+                if (const auto route = routes.find(selected->second); route != routes.end())
+                    return route->second.availability == SPA_PARAM_AVAILABILITY_no;
+            }
+            // Some profiles expose nodes for unplugged ports without selecting a
+            // route. Hide the node only if every reported route says unavailable.
+            bool known = false;
+            for (const auto& [index, route] : routes) {
+                (void)index;
+                if (std::ranges::find(route.devices, profileDevice) == route.devices.end()) continue;
+                if (route.availability != SPA_PARAM_AVAILABILITY_no) return false;
+                known = true;
+            }
+            return known;
+        }
     };
     struct PortWatch {
         Impl* self = nullptr;
@@ -236,16 +293,37 @@ public:
             masterGate_.load(std::memory_order_acquire) && !bufferFault_.load(std::memory_order_relaxed) &&
             !graphFault_.load(std::memory_order_relaxed);
     }
+    enum class CueGate { Closed, Open, BufferFault };
+    bool cueRouteOpen() const noexcept
+    {
+        return cueGate_.load(std::memory_order_acquire) == CueGate::Open;
+    }
+    void setCueGate(bool open) noexcept
+    {
+        // A real-time buffer fault must survive a concurrent route refresh.
+        auto expected = cueGate_.load(std::memory_order_acquire);
+        if (expected != CueGate::BufferFault)
+            cueGate_.compare_exchange_strong(expected, open ? CueGate::Open : CueGate::Closed,
+                                            std::memory_order_acq_rel);
+    }
+    CueRouteStatus cueRouteStatus(bool masterReady) const noexcept
+    {
+        const auto status = cueStatus_.load(std::memory_order_acquire);
+        if (status == CueRouteStatus::Pending && masterReady && cueRouteOpen() &&
+            cueBlockPublished_.load(std::memory_order_acquire))
+            return CueRouteStatus::Ready;
+        return status;
+    }
     void setError(const char* message) noexcept
     {
         if (!error_[0]) std::snprintf(error_.data(), error_.size(), "%s", message ? message : "PipeWire filter failed");
         ready_.store(false, std::memory_order_release);
         masterGate_.store(false, std::memory_order_release);
-        cueGate_.store(false, std::memory_order_release);
+        setCueGate(false);
     }
     void failCue(CueRouteStatus status, const char* message)
     {
-        cueGate_.store(false, std::memory_order_release);
+        setCueGate(false);
         cueFailed_ = true;
         cueStatus_.store(status, std::memory_order_release);
         cueError_ = message;
@@ -277,6 +355,9 @@ public:
     {
         if (const auto* value = property(properties, PW_KEY_OBJECT_SERIAL)) node.serial = number(value);
         updateString(node.name, properties, PW_KEY_NODE_NAME);
+        updateString(node.description, properties, PW_KEY_NODE_DESCRIPTION);
+        if (const auto* value = property(properties, PW_KEY_DEVICE_ID)) node.device = objectId(value);
+        if (const auto* value = property(properties, "card.profile.device")) node.profileDevice = objectId(value);
         updateString(node.mediaClass, properties, PW_KEY_MEDIA_CLASS);
     }
     static void updatePort(PortWatch& port, const spa_dict* properties)
@@ -299,6 +380,43 @@ public:
             updateNode(node, info->props);
             node.state = info->state;
             node.self->routingChanged();
+        });
+    }
+    static void deviceParam(void* data, int, std::uint32_t id, std::uint32_t index, std::uint32_t,
+                            const spa_pod* param) noexcept
+    {
+        auto& device = *static_cast<DeviceWatch*>(data);
+        device.self->control([&] {
+            if (id != SPA_PARAM_EnumRoute && id != SPA_PARAM_Route) return;
+            if (index == 0) {
+                if (id == SPA_PARAM_EnumRoute) device.routes.clear();
+                else device.active.clear();
+            }
+            if (!param) return;
+            std::int32_t route = -1, profileDevice = -1;
+            std::uint32_t direction = SPA_DIRECTION_INPUT, availability = SPA_PARAM_AVAILABILITY_unknown;
+            const spa_pod* devices = nullptr;
+            if (spa_pod_parse_object(param, SPA_TYPE_OBJECT_ParamRoute, nullptr,
+                    SPA_PARAM_ROUTE_index, SPA_POD_Int(&route),
+                    SPA_PARAM_ROUTE_direction, SPA_POD_Id(&direction),
+                    SPA_PARAM_ROUTE_device, SPA_POD_OPT_Int(&profileDevice),
+                    SPA_PARAM_ROUTE_available, SPA_POD_OPT_Id(&availability),
+                    SPA_PARAM_ROUTE_devices, SPA_POD_OPT_Pod(&devices)) < 0 ||
+                direction != SPA_DIRECTION_OUTPUT || route < 0) return;
+            if (id == SPA_PARAM_Route) {
+                if (profileDevice >= 0) device.active[profileDevice] = route;
+                return;
+            }
+            DeviceWatch::Route detail;
+            detail.availability = availability;
+            if (devices && spa_pod_is_array(devices) && devices->size >= sizeof(spa_pod_array_body) &&
+                SPA_POD_ARRAY_VALUE_TYPE(devices) == SPA_TYPE_Int &&
+                SPA_POD_ARRAY_VALUE_SIZE(devices) == sizeof(std::int32_t)) {
+                const auto* ids = static_cast<const std::int32_t*>(SPA_POD_ARRAY_VALUES(devices));
+                detail.devices.assign(ids, ids + SPA_POD_ARRAY_N_VALUES(devices));
+            }
+            if (profileDevice >= 0) detail.devices.push_back(profileDevice);
+            device.routes[route] = std::move(detail);
         });
     }
     static void portInfo(void* data, const pw_port_info* info) noexcept
@@ -376,6 +494,17 @@ public:
                 auto* record = node.get();
                 self.nodes_.emplace(id, std::move(node));
                 pw_node_add_listener(record->proxy, &record->hook, &nodeEvents(), record);
+            } else if (std::strcmp(type, PW_TYPE_INTERFACE_Device) == 0) {
+                auto device = std::make_unique<DeviceWatch>();
+                device->self = &self;
+                device->proxy = static_cast<pw_device*>(pw_registry_bind(self.registry_, id, type,
+                    std::min(version, std::uint32_t(PW_VERSION_DEVICE)), 0));
+                if (!device->proxy) return;
+                auto* record = device.get();
+                self.devices_.emplace(id, std::move(device));
+                pw_device_add_listener(record->proxy, &record->hook, &deviceEvents(), record);
+                std::uint32_t params[] = {SPA_PARAM_EnumRoute, SPA_PARAM_Route};
+                pw_device_subscribe_params(record->proxy, params, std::size(params));
             } else if (std::strcmp(type, PW_TYPE_INTERFACE_Port) == 0) {
                 auto port = std::make_unique<PortWatch>();
                 port->self = &self; port->identity.globalId = id;
@@ -421,6 +550,9 @@ public:
         self.control([&] {
             if (const auto found = self.nodes_.find(id); found != self.nodes_.end()) {
                 destroyWatch(*found->second); self.nodes_.erase(found);
+            }
+            if (const auto found = self.devices_.find(id); found != self.devices_.end()) {
+                destroyWatch(*found->second); self.devices_.erase(found);
             }
             if (const auto found = self.ports_.find(id); found != self.ports_.end()) {
                 destroyWatch(*found->second); self.ports_.erase(found);
@@ -504,8 +636,29 @@ public:
         });
     }
 
+    // PipeWire adds and removes buffers on the control loop. Size the
+    // staging for each large negotiated plane before the callback uses it.
+    static void addOutputBuffer(void*, void*, pw_buffer* buffer) noexcept
+    {
+        if (!buffer->buffer || buffer->buffer->n_datas != 1) return;
+        const auto capacity = buffer->buffer->datas[0].maxsize / sizeof(float);
+        if (capacity <= scratchFrames) return;
+        try {
+            buffer->user_data = new std::vector<float>(capacity);
+        } catch (const std::bad_alloc&) {
+            // An unstageable output follows the existing buffer-fault path.
+        }
+    }
+
+    static void removeOutputBuffer(void*, void*, pw_buffer* buffer) noexcept
+    {
+        delete static_cast<std::vector<float>*>(buffer->user_data);
+        buffer->user_data = nullptr;
+    }
+
     // Event tables must outlive listener registration.
     static const pw_node_events& nodeEvents() { static const auto value = [] { pw_node_events v{}; v.version=PW_VERSION_NODE_EVENTS; v.info=nodeInfo; return v; }(); return value; }
+    static const pw_device_events& deviceEvents() { static const auto value = [] { pw_device_events v{}; v.version=PW_VERSION_DEVICE_EVENTS; v.param=deviceParam; return v; }(); return value; }
     static const pw_port_events& portEvents() { static const auto value = [] { pw_port_events v{}; v.version=PW_VERSION_PORT_EVENTS; v.info=portInfo; return v; }(); return value; }
     static const pw_link_events& observedLinkEvents() { static const auto value = [] { pw_link_events v{}; v.version=PW_VERSION_LINK_EVENTS; v.info=observedLinkInfo; return v; }(); return value; }
     static const pw_link_events& ownedLinkEvents() { static const auto value = [] { pw_link_events v{}; v.version=PW_VERSION_LINK_EVENTS; v.info=ownedLinkInfo; return v; }(); return value; }
@@ -513,7 +666,19 @@ public:
     static const pw_metadata_events& metadataEvents() { static const auto value = [] { pw_metadata_events v{}; v.version=PW_VERSION_METADATA_EVENTS; v.property=metadataProperty; return v; }(); return value; }
     static const pw_registry_events& registryEvents() { static const auto value = [] { pw_registry_events v{}; v.version=PW_VERSION_REGISTRY_EVENTS; v.global=global; v.global_remove=globalRemove; return v; }(); return value; }
     static const pw_core_events& coreEvents() { static const auto value = [] { pw_core_events v{}; v.version=PW_VERSION_CORE_EVENTS; v.done=coreDone; v.error=coreError; return v; }(); return value; }
-    static const pw_filter_events& filterEvents() { static const auto value = [] { pw_filter_events v{}; v.version=PW_VERSION_FILTER_EVENTS; v.state_changed=filterState; v.process=process; return v; }(); return value; }
+    static const pw_filter_events& filterEvents()
+    {
+        static const auto value = [] {
+            pw_filter_events events{};
+            events.version = PW_VERSION_FILTER_EVENTS;
+            events.state_changed = filterState;
+            events.add_buffer = addOutputBuffer;
+            events.remove_buffer = removeOutputBuffer;
+            events.process = process;
+            return events;
+        }();
+        return value;
+    }
 
     RoutingSnapshot collectRouting() const
     {
@@ -526,6 +691,11 @@ public:
             if (node == nodes_.end()) continue;
             identity.nodeSerial = node->second->serial;
             identity.nodeName = node->second->name;
+            identity.nodeDescription = node->second->description;
+            if (node->second->profileDevice <= std::uint32_t(std::numeric_limits<std::int32_t>::max())) {
+                if (const auto device = devices_.find(node->second->device); device != devices_.end())
+                    identity.unavailable = device->second->unavailable(static_cast<std::int32_t>(node->second->profileDevice));
+            }
             identity.audioSink = node->second->mediaClass == "Audio/Sink" && node->second->state != PW_NODE_STATE_ERROR;
             identity.monitor |= watch->control;
             if (isPlaybackPort(identity)) snapshot.playbackPorts.push_back(std::move(identity));
@@ -537,9 +707,9 @@ public:
         auto snapshot = collectRouting();
         snapshot.defaultMaster = resolveAudioRouting(snapshot, {}).master;
         snapshot.master = routes_.master; snapshot.cue = routes_.cue;
-        snapshot.masterReady = ready(); snapshot.cueReady = cueGate_.load(std::memory_order_acquire) &&
-            cueBuffersReady_.load(std::memory_order_acquire) && ready();
-        snapshot.cueStatus = cueStatus_.load(std::memory_order_acquire);
+        snapshot.masterReady = ready();
+        snapshot.cueStatus = cueRouteStatus(snapshot.masterReady);
+        snapshot.cueReady = snapshot.cueStatus == CueRouteStatus::Ready;
         snapshot.masterError = error_[0] ? error_.data() : routes_.masterError;
         snapshot.cueError = cueError_;
         return snapshot;
@@ -631,7 +801,7 @@ public:
                     if (link->output == outputs_[index] &&
                         (id != owned_[index].globalId || link->input != destination(index)))
                         failCue(CueRouteStatus::UnexpectedLink, "Unexpected outgoing cue link; cue muted until explicitly reselected");
-        if (routes_.cue && cueBufferFault_.load(std::memory_order_relaxed) && !cueFailed_)
+        if (routes_.cue && cueGate_.load(std::memory_order_acquire) == CueGate::BufferFault && !cueFailed_)
             failCue(CueRouteStatus::LinkError, "Cue output buffer became unavailable; cue remains muted");
         auto healthy = [&](std::size_t index) {
             const auto& link = owned_[index];
@@ -653,9 +823,7 @@ public:
         const bool master = linksConfirmed_ && healthy(0) && healthy(1);
         masterGate_.store(master, std::memory_order_release);
         const bool cue = master && routes_.cue && !cueFailed_ && healthy(2) && healthy(3);
-        cueGate_.store(cue, std::memory_order_release);
-        if (cue) cueStatus_.store(cueBuffersReady_.load(std::memory_order_acquire) ?
-            CueRouteStatus::Ready : CueRouteStatus::Pending, std::memory_order_release);
+        setCueGate(cue);
         ready_.store(master && activated_ && filterState_ == PW_FILTER_STATE_STREAMING, std::memory_order_release);
     }
 
@@ -701,20 +869,20 @@ public:
     }
     bool requestSourceContinuation(std::size_t deck, std::unique_ptr<PreparedPlayback>& candidate,
                                    std::uint64_t expectedSourceGeneration,
-                                   std::uint64_t expectedTransportRevision, std::uint64_t frame,
+                                   std::uint64_t expectedTransportRevision, double position,
                                    std::uint64_t generation, std::uint64_t residentHoldRangeId) noexcept
     {
         if (!ready() || !candidate || candidate->isLive() || candidate->errorCode() ||
             replacementPlayback_ || handoff_.busy() || deck >= RenderCore::deckCount ||
             generation <= lastRequestedGeneration_ || generation <= expectedSourceGeneration ||
-            frame >= candidate->frames() ||
+            !std::isfinite(position) || position < 0 || position >= double(candidate->frames()) ||
             expectedTransportRevision == std::numeric_limits<std::uint64_t>::max())
             return false;
         const auto source = candidate->sourceRef();
         if (!source.setStemGain || !source.stemGain || !candidate->configureStemRamps(240) ||
-            !candidate->primedForContinuation(frame)) return false;
+            !candidate->primedForContinuation(position)) return false;
         if (!handoff_.request({deck, source, candidate.get(), generation, SourceHandoff::Kind::Continuation,
-                              expectedSourceGeneration, expectedTransportRevision, frame, residentHoldRangeId}))
+                              expectedSourceGeneration, expectedTransportRevision, position, residentHoldRangeId}))
             return false;
         replacementDeck_ = deck;
         replacementKind_ = SourceHandoff::Kind::Continuation;
@@ -784,10 +952,10 @@ public:
         const auto& timing = timing_.counters();
         state.maxExecutionNs = timing.maxExecutionNs; state.deadlineMisses = timing.deadlineMisses;
         state.streamFramesMin = streamFramesMax_ ? streamFramesMin_ : 0; state.streamFramesMax = streamFramesMax_;
-        state.cueReady = cueGate_.load(std::memory_order_acquire) &&
-            cueBuffersReady_.load(std::memory_order_acquire) && ready();
-        state.cueRouteStatus = cueStatus_.load(std::memory_order_acquire);
-        state.graphRate = graphRate_.load(std::memory_order_relaxed); state.ready = ready();
+        state.ready = ready();
+        state.cueRouteStatus = cueRouteStatus(state.ready);
+        state.cueReady = state.cueRouteStatus == CueRouteStatus::Ready;
+        state.graphRate = graphRate_.load(std::memory_order_relaxed);
         return state;
     }
     void accumulateMeters(const RenderCore::Meters& block) noexcept
@@ -813,11 +981,79 @@ public:
         finish(meters_.master); finish(meters_.cue);
     }
 
+    struct RetainedOutput {
+        std::array<std::array<float, scratchFrames>, 4> samples{};
+        RenderCore::CueBlock cueBlock;
+        CallbackTiming::DriverClock clock;
+        bool valid = false, includesCue = false;
+
+        bool matches(const CallbackTiming::DriverClock& now) const noexcept
+        {
+            const auto capabilities = clockCapabilities();
+            if (clock.id != now.id || clock.rateNum != now.rateNum ||
+                clock.rateDenom != now.rateDenom || !now.duration ||
+                clock.duration != now.duration || (now.flags & capabilities.discontinuityFlag) ||
+                now.position <= clock.position)
+                return false;
+
+            // PipeWire advances its cycle counter with the graph. A genuine
+            // resync must not turn an old buffer into the first block of a
+            // different clock sequence.
+            const auto distance = now.position - clock.position;
+            const auto cycles = static_cast<std::uint32_t>(now.cycle - clock.cycle);
+            return distance % now.duration == 0 &&
+                (!capabilities.cycle || distance / now.duration == cycles);
+        }
+    };
+
+    bool restoreOutput(const CallbackTiming::DriverClock& clock, std::uint32_t frames,
+                       const OutputPointers& outputs, bool cue, bool replacing) noexcept
+    {
+        if (!std::exchange(retained_.valid, false) || replacing || !retained_.matches(clock))
+            return false;
+
+        std::array<RenderCore::Command, TransportQueue::capacity> pending;
+        const auto queued = std::span(pending).first(commands_.pending(pending));
+        const bool sendCue = cue && retained_.includesCue;
+        const bool remixCue = sendCue && !queued.empty();
+        const auto fullCue = std::span(cueScratch_).first(frames * 2U);
+        if (remixCue && !renderer_.remixCue(retained_.cueBlock, queued, fullCue))
+            return false;
+        if (!sendCue && std::ranges::any_of(queued, [](const auto& command) {
+            using Type = RenderCore::Command::Type;
+            return command.type != Type::CueOn && command.type != Type::CueOff && command.type != Type::CueGain;
+        }))
+            return false;
+
+        // A cue-only adjustment cannot change these master samples. With no
+        // retained cue to remix, deliver master now and apply the queued
+        // adjustment with the next fresh render.
+        for (std::size_t channel = 0; channel < 2; ++channel)
+            std::copy_n(retained_.samples[channel].data(), frames, outputs[channel]);
+        if (sendCue) {
+            if (remixCue) {
+                for (std::size_t frame = 0; frame < frames; ++frame) {
+                    outputs[2][frame] = fullCue[frame * 2];
+                    outputs[3][frame] = fullCue[frame * 2 + 1];
+                }
+            } else {
+                for (std::size_t channel = 2; channel < outputs.size(); ++channel)
+                    std::copy_n(retained_.samples[channel].data(), frames, outputs[channel]);
+            }
+        }
+        if (remixCue) {
+            commands_.consumePending(static_cast<std::uint32_t>(queued.size()));
+            applied_ += queued.size();
+            lastCommandId_ = queued.back().id;
+            meters_.cue = renderer_.meters().cue;
+        }
+        return true;
+    }
+
     static void process(void* data, spa_io_position* position) noexcept
     {
         auto& self = *static_cast<Impl*>(data);
         const auto began = Clock::now();
-        self.tap_.beginBlock();
         SourceHandoff::Request replacement;
         const bool replacementPending = self.handoff_.readPending(replacement);
         bool replacementCompleted = false, replacementInstalled = false;
@@ -825,53 +1061,112 @@ public:
         ++self.callbacks_;
         CallbackTiming::DriverClock clock;
         if (position) {
-            clock.id = position->clock.id; clock.position = position->clock.position;
+            clock.id = std::atomic_ref<const std::uint32_t>(position->clock.id).load(std::memory_order_relaxed);
+            clock.position = std::atomic_ref<const std::uint64_t>(position->clock.position).load(std::memory_order_relaxed);
+            clock.nsec = std::atomic_ref<const std::uint64_t>(position->clock.nsec).load(std::memory_order_relaxed);
             clock.duration = position->clock.duration; clock.rateNum = position->clock.rate.num;
             clock.rateDenom = position->clock.rate.denom; clock.flags = position->clock.flags;
 #ifdef SPA_IO_CLOCK_FLAG_XRUN_RECOVER
-            clock.cycle = position->clock.cycle;
+            clock.cycle = std::atomic_ref<const std::uint32_t>(position->clock.cycle).load(std::memory_order_relaxed);
 #endif
         }
         const bool durationValid = position && clock.duration && clock.duration <= std::numeric_limits<std::uint32_t>::max();
         const auto frames = durationValid ? static_cast<std::uint32_t>(clock.duration) : 0;
         const bool rateValid = position && clock.rateNum &&
             std::uint64_t(clock.rateDenom) == std::uint64_t(clock.rateNum) * RenderCore::sampleRate;
+        const bool canRetain = rateValid && frames && frames <= scratchFrames;
+        if (durationValid && callbackExpired(position->clock, clock)) {
+            const auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(Clock::now() - began).count();
+            self.timing_.observe(static_cast<std::uint64_t>(elapsed), 0, &clock);
+            return;
+        }
+        // A second invocation for an already published graph cycle owns the
+        // same output. Keep its staged PCM and leave transport at its next frame.
+        const bool repeated = canRetain && clock.nsec && self.lastPublication_ &&
+            self.lastPublication_->clock == clock;
+        if (!repeated) self.lastPublication_.reset();
+
+        self.tap_.beginBlock();
         if (position && clock.rateNum)
             self.graphRate_.store(clock.rateDenom / clock.rateNum, std::memory_order_relaxed);
         if (!rateValid && position) self.graphFault_.store(true, std::memory_order_relaxed);
         if (rateValid) self.graphValid_.store(true, std::memory_order_release);
         std::array<pw_buffer*, 4> buffers{};
-        std::array<float*, 4> outputs{};
+        OutputPointers outputs{}, mapped{};
         std::array<bool, 4> valid{};
         for (std::size_t index = 0; index < 4; ++index) {
             auto* buffer = buffers[index] = pw_filter_dequeue_buffer(self.portData_[index]);
             if (!buffer || !buffer->buffer || buffer->buffer->n_datas != 1) continue;
             auto& plane = buffer->buffer->datas[0];
-            if (plane.chunk) { plane.chunk->offset=0; plane.chunk->stride=sizeof(float); plane.chunk->size=0; }
-            buffer->size = 0;
             if (frames && plane.data && plane.chunk && frames <= plane.maxsize / sizeof(float) &&
                 reinterpret_cast<std::uintptr_t>(plane.data) % alignof(float) == 0) {
-                outputs[index] = static_cast<float*>(plane.data); valid[index] = true;
-                std::fill_n(outputs[index], frames, 0.F);
+                if (frames <= scratchFrames) {
+                    outputs[index] = self.publishScratch_[index].data();
+                } else {
+                    auto* staged = static_cast<std::vector<float>*>(buffer->user_data);
+                    if (!staged || frames > staged->size()) continue;
+                    outputs[index] = staged->data();
+                }
+                mapped[index] = static_cast<float*>(plane.data);
+                valid[index] = true;
+                if (!repeated) std::fill_n(outputs[index], frames, 0.F);
             }
         }
-        const bool masterValid = valid[0] && valid[1];
+        // Missing buffers in a superseded callback cannot establish a route fault.
+        // Return every buffer acquired here without consuming transport or retained PCM.
+        const bool expiredDuringAcquire = durationValid && callbackExpired(position->clock, clock);
+        const bool masterValid = !expiredDuringAcquire && valid[0] && valid[1];
+        const bool cueValid = !expiredDuringAcquire && valid[2] && valid[3];
         if (masterValid) self.masterBuffersReady_.store(true, std::memory_order_release);
-        bool cue = self.cueGate_.load(std::memory_order_acquire);
-        if (cue && self.ready() && rateValid && masterValid && (!valid[2] || !valid[3])) {
+        bool cue = self.cueRouteOpen();
+        // A ready graph can temporarily lose its buffers while PipeWire
+        // renegotiates the quantum. One missing block uses the allowance
+        // until the required buffers are seen again.
+        const bool readyForQuantum = !expiredDuringAcquire && durationValid && rateValid && self.ready();
+        const bool changingQuantum = readyForQuantum &&
+            self.lastUsableQuantum_ && self.lastUsableQuantum_ != frames;
+        // An established master route can miss one dequeue at a steady quantum.
+        // Keep the miss counted and require a complete pair on the next callback.
+        const bool retryMaster = readyForQuantum && !masterValid && !self.masterMissedBlock_ &&
+            self.playbackInitialized_.load(std::memory_order_acquire) &&
+            (!buffers[0] || valid[0]) && (!buffers[1] || valid[1]);
+        if (readyForQuantum) {
+            self.masterMissedBlock_ = !masterValid;
+            self.lastUsableQuantum_ = masterValid && (!cue || cueValid) ? frames : 0;
+        }
+        if (cue && self.ready() && rateValid && masterValid && !cueValid) {
             // Initial link allocation can precede the first usable cue pair.
             // Only a pair that was actually usable can subsequently be lost.
-            if (self.cueBuffersReady_.load(std::memory_order_acquire)) {
-                self.cueGate_.store(false, std::memory_order_release);
-                self.cueBufferFault_.store(true, std::memory_order_relaxed);
+            // With the verified links still present, an empty queue can be
+            // temporary. Mute this pair for one block and require a valid
+            // pair on the next callback. A returned invalid buffer still
+            // faults immediately at a steady quantum.
+            const bool onlyMissing = (!buffers[2] || valid[2]) && (!buffers[3] || valid[3]);
+            if (!changingQuantum && (!onlyMissing || self.cueMissedBlock_) &&
+                self.cueBuffersSeen_) {
+                self.cueGate_.store(CueGate::BufferFault, std::memory_order_release);
             }
+            self.cueMissedBlock_ = true;
             cue = false;
         }
-        if (cue && valid[2] && valid[3]) self.cueBuffersReady_.store(true, std::memory_order_release);
+        if (cue && cueValid) {
+            self.cueMissedBlock_ = false;
+            self.cueBuffersSeen_ = true;
+        }
         std::uint64_t rendered = 0;
-        if (!durationValid || (self.ready() && !masterValid)) {
-            ++self.invalidBuffers_; self.bufferFault_.store(true, std::memory_order_relaxed);
-        } else if (self.ready() && rateValid && masterValid) {
+        bool capturedCue = false;
+        bool retainRenderedOutput = !replacementPending;
+        const bool resumed = !repeated && canRetain && self.ready() && masterValid &&
+            self.restoreOutput(clock, frames, outputs, cue, replacementPending);
+        // A single master miss did not advance the renderer. Keep its previous
+        // unpublished block only while the graph is still in the same sequence.
+        const bool awaitingMaster = retryMaster && !replacementPending && self.retained_.valid &&
+            self.retained_.matches(clock);
+        if (!repeated && !expiredDuringAcquire && !resumed && !awaitingMaster) self.retained_.valid = false;
+        if (!durationValid || (!expiredDuringAcquire && self.ready() && !masterValid && !changingQuantum)) {
+            ++self.invalidBuffers_;
+            if (!retryMaster) self.bufferFault_.store(true, std::memory_order_relaxed);
+        } else if (!repeated && !resumed && self.ready() && rateValid && masterValid) {
             self.consumeCommands(); self.meters_ = {};
             const auto tryContinuation = [&]() noexcept {
                 if (!replacementPending || replacementCompleted || replacement.kind != SourceHandoff::Kind::Continuation)
@@ -881,8 +1176,8 @@ public:
                 const auto* previous = self.activePlaybacks_[replacement.deck];
                 const auto status = previous && replacement.playback &&
                     self.sourceGeneration_[replacement.deck] == replacement.expectedSourceGeneration &&
-                    !replacement.playback->errorCode() && replacement.playback->primedForContinuation(replacement.frame) ?
-                    self.renderer_.continuationStatus(replacement.deck, replacement.source, replacement.frame,
+                    !replacement.playback->errorCode() && replacement.playback->primedForContinuation(replacement.position) ?
+                    self.renderer_.continuationStatus(replacement.deck, replacement.source, replacement.position,
                         replacement.expectedTransportRevision, replacement.residentHoldRangeId) :
                     RenderCore::ContinuationStatus::Invalid;
                 if (status == RenderCore::ContinuationStatus::WaitingForHoldOut) return;
@@ -893,7 +1188,7 @@ public:
                         self.renderer_.starvedFrames(replacement.deck), self.renderer_.readFailed(replacement.deck) ||
                         previous->errorCode()};
                     replacementInstalled = self.renderer_.continueSource(replacement.deck, replacement.source,
-                        replacement.frame, replacement.expectedTransportRevision, replacement.residentHoldRangeId);
+                        replacement.position, replacement.expectedTransportRevision, replacement.residentHoldRangeId);
                     if (replacementInstalled) {
                         self.activePlaybacks_[replacement.deck] = replacement.playback;
                         self.sourceGeneration_[replacement.deck] = replacement.generation;
@@ -918,6 +1213,8 @@ public:
                         replacementCompleted = true;
                     }
                     if (replacementInstalled) {
+                        // The whole block will render against the installed source.
+                        retainRenderedOutput = true;
                         self.activePlaybacks_[replacement.deck] = replacement.playback;
                         self.sourceGeneration_[replacement.deck] = replacement.generation;
                     }
@@ -928,30 +1225,39 @@ public:
                 auto count = std::min<std::uint32_t>(scratchFrames, frames - offset);
                 const bool heldPrefix = replacementPending && !replacementCompleted && replacement.residentHoldRangeId;
                 const auto beforeHold = heldPrefix ? self.renderer_.residentHoldState(replacement.deck) : AudioResidentHoldState{};
+                const bool processedHold = heldPrefix && self.renderer_.tempoState(replacement.deck).active;
                 if (heldPrefix) {
-                    if (beforeHold.audibleFrame >= beforeHold.outFrame) {
+                    count = std::uint32_t(self.renderer_.continuationPrefixFrames(replacement.deck, count));
+                    if (!count) {
                         replacementCompleted = true;
                         continue;
                     }
-                    count = std::uint32_t(std::min<std::uint64_t>(count, beforeHold.outFrame-beforeHold.audibleFrame));
                 }
                 auto master = std::span(self.masterScratch_).first(count * 2U);
                 auto cuePcm = std::span(self.cueScratch_).first(count * 2U);
-                if (!self.renderer_.renderBuses(master, cuePcm)) {
+                capturedCue = canRetain && self.cueRouteOpen() && retainRenderedOutput && count == frames &&
+                    (self.renderer_.sourceFrames(0) || self.renderer_.sourceFrames(1));
+                const bool produced = capturedCue ?
+                    self.renderer_.captureBuses(master, cuePcm, self.retained_.cueBlock) :
+                    self.renderer_.renderBuses(master, cuePcm);
+                if (!produced) {
                     ++self.invalidBuffers_; self.bufferFault_.store(true, std::memory_order_relaxed); break;
                 }
                 if (heldPrefix) {
                     const auto afterHold = self.renderer_.residentHoldState(replacement.deck);
                     // A malformed/failed resident prefix cannot leave a borrowed
                     // candidate waiting forever. No wrap was allowed in this span.
-                    if (!afterHold.active || afterHold.rangeId != beforeHold.rangeId ||
-                        afterHold.linearFrame != replacement.frame ||
-                        afterHold.audibleFrame != beforeHold.audibleFrame+count)
+                    const bool validAdvance = processedHold
+                        ? afterHold.audibleFrame >= beforeHold.audibleFrame && afterHold.audibleFrame <= beforeHold.outFrame &&
+                            afterHold.audibleFrame-beforeHold.audibleFrame <= std::uint64_t(std::ceil(1.06*count))+1
+                        : afterHold.audibleFrame == beforeHold.audibleFrame+count;
+                    if (!afterHold.active || !afterHold.ready || afterHold.rangeId != beforeHold.rangeId ||
+                        afterHold.linearFrame != std::uint64_t(replacement.position) || !validAdvance)
                         replacementCompleted = true;
                 }
                 self.accumulateMeters(self.renderer_.meters());
                 self.tap_.push(master);
-                cue = cue && self.cueGate_.load(std::memory_order_acquire);
+                cue = cue && self.cueRouteOpen();
                 for (std::size_t frame = 0; frame < count; ++frame) {
                     outputs[0][offset + frame] = master[frame * 2];
                     outputs[1][offset + frame] = master[frame * 2 + 1];
@@ -969,19 +1275,102 @@ public:
         }
         // A control-loop link notification may close the cue gate while this
         // block is rendered. Recheck before handing either cue buffer back.
-        if (!self.cueGate_.load(std::memory_order_acquire))
+        cue = cue && self.cueRouteOpen();
+        if (!cue || (repeated && !self.lastPublication_->includesCue)) {
             for (std::size_t index = 2; index < 4; ++index)
                 if (valid[index]) std::fill_n(outputs[index], frames, 0.F);
+            if (repeated) self.lastPublication_->includesCue = false;
+        }
+
+        bool expired = expiredDuringAcquire || (durationValid && callbackExpired(position->clock, clock));
+        if (!expired) {
+            for (std::size_t index = 0; index < outputs.size(); ++index)
+                if (valid[index]) std::copy_n(outputs[index], frames, mapped[index]);
+            // The graph can advance during those copies. Only publish extents
+            // once the mapped samples are ready and the clock is still current.
+            expired = durationValid && callbackExpired(position->clock, clock);
+        }
+        const bool renderedPlayback = repeated || resumed || rendered != 0;
+        std::array<spa_chunk*, 4> queuedChunks{};
         for (std::size_t index = 0; index < 4; ++index) {
             if (!buffers[index]) continue;
-            if (valid[index]) {
-                auto& plane = buffers[index]->buffer->datas[0];
-                plane.chunk->size = frames * sizeof(float); buffers[index]->size = frames;
+            auto* buffer = buffers[index];
+            auto* chunk = buffer->buffer && buffer->buffer->n_datas == 1 ?
+                buffer->buffer->datas[0].chunk : nullptr;
+            buffer->size = 0;
+            if (chunk) {
+                chunk->offset = 0;
+                chunk->stride = sizeof(float);
+                chunk->flags = SPA_CHUNK_FLAG_NONE;
+                chunk->size = 0;
             }
             if (pw_filter_queue_buffer(self.portData_[index], buffers[index]) < 0) {
                 if (index < 2) { ++self.invalidBuffers_; self.bufferFault_.store(true, std::memory_order_relaxed); }
-                else { self.cueGate_.store(false, std::memory_order_release); self.cueBufferFault_.store(true, std::memory_order_relaxed); }
+                else self.cueGate_.store(CueGate::BufferFault, std::memory_order_release);
+            } else if (valid[index]) {
+                queuedChunks[index] = chunk;
             }
+        }
+        // With RT_PROCESS, PipeWire transfers queued IDs to port IO only
+        // after this callback returns. Keep the extents empty while queueing
+        // so a cycle change during a return cannot split the stereo block.
+        expired = expired || (durationValid && callbackExpired(position->clock, clock));
+        bool publishedSamples = false;
+        if (!expired && (!renderedPlayback || (masterValid && self.ready()))) {
+            const bool publishCue = !cue || self.cueRouteOpen();
+            for (std::size_t index = 0; index < queuedChunks.size(); ++index) {
+                if (queuedChunks[index] && (index < 2 || publishCue)) {
+                    queuedChunks[index]->size = frames * sizeof(float);
+                    buffers[index]->size = frames;
+                    publishedSamples = true;
+                }
+            }
+            if (durationValid && callbackExpired(position->clock, clock)) {
+                expired = true;
+                for (std::size_t index = 0; index < queuedChunks.size(); ++index) {
+                    if (queuedChunks[index]) {
+                        queuedChunks[index]->size = 0;
+                        buffers[index]->size = 0;
+                    }
+                }
+                publishedSamples = false;
+            }
+        }
+        // Initial readiness requires a complete cue block that survived the final graph-clock check.
+        if (cue && !expired && !self.cueBlockPublished_.load(std::memory_order_relaxed) &&
+            (rendered == frames || (resumed && self.retained_.includesCue)) &&
+            std::ranges::all_of(queuedChunks, [](const auto* chunk) { return chunk && chunk->size; })) {
+            self.cueBlockPublished_.store(true, std::memory_order_release);
+        }
+        if (!repeated && !expired && canRetain && clock.nsec && (resumed || rendered == frames) &&
+            publishedSamples && queuedChunks[0] && queuedChunks[0]->size && queuedChunks[1] && queuedChunks[1]->size) {
+            const bool includesCue = cue && queuedChunks[2] && queuedChunks[2]->size &&
+                queuedChunks[3] && queuedChunks[3]->size;
+            self.lastPublication_ = PublishedOutput{clock, includesCue};
+        }
+        // Replay is safe only if no channel received a nonempty chunk from
+        // this block before the clock changed.
+        if (expired && !publishedSamples && canRetain && self.ready() && masterValid &&
+            retainRenderedOutput && (resumed || rendered == frames)) {
+            // The recorder and source clocks already own this render. Reuse
+            // its samples at the next valid callback without advancing them.
+            self.retained_.clock = clock;
+            self.retained_.includesCue = self.cueRouteOpen() &&
+                (resumed ? self.retained_.includesCue : capturedCue);
+            for (std::size_t channel = 0; channel < 2; ++channel)
+                std::copy_n(outputs[channel], frames, self.retained_.samples[channel].data());
+            // Cue can be rendered even when PipeWire is temporarily missing a
+            // cue buffer. Keep that PCM with its matching master block.
+            if (self.retained_.includesCue && !resumed) {
+                for (std::uint32_t frame = 0; frame < frames; ++frame) {
+                    self.retained_.samples[2][frame] = self.cueScratch_[frame * 2];
+                    self.retained_.samples[3][frame] = self.cueScratch_[frame * 2 + 1];
+                }
+            } else if (self.retained_.includesCue && cue) {
+                for (std::size_t channel = 2; channel < outputs.size(); ++channel)
+                    std::copy_n(outputs[channel], frames, self.retained_.samples[channel].data());
+            }
+            self.retained_.valid = true;
         }
         // The deadline covers initial playback only. A later graph-state
         // transition must not turn an established session into a startup timeout.
@@ -1010,10 +1399,11 @@ public:
         config_=config; discoveryOnly_=discoveryOnly; error_.fill(0); routes_={}; cueError_.clear(); defaultSinkName_.clear();
         shuttingDown_=activated_=routesCreated_=linksConfirmed_=discoveryReady_=cueFailed_=false;
         discoveryRound_=0; discoverySequence_=linksSequence_=cueCleanupSequence_=-1; filterState_=PW_FILTER_STATE_UNCONNECTED;
-        ready_.store(false); masterGate_.store(false); cueGate_.store(false); graphValid_.store(false);
-        masterBuffersReady_.store(false); cueBuffersReady_.store(false);
+        ready_.store(false); masterGate_.store(false); cueGate_.store(CueGate::Closed); graphValid_.store(false);
+        masterBuffersReady_.store(false); cueBlockPublished_.store(false);
+        masterMissedBlock_ = cueMissedBlock_ = cueBuffersSeen_ = false;
         playbackInitialized_.store(false);
-        bufferFault_.store(false); graphFault_.store(false); cueBufferFault_.store(false); graphRate_.store(0);
+        bufferFault_.store(false); graphFault_.store(false); graphRate_.store(0);
         cueStatus_.store(config.cue ? CueRouteStatus::Pending : CueRouteStatus::Disabled);
         started_=Clock::now();
         loop_=pw_thread_loop_new("conflux-audio", nullptr);
@@ -1089,9 +1479,7 @@ public:
     void quiesce() noexcept
     {
         if (loopStarted_) pw_thread_loop_lock(loop_);
-        shuttingDown_=true; ready_.store(false); masterGate_.store(false); cueGate_.store(false);
-        if (cueStatus_.load(std::memory_order_relaxed) == CueRouteStatus::Ready)
-            cueStatus_.store(CueRouteStatus::Pending, std::memory_order_release);
+        shuttingDown_=true; ready_.store(false); masterGate_.store(false); setCueGate(false);
         if (filter_) pw_filter_set_active(filter_,false);
         for (auto& link:owned_) {
             if (link.proxy) { spa_hook_remove(&link.infoHook); spa_hook_remove(&link.proxyHook); pw_proxy_destroy(reinterpret_cast<pw_proxy*>(link.proxy)); }
@@ -1102,6 +1490,7 @@ public:
             for (auto& [id,record]:links_) { (void)id; destroyWatch(*record); } links_.clear();
             for (auto& [id,record]:ports_) { (void)id; destroyWatch(*record); } ports_.clear();
             for (auto& [id,record]:nodes_) { (void)id; destroyWatch(*record); } nodes_.clear();
+            for (auto& [id,record]:devices_) { (void)id; destroyWatch(*record); } devices_.clear();
             if (metadata_) { spa_hook_remove(&metadataHook_); pw_proxy_destroy(reinterpret_cast<pw_proxy*>(metadata_)); metadata_=nullptr; }
             metadataId_=invalidId; pw_proxy_destroy(reinterpret_cast<pw_proxy*>(registry_)); registry_=nullptr;
         }
@@ -1109,6 +1498,7 @@ public:
         if (filter_) { pw_filter_disconnect(filter_); pw_filter_destroy(filter_); filter_=nullptr; }
         if (loopStarted_) { pw_thread_loop_unlock(loop_); pw_thread_loop_stop(loop_); loopStarted_=false; }
         if (loop_) { pw_thread_loop_destroy(loop_); loop_=nullptr; }
+        retained_.valid = false;
         tap_.quiesce();
         handoff_.quiesce();
         consumeCommands();
@@ -1162,12 +1552,23 @@ public:
     CallbackTiming timing_{clockCapabilities()};
     RenderCore::Meters meters_{};
     std::array<float,scratchFrames*2> masterScratch_{},cueScratch_{};
+    RetainedOutput retained_;
+    std::uint32_t lastUsableQuantum_ = 0; // Real-time callback owned.
+    bool masterMissedBlock_ = false, cueMissedBlock_ = false, cueBuffersSeen_ = false; // Real-time callback owned.
+    // Keep the previous mapped payload intact until the new PCM is ready.
+    std::array<std::array<float, scratchFrames>, 4> publishScratch_{};
+    struct PublishedOutput {
+        CallbackTiming::DriverClock clock;
+        bool includesCue;
+    };
+    std::optional<PublishedOutput> lastPublication_;
     bool readersStopped_=false, detached_=false, startFailed_=false;
     TransportQueue commands_; StateQueue states_;
     pw_thread_loop* loop_=nullptr; pw_filter* filter_=nullptr; pw_core* core_=nullptr; pw_registry* registry_=nullptr;
     pw_metadata* metadata_=nullptr; std::uint32_t metadataId_=invalidId;
     spa_hook coreHook_{},registryHook_{},metadataHook_{};
     std::map<std::uint32_t,std::unique_ptr<NodeWatch>> nodes_;
+    std::map<std::uint32_t,std::unique_ptr<DeviceWatch>> devices_;
     std::map<std::uint32_t,std::unique_ptr<PortWatch>> ports_;
     std::map<std::uint32_t,std::unique_ptr<LinkWatch>> links_;
     std::array<OwnedLink,4> owned_{}; std::array<void*,4> portData_{};
@@ -1180,8 +1581,10 @@ public:
     pw_filter_state filterState_=PW_FILTER_STATE_UNCONNECTED;
     static_assert(std::atomic<bool>::is_always_lock_free);
     static_assert(std::atomic<CueRouteStatus>::is_always_lock_free);
-    std::atomic<bool> ready_{false},masterGate_{false},cueGate_{false},graphValid_{false},bufferFault_{false},graphFault_{false},cueBufferFault_{false};
-    std::atomic<bool> masterBuffersReady_{false},cueBuffersReady_{false};
+    static_assert(std::atomic<CueGate>::is_always_lock_free);
+    std::atomic<bool> ready_{false},masterGate_{false},graphValid_{false},bufferFault_{false},graphFault_{false};
+    std::atomic<CueGate> cueGate_{CueGate::Closed};
+    std::atomic<bool> masterBuffersReady_{false},cueBlockPublished_{false};
     std::atomic<bool> playbackInitialized_{false};
     std::atomic<CueRouteStatus> cueStatus_{CueRouteStatus::Disabled};
     std::atomic<std::uint32_t> graphRate_{0};
@@ -1205,9 +1608,9 @@ bool LiveSession::submit(const RenderCore::Command& command)noexcept { return im
 bool LiveSession::requestSourceReplacement(std::size_t deck,std::unique_ptr<PreparedPlayback>& candidate,std::uint64_t generation)noexcept
 { return impl_->requestSourceReplacement(deck,candidate,generation); }
 bool LiveSession::requestSourceContinuation(std::size_t deck,std::unique_ptr<PreparedPlayback>& candidate,
-    std::uint64_t expectedSourceGeneration,std::uint64_t expectedTransportRevision,std::uint64_t frame,
+    std::uint64_t expectedSourceGeneration,std::uint64_t expectedTransportRevision,double position,
     std::uint64_t generation,std::uint64_t residentHoldRangeId)noexcept
-{ return impl_->requestSourceContinuation(deck,candidate,expectedSourceGeneration,expectedTransportRevision,frame,generation,residentHoldRangeId); }
+{ return impl_->requestSourceContinuation(deck,candidate,expectedSourceGeneration,expectedTransportRevision,position,generation,residentHoldRangeId); }
 bool LiveSession::sourceReplacementPending()const noexcept { return impl_->handoff_.busy(); }
 std::optional<LiveSession::SourceReplacementResult> LiveSession::takeSourceReplacementResult()noexcept
 { return impl_->takeSourceReplacementResult(); }

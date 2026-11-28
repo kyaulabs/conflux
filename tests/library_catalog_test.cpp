@@ -142,7 +142,7 @@ private slots:
             const auto saved = readBytes(path);
             const auto json = QJsonDocument::fromJson(saved).object();
             QCOMPARE(json.size(), 2);
-            QCOMPARE(json.value("version").toInt(), 4);
+            QCOMPARE(json.value("version").toInt(), 5);
             const auto persisted = json.value("tracks").toArray();
             QCOMPARE(persisted.size(), qsizetype(1));
             auto expected = object(input);
@@ -287,7 +287,7 @@ private slots:
             }
             auto bytes = document(rows);
             if (damage == "truncated") bytes.chop(3);
-            if (damage == "version") bytes = QJsonDocument(QJsonObject{{"version", 5}, {"tracks", rows}}).toJson();
+            if (damage == "version") bytes = QJsonDocument(QJsonObject{{"version", 6}, {"tracks", rows}}).toJson();
             if (damage == "oversized") bytes = QByteArray(qsizetype(LibraryCatalog::maxBytes + 1), ' ');
             writeBytes(path, bytes);
             LibraryCatalog catalog(path);
@@ -405,7 +405,7 @@ private slots:
             const auto updated = catalog.updateCues(first.sourceSha256, first.frames, cues);
             QVERIFY(updated.front().cues == cues);
             QVERIFY(LibraryCatalog(path).read().front().cues == cues);
-            QCOMPARE(QJsonDocument::fromJson(readBytes(path)).object().value("version").toInt(), 4);
+            QCOMPARE(QJsonDocument::fromJson(readBytes(path)).object().value("version").toInt(), 5);
             const auto rows = QJsonDocument::fromJson(readBytes(path)).object().value("tracks").toArray();
             QCOMPARE(rows.at(0).toObject().value("cues").toArray()[1].toObject().value("frame").toDouble(), 640.0);
             QVERIFY(catalog.updateCues(first.sourceSha256, first.frames, {}).front().cues.empty());
@@ -435,7 +435,7 @@ private slots:
             const auto reopened = LibraryCatalog(path).read();
             QVERIFY(equalMetadata(reopened.front(), original));
             const auto document = QJsonDocument::fromJson(readBytes(path)).object();
-            QCOMPARE(document.value("version").toInt(), 4);
+            QCOMPARE(document.value("version").toInt(), 5);
             const auto levelObject = document.value("tracks").toArray().at(0).toObject().value("levels").toObject();
             QCOMPARE(levelObject, (QJsonObject{{"recipe", "prepared-stereo-f32-48000-levels-v1"},
                                               {"rms", rms}, {"sample_peak", peak}}));
@@ -499,7 +499,7 @@ private slots:
             const auto migrated = LibraryCatalog(path).read();
             QVERIFY(!migrated.front().levels);
             QCOMPARE(migrated.front().cues.front().label, QString("Updated"));
-            QCOMPARE(QJsonDocument::fromJson(readBytes(path)).object().value("version").toInt(), 4);
+            QCOMPARE(QJsonDocument::fromJson(readBytes(path)).object().value("version").toInt(), 5);
         });
     }
 
@@ -728,7 +728,7 @@ private slots:
             const auto reopened = LibraryCatalog(path).read().front();
             QVERIFY(equalMetadata(saved, reopened));
             const auto document = QJsonDocument::fromJson(readBytes(path)).object();
-            QCOMPARE(document.value("version").toInt(), 4);
+            QCOMPARE(document.value("version").toInt(), 5);
             QCOMPARE(document.value("tracks").toArray()[0].toObject().value("saved_cue_frame").toDouble(), double(frame));
             const std::vector<conflux::library::CuePoint> nextImport{{2, "Start", 20}, {9, "End", 800}};
             saved = catalog.updateCues(original.sourceSha256, original.frames, nextImport).front();
@@ -751,10 +751,14 @@ private slots:
             const std::vector<conflux::library::CuePoint> cues{{3, "Intro", 0}, {11, "Drop", 640}};
             catalog.updateCues(original.sourceSha256, original.frames, cues);
             catalog.updateSavedCue(original.sourceSha256, original.frames, 700);
+            catalog.updateManualBpm(original.sourceSha256, original.frames, 126.4);
             auto alias = track(directory.filePath("moved.wav"));
             alias.savedCueFrame = 0; // Reimport cannot replace a DJ correction.
+            alias.manualBpm = 90.;
             auto saved = catalog.upsert(alias).front();
             QVERIFY(saved.savedCueFrame && *saved.savedCueFrame == 700);
+            QVERIFY(saved.manualBpm == 126.4);
+            QVERIFY(LibraryCatalog(path).read().front().manualBpm == 126.4);
             QVERIFY(saved.cues == cues);
             QVERIFY(saved.levels == original.levels);
             QVERIFY(equalMetadata(saved, LibraryCatalog(path).read().front()));
@@ -765,14 +769,17 @@ private slots:
             QCOMPARE(readBytes(path), before);
             auto changed = track(alias.sourcePath, 2);
             changed.savedCueFrame = 700;
+            changed.manualBpm = 90.;
             changed.cues = cues;
             changed.frames = 1;
             saved = catalog.upsert(changed).front();
             QVERIFY(!saved.savedCueFrame);
+            QVERIFY(!saved.manualBpm);
             QVERIFY(saved.cues.empty());
             QVERIFY(!saved.levels);
             const auto replaced = readBytes(path);
             QVERIFY(rejects<std::runtime_error>([&] { catalog.updateSavedCue(original.sourceSha256, original.frames, 0); }, "changed"));
+            QVERIFY(rejects<std::runtime_error>([&] { catalog.updateManualBpm(original.sourceSha256, original.frames, 142.); }, "changed"));
             QCOMPARE(readBytes(path), replaced);
         });
     }
@@ -798,6 +805,42 @@ private slots:
             const auto missing = track(directory.filePath("missing.wav"), 2);
             QVERIFY(rejects<std::runtime_error>([&] { catalog.updateSavedCue(missing.sourceSha256, missing.frames, 0); }, "changed"));
             QCOMPARE(readBytes(path), before);
+        });
+    }
+
+    void manualBpmRejectsMalformedValuesAndReadsVersionFour()
+    {
+        checked([&] {
+            QTemporaryDir directory;
+            const auto path = directory.filePath("catalog.json");
+            const auto original = track(directory.filePath("source.wav"));
+            LibraryCatalog catalog(path);
+            catalog.upsert(original);
+            auto document = QJsonDocument::fromJson(readBytes(path)).object();
+            document["version"] = 4;
+            const auto legacy = QJsonDocument(document).toJson(QJsonDocument::Compact);
+            writeBytes(path, legacy);
+            QVERIFY(!catalog.read().front().manualBpm);
+            QCOMPARE(readBytes(path), legacy);
+            QVERIFY(catalog.updateManualBpm(original.sourceSha256, original.frames, 20.).front().manualBpm == 20.);
+            const auto accepted = readBytes(path);
+            for (const double bpm : {19.99, 400.01, std::numeric_limits<double>::infinity(),
+                                     std::numeric_limits<double>::quiet_NaN()}) {
+                QVERIFY(rejects<std::invalid_argument>([&] { catalog.updateManualBpm(original.sourceSha256, original.frames, bpm); }, "manual BPM"));
+                QCOMPARE(readBytes(path), accepted);
+            }
+            QVERIFY(rejects<std::runtime_error>([&] { catalog.updateManualBpm(original.sourceSha256, original.frames + 1, 130.); }, "changed"));
+            QCOMPARE(readBytes(path), accepted);
+            document = QJsonDocument::fromJson(accepted).object();
+            auto row = document.value("tracks").toArray().first().toObject();
+            for (const auto& bpm : {QJsonValue(true), QJsonValue("128"), QJsonValue(QJsonValue::Null), QJsonValue(401)}) {
+                row.insert("manual_bpm", bpm);
+                document["tracks"] = QJsonArray{row};
+                const auto malformed = QJsonDocument(document).toJson(QJsonDocument::Compact);
+                writeBytes(path, malformed);
+                QVERIFY(rejects<std::runtime_error>([&] { catalog.read(); }, "manual BPM"));
+                QCOMPARE(readBytes(path), malformed);
+            }
         });
     }
 
@@ -829,7 +872,7 @@ private slots:
             QVERIFY(saved.cues == legacy.cues);
             QVERIFY(saved.levels == legacy.levels);
             QVERIFY(equalMetadata(saved, LibraryCatalog(path).read().front()));
-            QCOMPARE(QJsonDocument::fromJson(readBytes(path)).object().value("version").toInt(), 4);
+            QCOMPARE(QJsonDocument::fromJson(readBytes(path)).object().value("version").toInt(), 5);
         });
     }
 

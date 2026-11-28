@@ -185,13 +185,16 @@ bool RenderCore::seek(std::size_t deck, std::uint64_t frame) noexcept
     return true;
 }
 
-bool RenderCore::restorePrimedCursor(std::size_t deck, std::uint64_t frame) noexcept
+bool RenderCore::restorePrimedCursor(std::size_t deck, std::uint64_t frame,
+                                    std::optional<double> nominalPosition) noexcept
 {
-    if (frameClock_ || deck >= deckCount || !decks_[deck].source.frames || frame > sourceFrames(deck))
+    const auto position = nominalPosition.value_or(double(frame));
+    if (frameClock_ || deck >= deckCount || !decks_[deck].source.frames || frame > sourceFrames(deck) ||
+        std::floor(position) != double(frame) || position > double(sourceFrames(deck)))
         return false;
     transportIntent(decks_[deck]);
     decks_[deck].frame = frame;
-    decks_[deck].nominalPosition = double(frame);
+    decks_[deck].nominalPosition = position;
     decks_[deck].buffering = false;
     return true;
 }
@@ -446,34 +449,46 @@ bool RenderCore::replaceSource(std::size_t deck, AudioSource source) noexcept
 }
 
 bool RenderCore::canContinueSource(std::size_t deck, AudioSource source,
-    std::uint64_t nextFrame, std::uint64_t revision) const noexcept
+    double position, std::uint64_t revision) const noexcept
 {
-    return continuationStatus(deck, source, nextFrame, revision) == ContinuationStatus::Ready;
+    return continuationStatus(deck, source, position, revision) == ContinuationStatus::Ready;
 }
 
 RenderCore::ContinuationStatus RenderCore::continuationStatus(std::size_t deck, AudioSource source,
-    std::uint64_t nextFrame, std::uint64_t revision, std::uint64_t rangeId) const noexcept
+    double position, std::uint64_t revision, std::uint64_t rangeId) const noexcept
 {
-    if (deck >= deckCount || !validSource(source)) return ContinuationStatus::Invalid;
+    if (deck >= deckCount || !validSource(source) || !std::isfinite(position) || position < 0 ||
+        position >= double(source.frames)) return ContinuationStatus::Invalid;
     const auto& state = decks_[deck];
+    const auto nextFrame = std::uint64_t(position);
     if (!isStemBank(deck) || !source.setStemGain || !source.stemGain ||
-        source.frames != state.source.frames || nextFrame >= source.frames ||
-        state.frame != nextFrame || state.nominalPosition != double(nextFrame) ||
+        source.frames != state.source.frames || state.frame != nextFrame || state.nominalPosition != position ||
         state.transportRevision != revision || revision == std::numeric_limits<std::uint64_t>::max() ||
         (source.context == state.source.context && source.read == state.source.read))
         return ContinuationStatus::Invalid;
     const auto linear = [](const AudioSource& candidate, bool allowHold) noexcept {
-        const auto tempo = candidate.tempoState ? candidate.tempoState(candidate.context) : AudioTempoState{};
         const auto scratch = candidate.scratchState ? candidate.scratchState(candidate.context) : AudioScratchState{};
         const auto loop = candidate.loopState ? candidate.loopState(candidate.context) : AudioLoopState{};
-        // Inactive scratch prefetch may be pending independently of linear
-        // playback. Begin marks a gesture active even while its window waits.
         const auto hold = candidate.residentHoldState ? candidate.residentHoldState(candidate.context) : AudioResidentHoldState{};
-        return !tempo.active && !tempo.pending && !tempo.keyLock && tempo.percent == 0 && tempo.appliedPercent == 0 &&
-            !scratch.active && !loop.inSet && !loop.outSet && !loop.active && !loop.cached &&
+        return !scratch.active && !loop.inSet && !loop.outSet && !loop.active && !loop.cached &&
             (allowHold || (!hold.armed && !hold.active));
     };
     if (!linear(state.source, rangeId != 0) || !linear(source, false)) return ContinuationStatus::Invalid;
+    const auto previous = tempoState(deck);
+    const auto next = source.tempoState ? source.tempoState(source.context) : AudioTempoState{};
+    const auto validTempo = [](const AudioTempoState& tempo) noexcept {
+        return std::isfinite(tempo.percent) && tempo.percent >= -6 && tempo.percent <= 6 &&
+            std::isfinite(tempo.appliedPercent) && tempo.appliedPercent >= -6 && tempo.appliedPercent <= 6 &&
+            (!tempo.active || tempo.supported) && !tempo.finished &&
+            (tempo.active || (tempo.percent == 0 && tempo.appliedPercent == 0 && !tempo.pending));
+    };
+    // A ready candidate's initial output is still pending until consumed. The
+    // caller proves its exact unused prime; starvation is also pending on the
+    // failed live owner. Match the selected mode, not those fill indicators or
+    // an unrelated owner's generation/applied-input acknowledgement.
+    if (!validTempo(previous) || !validTempo(next) || next.errorCode || previous.active != next.active ||
+        previous.percent != next.percent || previous.keyLock != next.keyLock)
+        return ContinuationStatus::Invalid;
     if (!rangeId) return ContinuationStatus::Ready;
     const auto hold = residentHoldState(deck);
     if (!renderActive(state) || !hold.supported || !hold.ready || !hold.armed || !hold.active || hold.exitPending ||
@@ -486,22 +501,42 @@ RenderCore::ContinuationStatus RenderCore::continuationStatus(std::size_t deck, 
     return hold.audibleFrame == hold.outFrame ? ContinuationStatus::Ready : ContinuationStatus::WaitingForHoldOut;
 }
 
-bool RenderCore::continueSource(std::size_t deck, AudioSource source,
-    std::uint64_t nextFrame, std::uint64_t revision, std::uint64_t rangeId) noexcept
+std::size_t RenderCore::continuationPrefixFrames(std::size_t deck, std::size_t maximum) const noexcept
 {
-    if (continuationStatus(deck, source, nextFrame, revision, rangeId) != ContinuationStatus::Ready) return false;
+    if (deck >= deckCount || !maximum || !renderActive(decks_[deck])) return 0;
+    const auto hold = residentHoldState(deck);
+    if (!hold.supported || !hold.ready || !hold.armed || !hold.active || hold.exitPending || !hold.rangeId ||
+        hold.inFrame >= hold.outFrame || hold.outFrame > decks_[deck].source.frames ||
+        hold.outFrame-hold.inFrame < AudioResidentHoldRange::minimumFrames ||
+        hold.outFrame-hold.inFrame > AudioResidentHoldRange::maximumFrames ||
+        hold.residentBytes != (hold.outFrame-hold.inFrame)*AudioResidentHoldRange::bytesPerFrame ||
+        hold.audibleFrame < hold.inFrame || hold.audibleFrame >= hold.outFrame) return 0;
+    const auto remaining = hold.outFrame-hold.audibleFrame;
+    if (!tempoState(deck).active) return std::min<std::size_t>(maximum, remaining);
+    // audibleFrame floors the processed resident cursor. Keep a full output
+    // frame short of the fastest supported advance, then approach OUT one
+    // frame at a time. A wrap can only be the last sample of a render prefix;
+    // the source retains its OUT sentinel until the next read.
+    const auto safe = std::size_t(std::max(1., std::floor(double(remaining)/1.06)-1.));
+    return std::min(maximum, safe);
+}
+
+bool RenderCore::continueSource(std::size_t deck, AudioSource source,
+    double position, std::uint64_t revision, std::uint64_t rangeId) noexcept
+{
+    if (continuationStatus(deck, source, position, revision, rangeId) != ContinuationStatus::Ready) return false;
     auto& state = decks_[deck];
     if (rangeId) {
-        // Resident PCM can remain healthy after its producer failed, without a
-        // failed render read. Retain that cumulative fault after owner retirement.
         state.readFailed |= residentHoldState(deck).errorCode != 0;
-        (void)state.source.residentHoldControl(state.source.context, AudioResidentHoldCommand::Cancel, 0, nextFrame);
+        (void)state.source.residentHoldControl(state.source.context, AudioResidentHoldCommand::Cancel, 0, std::uint64_t(position));
     }
     if (state.source.setRenderActive)
         state.source.setRenderActive(state.source.context, false);
     state.source = source;
     state.buffering = false;
-    if (rangeId) transition(state); // Same envelope as the existing hold-to-live OUT.
+    // Fresh processed priming does not copy filter history. Use the existing
+    // transport envelope; raw bit-exact continuation needs no new envelope.
+    if (rangeId || tempoState(deck).active) transition(state);
     transportIntent(state);
     notifyActivity(state);
     return true;
@@ -753,6 +788,116 @@ bool RenderCore::renderBuses(std::span<float> master, std::span<float> cue) noex
     return renderInternal(master, cue);
 }
 
+bool RenderCore::captureBuses(std::span<float> master, std::span<float> cue, CueBlock& held) noexcept
+{
+    held.owner = nullptr;
+    if (cueCapture_ || master.empty() || master.size() / channels > CueBlock::maxFrames ||
+        (!decks_[0].source.frames && !decks_[1].source.frames))
+        return false;
+    held.frames = master.size() / channels;
+    held.gainBefore = cueRamp_;
+    held.cueGain = cueGain_;
+    held.overrangeBefore = meters_.cue.overrangeSamples;
+    for (std::size_t i = 0; i < deckCount; ++i) {
+        const auto& deck = decks_[i];
+        held.rampBefore[i] = deck.cueRamp;
+        held.sourceFrames[i] = deck.source.frames;
+        held.memory[i] = deck.source.memory;
+        held.contexts[i] = deck.source.context;
+        held.selected[i] = deck.cueSelected;
+    }
+    cueCapture_ = &held;
+    const bool rendered = renderBuses(master, cue);
+    cueCapture_ = nullptr;
+    if (!rendered)
+        return false;
+    held.expectedEnd = frameClock_;
+    held.gainAfter = cueRamp_;
+    held.overrangeAfter = meters_.cue.overrangeSamples;
+    for (std::size_t i = 0; i < deckCount; ++i) {
+        held.rampAfter[i] = decks_[i].cueRamp;
+        held.transport[i] = decks_[i].transportRevision;
+        held.cursorAfter[i] = decks_[i].frame;
+    }
+    held.owner = this;
+    return true;
+}
+
+bool RenderCore::remixCue(CueBlock& held, std::span<const Command> commands, std::span<float> cue) noexcept
+{
+    if (held.owner != this || frameClock_ != held.expectedEnd || cue.size() != held.frames * channels ||
+        cueGain_ != held.cueGain || cueRamp_ != held.gainAfter || meters_.cue.overrangeSamples != held.overrangeAfter)
+        return false;
+    for (std::size_t i = 0; i < deckCount; ++i) {
+        const auto& deck = decks_[i];
+        if (deck.frame != held.cursorAfter[i] || deck.transportRevision != held.transport[i] ||
+            deck.source.frames != held.sourceFrames[i] || deck.source.context != held.contexts[i] ||
+            deck.source.memory != held.memory[i] || deck.cueSelected != held.selected[i] ||
+            deck.cueRamp != held.rampAfter[i])
+            return false;
+    }
+    using Type = Command::Type;
+    for (const auto& command : commands) {
+        if (command.type == Type::CueGain) {
+            if (!std::isfinite(command.gain) || command.gain < 0.F || command.gain > 1.F)
+                return false;
+        } else if ((command.type != Type::CueOn && command.type != Type::CueOff) || command.deck >= deckCount ||
+                   !decks_[command.deck].source.frames) {
+            return false;
+        }
+    }
+    cueRamp_ = held.gainBefore;
+    for (std::size_t i = 0; i < deckCount; ++i)
+        decks_[i].cueRamp = held.rampBefore[i];
+    for (const auto& command : commands)
+        (void)apply(command); // The entire batch was validated before changing state.
+    // If this block expires again, commands on another attempt start from
+    // these retargeted envelopes at the same first sample of the block.
+    held.gainBefore = cueRamp_;
+    for (std::size_t deck = 0; deck < deckCount; ++deck)
+        held.rampBefore[deck] = decks_[deck].cueRamp;
+    StereoMeter revised{};
+    revised.overrangeSamples = held.overrangeBefore;
+    constexpr auto limit = double(std::numeric_limits<float>::max());
+    for (std::size_t frame = 0; frame < held.frames; ++frame) {
+        double left = 0.0, right = 0.0;
+        bool contributed = false;
+        for (std::size_t i = 0; i < deckCount; ++i) {
+            const auto send = decks_[i].cueRamp.next(rampFrames_);
+            const auto& tap = held.taps[i][frame];
+            if (!send || !tap.contributes)
+                continue;
+            const double deckLeft = double(tap.samples[0]) * send;
+            const double deckRight = double(tap.samples[1]) * send;
+            if (contributed) {
+                left += deckLeft;
+                right += deckRight;
+            } else {
+                left = deckLeft;
+                right = deckRight;
+                contributed = true;
+            }
+        }
+        const auto gain = cueRamp_.next(rampFrames_);
+        const auto headphoneLeft = float(std::clamp(left * gain, -limit, limit));
+        const auto headphoneRight = float(std::clamp(right * gain, -limit, limit));
+        cue[frame * channels] = headphoneLeft;
+        cue[frame * channels + 1] = headphoneRight;
+        measure(revised, headphoneLeft, headphoneRight);
+    }
+    for (auto& square : revised.rms)
+        square = std::sqrt(square / held.frames);
+    meters_.cue = revised;
+    held.cueGain = cueGain_;
+    held.gainAfter = cueRamp_;
+    held.overrangeAfter = revised.overrangeSamples;
+    for (std::size_t deck = 0; deck < deckCount; ++deck) {
+        held.selected[deck] = decks_[deck].cueSelected;
+        held.rampAfter[deck] = decks_[deck].cueRamp;
+    }
+    return true;
+}
+
 void RenderCore::beginMeters(std::size_t frames) noexcept
 {
     meters_.blockFrames = frames;
@@ -801,7 +946,7 @@ void RenderCore::writeBuses(std::span<float> master, std::span<float> cue, std::
     measure(meters_.cue, headphoneLeft, headphoneRight);
 }
 
-void RenderCore::mixDeck(std::size_t index, bool available, float rawLeft, float rawRight,
+void RenderCore::mixDeck(std::size_t index, std::size_t frame, bool available, float rawLeft, float rawRight,
                          double& left, double& right, double& cueLeft, double& cueRight,
                          bool& contributed, bool& cueContributed) noexcept
 {
@@ -826,6 +971,8 @@ void RenderCore::mixDeck(std::size_t index, bool available, float rawLeft, float
         }
     }
     deck.last = samples;
+    if (cueCapture_)
+        cueCapture_->taps[index][frame] = {samples, available || samples[0] != 0.F || samples[1] != 0.F};
     const double gain = deck.gainRamp.next(rampFrames_);
     const double crossfaderGain = crossfaderRamps_[index].next(rampFrames_);
     const double cueSend = deck.cueRamp.next(rampFrames_);
@@ -869,7 +1016,7 @@ bool RenderCore::renderInternal(std::span<float> interleaved, std::span<float> c
                 const auto& deck = decks_[index];
                 const bool supplied = frame < available[index];
                 const auto source = supplied ? (deck.frame + frame) * channels : 0;
-                mixDeck(index, supplied, supplied ? deck.source.memory[source] : 0.F,
+                mixDeck(index, frame, supplied, supplied ? deck.source.memory[source] : 0.F,
                         supplied ? deck.source.memory[source + 1] : 0.F,
                         left, right, cueLeft, cueRight, contributed, cueContributed);
             }
@@ -962,10 +1109,13 @@ bool RenderCore::renderSources(std::span<float> interleaved, std::span<float> cu
                         advance < .94 * double(result.frames) - tolerance ||
                         advance > 1.06 * double(result.frames) + tolerance;
                 }
+                const double residentLimit = deck.nominalPosition+double(result.frames)*(processed ? 1.06 : 1.)+
+                    (processed ? 8*std::numeric_limits<double>::epsilon()*std::max(1.,deck.nominalPosition) : 0.);
                 if (badLoopPosition || ((processed || scratching || result.residentHold) && !result.positionValid) ||
                     (result.residentHold && (!resident ||
-                        result.nominalPosition != std::floor(result.nominalPosition) ||
-                        result.nominalPosition > deck.nominalPosition+double(result.frames))) ||
+                        (!processed && result.nominalPosition != std::floor(result.nominalPosition)) ||
+                        (afterHold.active && result.nominalPosition != deck.nominalPosition && beforeHold.active) ||
+                        result.nominalPosition > residentLimit)) ||
                     (result.transitionFrame != AudioReadResult::noTransition &&
                         (!resident || result.transitionFrame >= result.frames)) ||
                     (result.positionValid && ((!processed && !scratching && !resident) || !std::isfinite(result.nominalPosition) ||
@@ -995,7 +1145,7 @@ bool RenderCore::renderSources(std::span<float> interleaved, std::span<float> cu
             for (std::size_t index = 0; index < deckCount; ++index) {
                 const bool supplied = frame < available[index];
                 if (supplied && results[index].transitionFrame == frame) transition(decks_[index]);
-                mixDeck(index, supplied, supplied ? samples[index][frame * channels] : 0.F,
+                mixDeck(index, offset + frame, supplied, supplied ? samples[index][frame * channels] : 0.F,
                         supplied ? samples[index][frame * channels + 1] : 0.F,
                         left, right, cueLeft, cueRight, contributed, cueContributed);
             }

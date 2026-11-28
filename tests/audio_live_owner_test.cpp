@@ -10,6 +10,7 @@
 #include <atomic>
 #include <cerrno>
 #include <chrono>
+#include <condition_variable>
 #include <cstdint>
 #include <future>
 #include <iostream>
@@ -62,6 +63,7 @@ struct Control {
     std::atomic<int> forceFailure{0}, afterFailurePublish{-1}, afterStopPublish{-1};
     std::atomic<bool> fullObserved{false};
     std::uint64_t countedTarget = std::numeric_limits<std::uint64_t>::max();
+    bool probeAfterStop = false;
     std::mutex mutex;
     std::thread::id producerThread{};
 };
@@ -80,7 +82,7 @@ PreparedPlayback::LiveProducer producer(const std::shared_ptr<Control>& control,
         std::uint64_t epoch = 0, cursor = 0, target = 0, sourceId = 0;
         std::uint64_t packetEpoch = 0, packetCursor = 0;
         std::size_t packetCount = 0;
-        while (!stop.stop_requested()) {
+        while (!stop.stop_requested() && port.serviceRecovery()) {
             LiveStemBuffer::Request request;
             if (!port.tryRequest(request)) { std::this_thread::yield(); continue; }
             sourceId = request.sourceId;
@@ -134,7 +136,13 @@ PreparedPlayback::LiveProducer producer(const std::shared_ptr<Control>& control,
                 std::this_thread::sleep_for(1ms);
             }
         }
-        if (stop.stop_requested() && epoch && cursor < frames) {
+        if (control->probeAfterStop && epoch && cursor < frames) {
+            // The port closes before the stop token is requested. Exercise
+            // the late publish even when the producer sees that closure first.
+            std::condition_variable_any stopping;
+            std::unique_lock lock(control->mutex);
+            stopping.wait(lock, stop, [] { return false; });
+            lock.unlock();
             LiveStemBuffer::Packet late{sourceId, epoch, cursor, 1, cursor + 1 == frames, {}};
             for (std::size_t role = 0; role < 4; ++role) late.stems[role] = std::span(pcm[role]).first(2);
             control->afterStopPublish.store(int(port.tryPublish(late)));
@@ -159,6 +167,7 @@ void primeHandoffFixture(PreparedPlayback& owner, const Control& state, const ch
 void reserveCancellationAndExactTail()
 {
     auto state = std::make_shared<Control>();
+    state->probeAfterStop = true;
     state->allowance = PreparedPlayback::liveReserveFrames - 1;
     auto owner = PreparedPlayback::makeLive(101, totalFrames, producer(state));
     require(owner && owner->isLive(), "Live factory did not return its whole owner");
@@ -378,13 +387,50 @@ void sameCursorRetryUsesTheRealRenderCommand()
     owner->stop();
 }
 
+void bufferedSeekRefillsTheExistingEpoch()
+{
+    constexpr auto reserve = PreparedPlayback::liveReserveFrames;
+    constexpr auto target = 2 * LiveStemBuffer::blockFrames + 777;
+    auto state = std::make_shared<Control>();
+    state->allowance.store(reserve);
+    auto owner = PreparedPlayback::makeLive(352, totalFrames, producer(state));
+    require(owner->prime(0, 2s), "Cannot prime buffered seek reserve fixture");
+    const auto epoch = state->epoch.load();
+    const auto source = owner->sourceRef();
+    source.setRenderActive(source.context, true);
+    source.discontinuity(source.context, target);
+    std::array<float, 128> output{};
+    auto read = source.read(source.context, target, output);
+    require(!read.frames && !read.failed, "Buffered seek played before the full reserve was ready");
+    state->allowance.store(reserve + target - 1);
+    await([&] { return state->publishedEnd >= reserve + target - 1; }, "Retained epoch did not refill after discarding its prefix");
+    read = source.read(source.context, target, output);
+    require(!read.frames && !read.failed, "Buffered seek accepted a reserve one frame short");
+    state->allowance.store(reserve + target);
+    await([&] {
+        if (!read.frames && !read.failed) read = source.read(source.context, target, output);
+        return read.frames || read.failed;
+    }, "Buffered seek did not resume after the complete reserve");
+    require(!read.failed && read.frames == output.size() / 2 && state->epoch == epoch && state->target == 0,
+            "Buffered refill changed the worker epoch or failed to resume exact audio");
+    for (std::size_t frame = 0; frame < read.frames; ++frame)
+        for (std::size_t channel = 0; channel < 2; ++channel)
+            require(output[frame * 2 + channel] == sum(target + frame, channel),
+                    "Buffered seek returned stale or misaligned stem samples");
+    owner->stop();
+}
+
 void renderedOwnerRebuildPreservesCursorTargetsAndProducer()
 {
     constexpr std::uint64_t target = 512;
     constexpr std::array<float, 4> gains{.125F, .25F, .5F, 1.F};
     auto state = std::make_shared<Control>();
+    // The first prime has exactly one reserve. Playback consumes part of it
+    // before the rebuild, which must refill from the new cursor.
+    state->allowance.store(PreparedPlayback::liveReserveFrames);
     auto owner = PreparedPlayback::makeLive(351, totalFrames, producer(state));
     require(owner->prime(target, 2s), "Cannot prime rendered-owner rebuild fixture");
+    const auto initialEpoch = state->epoch.load();
     std::uint64_t cursor = 0;
     {
         RenderCore core(owner->sourceRef());
@@ -411,6 +457,8 @@ void renderedOwnerRebuildPreservesCursorTargetsAndProducer()
     initial.cueFrame[0] = target;
     initial.stemGain[0] = gains;
     LiveSession rebuilt(std::move(owners), initial);
+    require(state->epoch == initialEpoch + 1 && state->target == cursor,
+            "Rebuild reused an incomplete reserve at the stopped cursor");
     const auto restored = rebuilt.stoppedState();
     require(restored.sourceFrame[0] == cursor && restored.stemGain[0] == gains &&
             state->starts == 1 && state->exits == 0 && !restored.sourceReadError[0],
@@ -499,6 +547,7 @@ int main()
         nonzeroInitializationRetainsThePrimedEpoch();
         initialResidentAuthorizationRejectsIncompatibleOwners();
         sameCursorRetryUsesTheRealRenderCommand();
+        bufferedSeekRefillsTheExistingEpoch();
         renderedOwnerRebuildPreservesCursorTargetsAndProducer();
         wholeOwnerRemainsThroughCallbackEnd();
         std::cout << "Live whole-owner reserve, generation, initial cursor, failure and retirement checks completed\n";

@@ -1,0 +1,153 @@
+{
+  "schema": 1,
+  "scope": "Selected original text receipts for completed short player runs and separately scoped listening verdicts. No audio, binaries, models or mutable caches.",
+  "files": [
+    {
+      "file": "summary.json",
+      "encoding": "UTF-8 JSON",
+      "source": "build/m3-tempo-continuation-01/actual-tempo-player-01/packet-04/root-result-summary-01.json",
+      "source_bytes": 7424,
+      "source_sha256": "87df8b800c7b6a4614bea6c2ba464d87c396bad20f12876e1e43e2b0f510e704",
+      "bytes": 7424,
+      "sha256": "87df8b800c7b6a4614bea6c2ba464d87c396bad20f12876e1e43e2b0f510e704"
+    },
+    {
+      "file": "baseline-listening.json",
+      "encoding": "UTF-8 JSON",
+      "source": "build/m3-tempo-continuation-01/decoded-evidence-scan-01/baseline-listening/manual-trial-accepted-01.json",
+      "source_bytes": 1046,
+      "source_sha256": "b4603caccdcd9dd3c84d2384d0eaada20bf4707f671e034658ba3a2c90050c65",
+      "bytes": 1046,
+      "sha256": "b4603caccdcd9dd3c84d2384d0eaada20bf4707f671e034658ba3a2c90050c65"
+    },
+    {
+      "file": "recovery-listening.json",
+      "encoding": "UTF-8 JSON",
+      "source": "build/m3-tempo-continuation-01/music-quality-01/listening-accepted-01.json",
+      "source_bytes": 850,
+      "source_sha256": "3702fbf4751626258fe3f6178a16e5fc922ef77202a5ae2606382e3a31325016",
+      "bytes": 850,
+      "sha256": "3702fbf4751626258fe3f6178a16e5fc922ef77202a5ae2606382e3a31325016"
+    },
+    {
+      "file": "laptop-pair.json.gz",
+      "encoding": "gzip UTF-8 JSON",
+      "source": "build/m3-tempo-continuation-01/actual-tempo-player-01/packet-04/laptop-results-01/pair-result.json",
+      "source_bytes": 7023,
+      "source_sha256": "a522de1e856feda07ca0271618be61d634111a66256c233a635aa3e552964bbf",
+      "bytes": 1722,
+      "sha256": "1da0c128945e58264a82212f0df390f3aafc60f4bf4214a0348152531e27b833"
+    },
+    {
+      "file": "apollo-pair.json.gz",
+      "encoding": "gzip UTF-8 JSON",
+      "source": "build/m3-tempo-continuation-01/actual-tempo-player-01/packet-04/root-apollo-capture-01/results/pair-result-01.json",
+      "source_bytes": 1611,
+      "source_sha256": "df63f823c87b29d25502200f37ccd3ac547cdcd17dba762be75fdc840df6d2fa",
+      "bytes": 525,
+      "sha256": "631c3cc26dfbc5c0a7db8b8398339360839d711b2317bdbb4fa24a184230089e"
+    },
+    {
+      "file": "guarded-outcome.json.gz",
+      "encoding": "gzip UTF-8 JSON",
+      "source": "build/m3-tempo-continuation-01/actual-tempo-player-01/packet-04/guarded-outcome.json",
+      "source_bytes": 2101,
+      "source_sha256": "b5f6016ca82a5f75ece48b517027fb3d7474d06a40d2e3f3ab878aa64f56976a",
+      "bytes": 648,
+      "sha256": "55d966d0051375a4576a283463e4ce416527521e39b7ca6bdd2ae6f388a0092b"
+    },
+    {
+      "file": "burst-cap-release.json.gz",
+      "encoding": "gzip UTF-8 JSON",
+      "source": "build/m3-tempo-continuation-01/actual-tempo-player-01/packet-04/burst-cap-release-result.json",
+      "source_bytes": 1754,
+      "source_sha256": "cedb81ee0c9dcd423b478acc13f2f5d62513f5bd9fc13f14a3860933e38df490",
+      "bytes": 549,
+      "sha256": "b8eb5a667e8a6c735e2d5a6cfeeae520ac81c5a657f7c8a78d59525f981e3e50"
+    },
+    {
+      "file": "packet-pins.json.gz",
+      "encoding": "gzip UTF-8 JSON",
+      "source": "build/m3-tempo-continuation-01/actual-tempo-player-01/packet-04/packet-pins.json",
+      "source_bytes": 20613,
+      "source_sha256": "06c0d15ffbbda438ce087be70e138c49d2d1f609848ac2dd06d9dbffdc132813",
+      "bytes": 5458,
+      "sha256": "40ddbcb964e7bf02d0c1f0ae41a17f916ac8073f4a30ff639aa7fded7cb5b93c"
+    },
+    {
+      "file": "laptop-baseline-native.json.gz",
+      "encoding": "gzip UTF-8 JSON",
+      "source": "build/m3-tempo-continuation-01/actual-tempo-player-01/packet-04/laptop-results-01/baseline/output-01/native-result.json",
+      "source_bytes": 303062,
+      "source_sha256": "d50caf792958b7a3c512750066b43304a05a9b66e06e8b5c987b801bbbe2f073",
+      "bytes": 17684,
+      "sha256": "0eb3597856a68a2a24572c4ffb870f4bedc117097e6b272a78048e0fbc511670"
+    },
+    {
+      "file": "laptop-baseline-assessment.json.gz",
+      "encoding": "gzip UTF-8 JSON",
+      "source": "build/m3-tempo-continuation-01/actual-tempo-player-01/packet-04/laptop-results-01/baseline/assessment.json",
+      "source_bytes": 1856,
+      "source_sha256": "d110c52290e29e9a5bd67ef98e5a3d408f5266637ed5acceb9ef9455ea27b408",
+      "bytes": 712,
+      "sha256": "c79cab95545024d34026886b5671197ab8096482eec18e1e6abfa2d6de5e856f"
+    },
+    {
+      "file": "laptop-candidate-native.json.gz",
+      "encoding": "gzip UTF-8 JSON",
+      "source": "build/m3-tempo-continuation-01/actual-tempo-player-01/packet-04/laptop-results-01/candidate/output-01/native-result.json",
+      "source_bytes": 302924,
+      "source_sha256": "04e1bb04e3193ec96d21d97db0c519af4327bac508a1547441b2b9986f55f365",
+      "bytes": 17740,
+      "sha256": "365f0871d37961ec6265344addd56f7da6368ca1a74172c0f556b1034c9c6e92"
+    },
+    {
+      "file": "laptop-candidate-assessment.json.gz",
+      "encoding": "gzip UTF-8 JSON",
+      "source": "build/m3-tempo-continuation-01/actual-tempo-player-01/packet-04/laptop-results-01/candidate/assessment.json",
+      "source_bytes": 1857,
+      "source_sha256": "2758e37aa012cf1c7ab2e6cab736867734f813e013e9cae3e9d6efdba2a9d8c9",
+      "bytes": 710,
+      "sha256": "5c72f839c00bde64bdf0a2d4ca2237efe51f6d5dedd74df744c31cf579d27204"
+    },
+    {
+      "file": "apollo-baseline-native.json.gz",
+      "encoding": "gzip UTF-8 JSON",
+      "source": "build/m3-tempo-continuation-01/actual-tempo-player-01/packet-04/root-apollo-capture-01/results/cases/baseline/private-player-01/recordings/actual-player/native-result.json",
+      "source_bytes": 302818,
+      "source_sha256": "7705bccc65f426d2bbbb767423a0043a88cfe384175b3c86adfe3e35e07b1927",
+      "bytes": 17533,
+      "sha256": "9d45a4e20d7c57a9afd18a785cdd77a4ea6f5ed82e23fc808d9a16597e550287"
+    },
+    {
+      "file": "apollo-baseline-assessment.json.gz",
+      "encoding": "gzip UTF-8 JSON",
+      "source": "build/m3-tempo-continuation-01/actual-tempo-player-01/packet-04/root-apollo-capture-01/results/cases/baseline/private-player-01/recordings/actual-player/assessment.json",
+      "source_bytes": 144441,
+      "source_sha256": "332d776470bcc461cf6127f4cd866b98867bb12165bbae59a037e4841de80135",
+      "bytes": 11052,
+      "sha256": "4b966805de4cb14429c2acb644e49154504f281f30dc9d1d336503cfe90bebf5"
+    },
+    {
+      "file": "apollo-candidate-native.json.gz",
+      "encoding": "gzip UTF-8 JSON",
+      "source": "build/m3-tempo-continuation-01/actual-tempo-player-01/packet-04/root-apollo-capture-01/results/cases/candidate/private-player-01/recordings/actual-player/native-result.json",
+      "source_bytes": 302668,
+      "source_sha256": "75e17c2916ef99a43f23dd442e069491f80f58a90c5fc42118f1543e1104d27c",
+      "bytes": 17642,
+      "sha256": "c639710539e7219a938ebb6d2d16cb944620e7e3f54f318688437b95d9abeb9d"
+    },
+    {
+      "file": "apollo-candidate-assessment.json.gz",
+      "encoding": "gzip UTF-8 JSON",
+      "source": "build/m3-tempo-continuation-01/actual-tempo-player-01/packet-04/root-apollo-capture-01/results/cases/candidate/private-player-01/recordings/actual-player/assessment.json",
+      "source_bytes": 144365,
+      "source_sha256": "d1721de9cfd84aae0f13ce4270b776cedc5799277f4d6db60d23c67d4e2e9fea",
+      "bytes": 11065,
+      "sha256": "b89f1d7a06f00a598f2001b37774af5c438617521f396d64749c0a5c04da0359"
+    }
+  ],
+  "verification_sha256": "11d876c68bfffe316b6f3d5f4ed8385c3ff419aece3d6234ee954577e8ca9830",
+  "original_failures_retained_in_private_packets": true,
+  "original_failures_reclassified": false
+}

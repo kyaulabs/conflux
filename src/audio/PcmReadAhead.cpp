@@ -77,19 +77,42 @@ public:
             }};
     }
 
-    // This mailbox has one consumer-side writer. Sequentially consistent
-    // atomic payload/version stores make the odd/even snapshot unambiguous;
-    // the worker retries, while the render thread always performs fixed stores.
+    bool reuseBufferedForward(std::uint64_t frame) noexcept
+    {
+        if (frame <= consumerFrame_ || frame == frames_)
+            return false;
+        const auto end = written_.load(std::memory_order_acquire);
+        if (errorEpoch_.load(std::memory_order_acquire) == consumerEpoch_)
+            return false;
+        // All published slots remain ours until we advance consumed_. Keep
+        // the destination slot and skip only the blocks before it.
+        for (auto position = consumed_.load(std::memory_order_relaxed); position != end; ++position) {
+            const auto& slot = slots_[position % slotCount];
+            if (slot.epoch != consumerEpoch_ || slot.error || frame < slot.first ||
+                frame - slot.first >= slot.count)
+                continue;
+            consumerFrame_ = frame;
+            consumed_.store(position, std::memory_order_release);
+            sizeCheckEpoch_.store(consumerEpoch_, std::memory_order_release);
+            return true;
+        }
+        return false;
+    }
+
+    // On a cache miss the consumer publishes a new request. Sequentially
+    // consistent payload/version stores make the odd/even snapshot unambiguous.
     void discontinuity(std::uint64_t frame) noexcept
     {
         if (frame > frames_ || frame == consumerFrame_)
+            return;
+        controlError_.store(0, std::memory_order_relaxed);
+        if (reuseBufferedForward(frame))
             return;
         consumerFrame_ = frame;
         consumerEpoch_ += 2;
         requestVersion_.store(consumerEpoch_ - 1, std::memory_order_seq_cst);
         requestFrame_.store(frame, std::memory_order_seq_cst);
         requestVersion_.store(consumerEpoch_, std::memory_order_seq_cst);
-        controlError_.store(0, std::memory_order_relaxed);
         retireStale();
     }
 
@@ -129,6 +152,11 @@ public:
             discontinuity(frame);
         if (frame == frames_)
             return {};
+        // A failed backing-size check invalidates even the published slots.
+        // Ordinary read errors can still deliver their verified PCM prefix.
+        if (errorEpoch_.load(std::memory_order_acquire) == consumerEpoch_ &&
+            bufferInvalid_.load(std::memory_order_relaxed))
+            return {0, true};
         AudioReadResult result;
         const auto wanted = static_cast<std::size_t>(std::min<std::uint64_t>(output.size() / channels, frames_ - frame));
         for (std::size_t examined = 0; examined < slotCount && result.frames < wanted; ++examined) {
@@ -218,6 +246,20 @@ public:
         }
     }
 
+    void publishWorkerError(std::uint64_t epoch, int code) noexcept
+    {
+        workerError_.store(code, std::memory_order_relaxed);
+        errorEpoch_.store(epoch, std::memory_order_release);
+    }
+
+    int sourceSizeError() const noexcept
+    {
+        struct stat status{};
+        if (fstat(fd_, &status) != 0)
+            return errno;
+        return status.st_size < static_cast<off_t>(frames_ * frameBytes) ? EIO : 0;
+    }
+
     void run() noexcept
     {
         std::uint64_t epoch = 0, next = 0;
@@ -232,7 +274,18 @@ public:
                 epoch = requestedEpoch;
                 next = requestedFrame;
                 finished = false;
+                bufferInvalid_.store(false, std::memory_order_relaxed);
                 errorEpoch_.store(0, std::memory_order_release);
+            }
+            // A seek into buffered PCM may need no further pread, even at EOF.
+            // Detect backing-file truncation from the worker in that case too.
+            if (sizeCheckEpoch_.load(std::memory_order_relaxed) != 0 &&
+                sizeCheckEpoch_.exchange(0, std::memory_order_acq_rel) == epoch) {
+                if (const int code = sourceSizeError()) {
+                    bufferInvalid_.store(true, std::memory_order_relaxed);
+                    publishWorkerError(epoch, code);
+                    finished = true;
+                }
             }
             const auto position = written_.load(std::memory_order_relaxed);
             if (finished || next == frames_ ||
@@ -273,8 +326,7 @@ public:
                 }
             }
             if (slot.error) {
-                workerError_.store(slot.error, std::memory_order_relaxed);
-                errorEpoch_.store(epoch, std::memory_order_release);
+                publishWorkerError(epoch, slot.error);
                 finished = true;
             }
             next += slot.count;
@@ -286,9 +338,9 @@ public:
     std::array<Slot, slotCount> slots_{};
     std::atomic<std::uint64_t> written_{0}, consumed_{0};
     std::atomic<std::uint64_t> requestVersion_{2}, requestFrame_{0};
-    std::atomic<std::uint64_t> errorEpoch_{0};
+    std::atomic<std::uint64_t> errorEpoch_{0}, sizeCheckEpoch_{0};
     std::atomic<int> workerError_{0}, controlError_{0};
-    std::atomic<bool> stopping_{false};
+    std::atomic<bool> stopping_{false}, bufferInvalid_{false};
     std::uint64_t consumerEpoch_ = 2, consumerFrame_ = 0;
     int fd_ = -1;
     std::thread worker_;
