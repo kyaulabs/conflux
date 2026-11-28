@@ -325,6 +325,37 @@ class HourPlaybackTest(unittest.TestCase):
             self.assertFalse(result["passed"]); self.assertFalse(result["qualified"])
             return code, result, stop, launched[0] if launched else None, polls
 
+    def test_explicit_system_guard_checks_the_active_unit_and_process(self):
+        with tempfile.TemporaryDirectory() as area:
+            root = Path(area)
+            unit = root / "configured-thermal-policy.service"
+            script = root / "controller.py"
+            unit.write_text("generated unit")
+            script.write_text("generated controller")
+            active = "ActiveState=active\nMainPID=42\nInvocationID=fixture\n"
+            identity = {"pid": 42, "start_ticks": 100, "command": [str(script)]}
+
+            with (
+                patch.object(soak, "read_command", return_value=active + f"FragmentPath={unit}") as read,
+                patch.object(soak, "process_identity", return_value=identity) as process,
+            ):
+                policy = soak.guard_identity(script, unit, "system")
+                self.assertEqual(read.call_args.args[0][1:4], ["--system", "show", unit.name])
+                process.assert_called_once_with(42, 0)
+                self.assertEqual(policy["unit"]["path"], str(unit))
+                self.assertEqual(policy["process"], identity)
+
+                read.return_value = active + f"FragmentPath={root / 'different.service'}"
+                with self.assertRaisesRegex(RuntimeError, "does not match the pinned unit"):
+                    soak.guard_identity(script, unit, "system")
+                self.assertEqual(process.call_count, 1)
+
+                read.return_value = active
+                fallback = soak.guard_identity(script, unit)
+                self.assertEqual(read.call_args.args[0][1:4], ["--user", "show", "thermal-guard.service"])
+                process.assert_called_with(42, None)
+                self.assertEqual(fallback["process"], identity)
+
     def test_actual_runner_dispatches_the_screen_workload(self):
         _, result, _, _, _ = self.live_watchdog_run(0, [.1], screen=True)
         self.assertEqual(result["command"][1], "--live-stems-hour-screen-background")
