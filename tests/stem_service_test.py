@@ -1237,7 +1237,7 @@ for line in sys.stdin:
 
 
 class PhaseObservationAnalysisTest(unittest.TestCase):
-    def summary(self, phases, terminal_records=(), *, hour_request=None):
+    def summary(self, phases, terminal_records=(), *, hour_request=None, mode="live-stems-hour"):
         from tools.experiments.run_manual_playback_soak import summarize_live_observations
 
         setup = {"input_frames": 17, "output_frames": 19, "factory_entry_ns": 1,
@@ -1248,7 +1248,7 @@ class PhaseObservationAnalysisTest(unittest.TestCase):
         rows = [{"type": "setup", "context": setup}]
         kinds = (2, 3, 4, 5)
         if hour_request is not None:
-            native["mode"] = "live-stems-hour"
+            native["mode"] = mode
             kinds = (2, 3, 4, 11, 5)
         for ordinal, kind in enumerate(kinds, 1):
             row = {"type": "record", "kind": kind, "ordinal": ordinal, "observed_ns": ordinal * 100,
@@ -1289,6 +1289,24 @@ class PhaseObservationAnalysisTest(unittest.TestCase):
                         "nearest_rank_p99_ms": phases.get(key), "present_for_all_chunks": key in phases})
                 self.assertEqual(result["service_hops"]["strict_target_ms"], 4095)
                 self.assertEqual(result["service_hops"]["nearest_rank_p99_ms"], 125.0)
+
+    def test_converter_completion_retains_exact_timestamp_for_hour_workloads(self):
+        completion = (
+            {"kind": 8, "input_frames": 0},
+            {"kind": 9, "input_frames": 0, "output_first": 19, "output_frames": 0,
+             "telemetry_dropped_present": False},
+            {},
+        )
+        for mode in ("live-stems-hour", "live-stems-hour-screen", "live-stems"):
+            with self.subTest(mode=mode):
+                result = self.summary({}, completion, hour_request=42, mode=mode)
+                epoch = result["epochs"][11]
+                self.assertTrue(epoch["converter_complete"])
+                self.assertTrue(result["service_hops"]["complete"])
+                if mode == "live-stems":
+                    self.assertNotIn("converter_complete_ns", epoch)
+                else:
+                    self.assertEqual(epoch["converter_complete_ns"], 700)
 
     def test_hour_hop_attaches_only_its_matching_native_start(self):
         matching = self.summary({}, hour_request=42)["chunk_phases"]["hops"][0]
