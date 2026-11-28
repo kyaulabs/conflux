@@ -38,25 +38,39 @@ def pin(path):
     return {"path": str(path), "bytes": info.st_size, "sha256": value.hexdigest()}
 
 
-def process_identity(pid):
+def process_identity(pid, owner_uid=None):
     root = Path("/proc") / str(pid)
-    if root.stat().st_uid != os.getuid():
+    if owner_uid is None:
+        owner_uid = os.getuid()
+    if root.stat().st_uid != owner_uid:
         raise RuntimeError("Observed PID is not owned by the current user")
     fields = (root / "stat").read_text().rsplit(")", 1)[1].split()
     return {"pid": pid, "start_ticks": int(fields[19]),
             "command": [part.decode(errors="replace") for part in (root / "cmdline").read_bytes().split(b"\0") if part]}
 
 
-def guard_identity(script, service_file):
-    raw = read_command(["systemctl", "--user", "show", "thermal-guard.service",
-                        "--property=ActiveState,MainPID,InvocationID,ExecMainStartTimestampMonotonic"])
+def guard_service_identity(script, service_file, scope, timeout=3):
+    system_service = scope == "system"
+    service = service_file.name if system_service else "thermal-guard.service"
+    properties = "ActiveState,MainPID,InvocationID,ExecMainStartTimestampMonotonic"
+    if system_service:
+        properties += ",FragmentPath"
+    raw = read_command(["systemctl", "--system" if system_service else "--user", "show", service,
+                        "--property=" + properties], timeout=timeout)
     fields = dict(line.split("=", 1) for line in raw.splitlines() if "=" in line)
     if fields.get("ActiveState") != "active" or int(fields.get("MainPID", 0)) <= 0:
-        raise RuntimeError("Existing thermal-guard.service must remain active")
-    identity = process_identity(int(fields["MainPID"]))
+        raise RuntimeError(f"Existing {service} must remain active")
+    if system_service and fields.get("FragmentPath") != str(service_file):
+        raise RuntimeError("Active system thermal guard does not match the pinned unit")
+    identity = process_identity(int(fields["MainPID"]), 0 if system_service else None)
     if str(script) not in identity["command"]:
         raise RuntimeError("Active thermal guard does not match the pinned script")
-    return {"service": fields, "process": identity, "script": pin(script), "unit": pin(service_file)}
+    return {"service": fields, "process": identity}
+
+
+def guard_identity(script, service_file, scope="user"):
+    return {**guard_service_identity(script, service_file, scope),
+            "script": pin(script), "unit": pin(service_file)}
 
 
 def power_state():
@@ -789,16 +803,10 @@ def run_live(args):
         finally:
             os.close(descriptor)
     def live_guard():
-        raw = read_command(["systemctl", "--user", "show", "thermal-guard.service",
-            "--property=ActiveState,MainPID,InvocationID,ExecMainStartTimestampMonotonic"], timeout=max(.1, min(3, deadline - time.monotonic() - 10)))
-        fields = dict(line.split("=", 1) for line in raw.splitlines() if "=" in line)
-        if fields.get("ActiveState") != "active" or int(fields.get("MainPID", 0)) <= 0:
-            raise RuntimeError("Existing thermal guard must stay active")
-        identity = process_identity(int(fields["MainPID"]))
-        if str(args.guard_script.resolve(strict=True)) not in identity["command"]:
-            raise RuntimeError("Active guard command differs")
-        return {"service": fields, "process": identity, "script": live_pin(args.guard_script.resolve(), 1024 * 1024),
-                "unit": live_pin(args.guard_unit.resolve(), 1024 * 1024)}
+        script, unit = args.guard_script.resolve(strict=True), args.guard_unit.resolve(strict=True)
+        timeout = max(.1, min(3, deadline - time.monotonic() - 10))
+        identity = guard_service_identity(script, unit, getattr(args, "guard_scope", "user"), timeout=timeout)
+        return {**identity, "script": live_pin(script, 1024 * 1024), "unit": live_pin(unit, 1024 * 1024)}
     def process_record(pid):
         root = Path("/proc") / str(pid)
         if root.stat().st_uid != os.getuid():
@@ -1194,6 +1202,8 @@ def main():
         parser.add_argument("--" + name, type=Path)
     parser.add_argument("--expected-runtime-sha256", metavar="HEX",
                         help="Expected SHA-256 of the actual live runtime (default: promoted Flash runtime)")
+    parser.add_argument("--guard-scope", choices=("user", "system"), default="user",
+                        help="observe the user thermal guard or an explicit root-run system service")
     parser.add_argument("--guard-script", type=Path, default=Path.home() / ".local/bin/thermal-guard")
     parser.add_argument("--guard-unit", type=Path, default=Path.home() / ".config/systemd/user/thermal-guard.service")
     args = parser.parse_args()
@@ -1254,7 +1264,7 @@ def main():
                 raise RuntimeError(f"Required installed read-only command is unavailable: {name}")
         result["pins"] = {"binary": pin(binary), "track_a": pin(track_a), "track_b": pin(track_b),
                           "runner": pin(Path(__file__).resolve())}
-        result["guard_before"] = guard_identity(args.guard_script.resolve(strict=True), args.guard_unit.resolve(strict=True))
+        result["guard_before"] = guard_identity(args.guard_script.resolve(strict=True), args.guard_unit.resolve(strict=True), args.guard_scope)
         result["power_before"] = power_state()
         if not result["power_before"]["ac_online"] or not result["power_before"]["lid_open"]:
             raise RuntimeError("Connect AC power and leave the laptop lid open before the soak")
@@ -1298,7 +1308,7 @@ def main():
                         request_stop("CPU/ACPI temperature observation unavailable")
                     next_sample = elapsed + 2
                 if elapsed >= next_identity:
-                    identity = guard_identity(args.guard_script.resolve(), args.guard_unit.resolve())
+                    identity = guard_identity(args.guard_script.resolve(), args.guard_unit.resolve(), args.guard_scope)
                     if identity != result["guard_before"]:
                         request_stop("Existing thermal guard identity/source changed")
                     next_identity = elapsed + 10
@@ -1342,7 +1352,7 @@ def main():
         result["host_after"] = observation(paths)
         result["thermal_summary"] = thermal_summary(output / "host-observations.jsonl")
         result["power_after"] = power_state()
-        result["guard_after"] = guard_identity(args.guard_script.resolve(), args.guard_unit.resolve())
+        result["guard_after"] = guard_identity(args.guard_script.resolve(), args.guard_unit.resolve(), args.guard_scope)
         result["guard_identity_unchanged"] = result["guard_before"] == result["guard_after"]
         result["passed"] = (child.returncode == 0 and result["native"].get("passed", False) and requested_stop is None
                             and result["guard_identity_unchanged"] and bool(owned_graph_identities)
