@@ -10,6 +10,7 @@
 #include <atomic>
 #include <cerrno>
 #include <chrono>
+#include <condition_variable>
 #include <cstdint>
 #include <future>
 #include <iostream>
@@ -62,6 +63,7 @@ struct Control {
     std::atomic<int> forceFailure{0}, afterFailurePublish{-1}, afterStopPublish{-1};
     std::atomic<bool> fullObserved{false};
     std::uint64_t countedTarget = std::numeric_limits<std::uint64_t>::max();
+    bool probeAfterStop = false;
     std::mutex mutex;
     std::thread::id producerThread{};
 };
@@ -134,7 +136,13 @@ PreparedPlayback::LiveProducer producer(const std::shared_ptr<Control>& control,
                 std::this_thread::sleep_for(1ms);
             }
         }
-        if (stop.stop_requested() && epoch && cursor < frames) {
+        if (control->probeAfterStop && epoch && cursor < frames) {
+            // The port closes before the stop token is requested. Exercise
+            // the late publish even when the producer sees that closure first.
+            std::condition_variable_any stopping;
+            std::unique_lock lock(control->mutex);
+            stopping.wait(lock, stop, [] { return false; });
+            lock.unlock();
             LiveStemBuffer::Packet late{sourceId, epoch, cursor, 1, cursor + 1 == frames, {}};
             for (std::size_t role = 0; role < 4; ++role) late.stems[role] = std::span(pcm[role]).first(2);
             control->afterStopPublish.store(int(port.tryPublish(late)));
@@ -159,6 +167,7 @@ void primeHandoffFixture(PreparedPlayback& owner, const Control& state, const ch
 void reserveCancellationAndExactTail()
 {
     auto state = std::make_shared<Control>();
+    state->probeAfterStop = true;
     state->allowance = PreparedPlayback::liveReserveFrames - 1;
     auto owner = PreparedPlayback::makeLive(101, totalFrames, producer(state));
     require(owner && owner->isLive(), "Live factory did not return its whole owner");
